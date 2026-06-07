@@ -597,12 +597,21 @@ LIMIT 5`,
         },
         {
           title: 'STRFTIME for date grouping',
-          body: "STRFTIME extracts parts of a date string. '%Y' gives the 4-digit year, '%Y-%m' gives year-month. Use it in GROUP BY to aggregate by time period.",
-          code: `SELECT STRFTIME('%Y-%m', ordered_at) AS month,
+          body: "STRFTIME(format, column) extracts a formatted string from a date. Common formats: '%Y' = 4-digit year, '%m' = month number, '%Y-%m' = year-month. The result is a string you can GROUP BY like any column.",
+          code: `-- Group by year
+SELECT STRFTIME('%Y', ordered_at) AS year,
        COUNT(*) AS order_count
 FROM orders
+GROUP BY year
+
+-- Group by year-month
+SELECT STRFTIME('%Y-%m', ordered_at) AS month,
+       ROUND(SUM(quantity * unit_price), 2) AS revenue
+FROM orders
+JOIN order_items ON orders.id = order_items.order_id
 GROUP BY month
 ORDER BY month`,
+          note: "The alias created by STRFTIME (e.g. year or month) can be used directly in GROUP BY and ORDER BY.",
         },
         {
           title: 'ORDER BY on aggregated results',
@@ -695,9 +704,9 @@ ORDER BY avg_salary DESC`,
       },
       {
         id: 'gb-14',
-        prompt: "Find the average salary per hiring year. Extract the year from hired_at using STRFTIME('%Y', hired_at). Label it hire_year. Order by year ascending.",
+        prompt: "Find the average salary per hiring year. Extract the year from hired_at using STRFTIME('%Y', hired_at) and label it hire_year. Round the average to 0 decimals using ROUND() and label it avg_salary. Order by year ascending.",
         solution: "SELECT STRFTIME('%Y', hired_at) AS hire_year, ROUND(AVG(salary), 0) AS avg_salary FROM employees GROUP BY hire_year ORDER BY hire_year ASC",
-        hint: "STRFTIME('%Y', date_column) extracts the 4-digit year.",
+        hint: "STRFTIME('%Y', date_column) extracts the 4-digit year. ROUND(AVG(salary), 0) rounds to the nearest integer.",
       },
       {
         id: 'gb-15',
