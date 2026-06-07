@@ -1,0 +1,75 @@
+@import "tailwindcss";
+
+* { box-sizing: border-box; }
+
+/* Catppuccin Mocha (dark) — default */
+:root {
+  --ctp-base:     #1e1e2e;
+  --ctp-mantle:   #181825;
+  --ctp-crust:    #11111b;
+  --ctp-surface0: #313244;
+  --ctp-surface1: #45475a;
+  --ctp-surface2: #585b70;
+  --ctp-overlay0: #6c7086;
+  --ctp-overlay1: #7f849c;
+  --ctp-text:     #cdd6f4;
+  --ctp-subtext1: #bac2de;
+  --ctp-subtext0: #a6adc8;
+  --ctp-blue:     #89b4fa;
+  --ctp-sapphire: #74c7ec;
+  --ctp-green:    #a6e3a1;
+  --ctp-red:      #f38ba8;
+  --ctp-yellow:   #f9e2af;
+  --ctp-peach:    #fab387;
+  --ctp-mauve:    #cba6f7;
+  --ctp-teal:     #94e2d5;
+  --ctp-btn-text: #1e1e2e;
+}
+
+/* Catppuccin Latte (light) */
+[data-theme="latte"] {
+  --ctp-base:     #eff1f5;
+  --ctp-mantle:   #e6e9ef;
+  --ctp-crust:    #dce0e8;
+  --ctp-surface0: #ccd0da;
+  --ctp-surface1: #bcc0cc;
+  --ctp-surface2: #acb0be;
+  --ctp-overlay0: #9ca0b0;
+  --ctp-overlay1: #8c8fa1;
+  --ctp-text:     #4c4f69;
+  --ctp-subtext1: #5c5f77;
+  --ctp-subtext0: #6c6f85;
+  --ctp-blue:     #1e66f5;
+  --ctp-sapphire: #209fb5;
+  --ctp-green:    #40a02b;
+  --ctp-red:      #d20f39;
+  --ctp-yellow:   #df8e1d;
+  --ctp-peach:    #fe640b;
+  --ctp-mauve:    #8839ef;
+  --ctp-teal:     #179299;
+  --ctp-btn-text: #eff1f5;
+}
+
+body {
+  margin: 0;
+  background: var(--ctp-base);
+  color: var(--ctp-text);
+  font-family: system-ui, 'Segoe UI', sans-serif;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+/* SQL syntax highlighting — Catppuccin tokens */
+.token.keyword   { color: var(--ctp-mauve); font-weight: 600; }
+.token.function  { color: var(--ctp-blue); }
+.token.string    { color: var(--ctp-green); }
+.token.number    { color: var(--ctp-peach); }
+.token.boolean   { color: var(--ctp-peach); }
+.token.operator  { color: var(--ctp-teal); }
+.token.punctuation { color: var(--ctp-overlay1); }
+.token.comment   { color: var(--ctp-overlay0); font-style: italic; }
+
+/* Editor wrapper focus ring */
+.sql-editor-wrapper:focus-within {
+  border-color: var(--ctp-blue) !important;
+  box-shadow: 0 0 0 1px var(--ctp-blue);
+}
