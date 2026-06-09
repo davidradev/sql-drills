@@ -150,41 +150,40 @@ export default function ExercisePanel({ exercise, runQuery, onNext, onPrev, curr
       </div>
 
       {/* Action buttons */}
-      <div className="flex gap-2 flex-wrap items-center">
-        <button
-          onClick={handleRun}
-          disabled={!query.trim()}
-          className="px-5 py-2 rounded-lg text-sm font-semibold transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-          style={{ background: 'var(--ctp-blue)', color: 'var(--ctp-btn-text)' }}
-        >
-          Run Query
-        </button>
-
-        <button
-          onClick={() => setShowHint(!showHint)}
-          className="px-4 py-2 rounded-lg text-sm transition-colors cursor-pointer"
-          style={{ background: 'var(--ctp-surface0)', color: 'var(--ctp-subtext1)', border: '1px solid var(--ctp-surface1)' }}
-          onMouseEnter={e => e.currentTarget.style.background = 'var(--ctp-surface1)'}
-          onMouseLeave={e => e.currentTarget.style.background = 'var(--ctp-surface0)'}
-        >
-          {showHint ? 'Hide Hint' : 'Hint'}
-        </button>
-
-        <button
-          onClick={() => setShowSolution(!showSolution)}
-          className="px-4 py-2 rounded-lg text-sm transition-colors cursor-pointer"
-          style={{ background: 'var(--ctp-surface0)', color: 'var(--ctp-subtext1)', border: '1px solid var(--ctp-surface1)' }}
-          onMouseEnter={e => e.currentTarget.style.background = 'var(--ctp-surface1)'}
-          onMouseLeave={e => e.currentTarget.style.background = 'var(--ctp-surface0)'}
-        >
-          {showSolution ? 'Hide Solution' : 'Solution'}
-        </button>
-
-        <div className="ml-auto flex gap-2">
+      <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+        <div className="flex gap-2">
+          <button
+            onClick={handleRun}
+            disabled={!query.trim()}
+            className="flex-1 sm:flex-none px-5 py-2 rounded-lg text-sm font-semibold transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+            style={{ background: 'var(--ctp-blue)', color: 'var(--ctp-btn-text)' }}
+          >
+            Run Query
+          </button>
+          <button
+            onClick={() => setShowHint(!showHint)}
+            className="px-4 py-2 rounded-lg text-sm transition-colors cursor-pointer"
+            style={{ background: 'var(--ctp-surface0)', color: 'var(--ctp-subtext1)', border: '1px solid var(--ctp-surface1)' }}
+            onMouseEnter={e => e.currentTarget.style.background = 'var(--ctp-surface1)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'var(--ctp-surface0)'}
+          >
+            {showHint ? 'Hide Hint' : 'Hint'}
+          </button>
+          <button
+            onClick={() => setShowSolution(!showSolution)}
+            className="px-4 py-2 rounded-lg text-sm transition-colors cursor-pointer"
+            style={{ background: 'var(--ctp-surface0)', color: 'var(--ctp-subtext1)', border: '1px solid var(--ctp-surface1)' }}
+            onMouseEnter={e => e.currentTarget.style.background = 'var(--ctp-surface1)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'var(--ctp-surface0)'}
+          >
+            {showSolution ? 'Hide Solution' : 'Solution'}
+          </button>
+        </div>
+        <div className="flex gap-2 sm:ml-auto">
           <button
             onClick={goPrev}
             disabled={current <= 1}
-            className="px-4 py-2 rounded-lg text-sm transition-colors cursor-pointer disabled:opacity-30"
+            className="flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm transition-colors cursor-pointer disabled:opacity-30"
             style={{ background: 'var(--ctp-surface0)', color: 'var(--ctp-subtext1)', border: '1px solid var(--ctp-surface1)' }}
             onMouseEnter={e => { if (current > 1) e.currentTarget.style.background = 'var(--ctp-surface1)'; }}
             onMouseLeave={e => e.currentTarget.style.background = 'var(--ctp-surface0)'}
@@ -194,7 +193,7 @@ export default function ExercisePanel({ exercise, runQuery, onNext, onPrev, curr
           <button
             onClick={goNext}
             disabled={current >= total}
-            className="px-4 py-2 rounded-lg text-sm transition-colors cursor-pointer disabled:opacity-30"
+            className="flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm transition-colors cursor-pointer disabled:opacity-30"
             style={{ background: 'var(--ctp-surface0)', color: 'var(--ctp-subtext1)', border: '1px solid var(--ctp-surface1)' }}
             onMouseEnter={e => { if (current < total) e.currentTarget.style.background = 'var(--ctp-surface1)'; }}
             onMouseLeave={e => e.currentTarget.style.background = 'var(--ctp-surface0)'}

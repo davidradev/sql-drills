@@ -2,7 +2,7 @@ import { useState } from 'react';
 import SchemaDiagram from './SchemaDiagram';
 import { TABLES } from '../data/schema';
 
-export default function SchemaPanel({ theme, onOpenReference }) {
+export default function SchemaPanel({ theme, onOpenReference, onClose }) {
   const [showDiagram, setShowDiagram] = useState(false);
 
   return (
@@ -16,7 +16,18 @@ export default function SchemaPanel({ theme, onOpenReference }) {
           >
             Schema
           </h3>
-          <div className="flex gap-1.5">
+          <div className="flex gap-1.5 items-center">
+            {onClose && (
+              <button
+                onClick={onClose}
+                className="lg:hidden w-6 h-6 flex items-center justify-center rounded text-xs cursor-pointer transition-colors"
+                style={{ background: 'var(--ctp-surface0)', color: 'var(--ctp-subtext1)' }}
+                onMouseEnter={e => e.currentTarget.style.background = 'var(--ctp-surface1)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'var(--ctp-surface0)'}
+              >
+                ✕
+              </button>
+            )}
             <button
               onClick={onOpenReference}
               className="text-xs px-2 py-1 rounded cursor-pointer transition-colors"
