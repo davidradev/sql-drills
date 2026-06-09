@@ -54,7 +54,7 @@ body {
   margin: 0;
   background: var(--ctp-base);
   color: var(--ctp-text);
-  font-family: system-ui, 'Segoe UI', sans-serif;
+  font-family: 'IBM Plex Mono', 'Inconsolata', monospace;
   transition: background-color 0.15s, color 0.15s;
 }
 

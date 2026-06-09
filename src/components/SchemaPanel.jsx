@@ -1,60 +1,8 @@
 import { useState } from 'react';
 import SchemaDiagram from './SchemaDiagram';
+import { TABLES } from '../data/schema';
 
-const TABLES = [
-  {
-    name: 'customers',
-    columns: [
-      { name: 'id',            type: 'INTEGER', pk: true },
-      { name: 'name',          type: 'TEXT' },
-      { name: 'city',          type: 'TEXT' },
-      { name: 'country',       type: 'TEXT' },
-      { name: 'registered_at', type: 'DATE' },
-    ],
-  },
-  {
-    name: 'products',
-    columns: [
-      { name: 'id',       type: 'INTEGER', pk: true },
-      { name: 'name',     type: 'TEXT' },
-      { name: 'category', type: 'TEXT' },
-      { name: 'price',    type: 'REAL' },
-      { name: 'stock',    type: 'INTEGER' },
-    ],
-  },
-  {
-    name: 'employees',
-    columns: [
-      { name: 'id',         type: 'INTEGER', pk: true },
-      { name: 'name',       type: 'TEXT' },
-      { name: 'department', type: 'TEXT' },
-      { name: 'salary',     type: 'REAL' },
-      { name: 'manager_id', type: 'INTEGER', fk: 'employees' },
-      { name: 'hired_at',   type: 'DATE' },
-    ],
-  },
-  {
-    name: 'orders',
-    columns: [
-      { name: 'id',          type: 'INTEGER', pk: true },
-      { name: 'customer_id', type: 'INTEGER', fk: 'customers' },
-      { name: 'status',      type: 'TEXT' },
-      { name: 'ordered_at',  type: 'DATE' },
-    ],
-  },
-  {
-    name: 'order_items',
-    columns: [
-      { name: 'id',         type: 'INTEGER', pk: true },
-      { name: 'order_id',   type: 'INTEGER', fk: 'orders' },
-      { name: 'product_id', type: 'INTEGER', fk: 'products' },
-      { name: 'quantity',   type: 'INTEGER' },
-      { name: 'unit_price', type: 'REAL' },
-    ],
-  },
-];
-
-export default function SchemaPanel({ theme }) {
+export default function SchemaPanel({ theme, onOpenReference }) {
   const [showDiagram, setShowDiagram] = useState(false);
 
   return (
@@ -68,19 +16,34 @@ export default function SchemaPanel({ theme }) {
           >
             Schema
           </h3>
-          <button
-            onClick={() => setShowDiagram(true)}
-            className="text-xs px-2 py-1 rounded cursor-pointer transition-colors"
-            style={{
-              background: 'var(--ctp-surface0)',
-              color: 'var(--ctp-blue)',
-              border: '1px solid var(--ctp-surface1)',
-            }}
-            onMouseEnter={e => e.currentTarget.style.background = 'var(--ctp-surface1)'}
-            onMouseLeave={e => e.currentTarget.style.background = 'var(--ctp-surface0)'}
-          >
-            ER Diagram
-          </button>
+          <div className="flex gap-1.5">
+            <button
+              onClick={onOpenReference}
+              className="text-xs px-2 py-1 rounded cursor-pointer transition-colors"
+              style={{
+                background: 'var(--ctp-surface0)',
+                color: 'var(--ctp-mauve)',
+                border: '1px solid var(--ctp-surface1)',
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = 'var(--ctp-surface1)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'var(--ctp-surface0)'}
+            >
+              Full Reference
+            </button>
+            <button
+              onClick={() => setShowDiagram(true)}
+              className="text-xs px-2 py-1 rounded cursor-pointer transition-colors"
+              style={{
+                background: 'var(--ctp-surface0)',
+                color: 'var(--ctp-blue)',
+                border: '1px solid var(--ctp-surface1)',
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = 'var(--ctp-surface1)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'var(--ctp-surface0)'}
+            >
+              ER Diagram
+            </button>
+          </div>
         </div>
 
         {/* Legend */}
@@ -102,12 +65,17 @@ export default function SchemaPanel({ theme }) {
             className="rounded-lg overflow-hidden"
             style={{ border: '1px solid var(--ctp-surface1)', background: 'var(--ctp-surface0)' }}
           >
-            {/* Table name */}
+            {/* Table name + desc */}
             <div
-              className="px-3 py-1.5 font-mono text-xs font-semibold"
-              style={{ background: 'var(--ctp-surface1)', color: 'var(--ctp-blue)' }}
+              className="px-3 py-2"
+              style={{ background: 'var(--ctp-surface1)' }}
             >
-              {table.name}
+              <div className="font-mono text-xs font-semibold" style={{ color: 'var(--ctp-blue)' }}>
+                {table.name}
+              </div>
+              <div className="text-[10px] mt-0.5 leading-tight" style={{ color: 'var(--ctp-overlay1)' }}>
+                {table.desc}
+              </div>
             </div>
 
             {/* Columns */}
@@ -116,9 +84,8 @@ export default function SchemaPanel({ theme }) {
                 <div
                   key={col.name}
                   className="px-3 py-1.5 flex items-center justify-between gap-2 min-w-0"
-                  style={{
-                    borderTop: i > 0 ? '1px solid var(--ctp-surface1)' : 'none',
-                  }}
+                  style={{ borderTop: i > 0 ? '1px solid var(--ctp-surface1)' : 'none' }}
+                  title={col.desc}
                 >
                   {/* Name + badge */}
                   <div className="flex items-center gap-1.5 min-w-0 flex-1">

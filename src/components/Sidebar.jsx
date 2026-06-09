@@ -3,7 +3,7 @@ import { TOPICS } from '../data/exercises';
 export default function Sidebar({ activeTopic, onSelectTopic, progress, theme, onToggleTheme }) {
   return (
     <aside
-      className="w-64 shrink-0 h-screen sticky top-0 overflow-y-auto flex flex-col"
+      className="w-64 shrink-0 sticky top-0 self-start flex flex-col"
       style={{ background: 'var(--ctp-mantle)', borderRight: '1px solid var(--ctp-surface1)' }}
     >
       {/* Header */}

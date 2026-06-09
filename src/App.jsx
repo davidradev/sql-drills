@@ -5,6 +5,7 @@ import Sidebar from './components/Sidebar';
 import ExercisePanel from './components/ExercisePanel';
 import SchemaPanel from './components/SchemaPanel';
 import ExamplePanel from './components/ExamplePanel';
+import SchemaReferencePage from './components/SchemaReferencePage';
 
 export default function App() {
   const { ready, error, runQuery } = useDatabase();
@@ -18,6 +19,7 @@ export default function App() {
     }
   });
   const [theme, setTheme] = useState('mocha');
+  const [showSchemaRef, setShowSchemaRef] = useState(false);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -105,10 +107,14 @@ export default function App() {
           className="w-72 shrink-0 overflow-y-auto overflow-x-hidden p-4"
           style={{ background: 'var(--ctp-mantle)', borderLeft: '1px solid var(--ctp-surface1)' }}
         >
-          <SchemaPanel theme={theme} />
+          <SchemaPanel theme={theme} onOpenReference={() => setShowSchemaRef(true)} />
         </div>
       </main>
       </div>
+
+      {showSchemaRef && (
+        <SchemaReferencePage theme={theme} onClose={() => setShowSchemaRef(false)} />
+      )}
 
       <footer
         className="w-full flex flex-col items-center gap-2 py-5 text-xs"
