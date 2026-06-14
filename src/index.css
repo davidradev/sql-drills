@@ -68,8 +68,13 @@ body {
 .token.punctuation { color: var(--ctp-overlay1); }
 .token.comment   { color: var(--ctp-overlay0); font-style: italic; }
 
-/* Editor wrapper focus ring */
+/* Editor wrapper focus rings */
 .sql-editor-wrapper:focus-within {
   border-color: var(--ctp-blue) !important;
   box-shadow: 0 0 0 1px var(--ctp-blue);
+}
+
+.py-editor-wrapper:focus-within {
+  border-color: var(--ctp-green) !important;
+  box-shadow: 0 0 0 1px var(--ctp-green);
 }

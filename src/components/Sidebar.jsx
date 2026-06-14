@@ -1,6 +1,6 @@
 import { TOPICS } from '../data/exercises';
 
-export default function Sidebar({ activeTopic, onSelectTopic, progress, theme, onToggleTheme, onClose }) {
+export default function Sidebar({ activeTopic, onSelectTopic, progress, theme, onToggleTheme, onClose, onGoHome }) {
   return (
     <aside
       className="w-64 h-full flex flex-col overflow-y-auto"
@@ -9,7 +9,14 @@ export default function Sidebar({ activeTopic, onSelectTopic, progress, theme, o
       {/* Header */}
       <div className="px-5 py-4 flex items-center justify-between gap-2 shrink-0" style={{ borderBottom: '1px solid var(--ctp-surface1)' }}>
         <div className="min-w-0">
-          <h1 className="text-base font-bold m-0 truncate" style={{ color: 'var(--ctp-text)' }}>SQL Drills</h1>
+          <button
+            onClick={onGoHome}
+            className="text-base font-bold m-0 truncate cursor-pointer text-left w-full"
+            style={{ color: 'var(--ctp-text)', background: 'none', border: 'none', padding: 0 }}
+            title="Back to home"
+          >
+            SQL Drills
+          </button>
           <p className="text-xs mt-0.5 m-0" style={{ color: 'var(--ctp-overlay0)' }}>Data Engineer Track</p>
         </div>
         <div className="flex items-center gap-2 shrink-0">

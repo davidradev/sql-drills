@@ -6,34 +6,26 @@ import ExercisePanel from './components/ExercisePanel';
 import SchemaPanel from './components/SchemaPanel';
 import ExamplePanel from './components/ExamplePanel';
 import SchemaReferencePage from './components/SchemaReferencePage';
+import PythonApp from './components/PythonApp';
+import HomeScreen from './components/HomeScreen';
 
-export default function App() {
+function SQLApp({ theme, onToggleTheme, onGoHome }) {
   const { ready, error, runQuery } = useDatabase();
   const [activeTopicId, setActiveTopicId] = useState(TOPICS[0].id);
   const [exerciseIndex, setExerciseIndex] = useState(0);
   const [progress, setProgress] = useState(() => {
-    try {
-      return JSON.parse(localStorage.getItem('sql-drills-progress')) ?? {};
-    } catch {
-      return {};
-    }
+    try { return JSON.parse(localStorage.getItem('sql-drills-progress')) ?? {}; }
+    catch { return {}; }
   });
-  const [theme, setTheme] = useState('mocha');
   const [showSchemaRef, setShowSchemaRef] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
   const [schemaOpen, setSchemaOpen] = useState(false);
 
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-  }, [theme]);
-
-  const topic = TOPICS.find((t) => t.id === activeTopicId);
+  const topic = TOPICS.find(t => t.id === activeTopicId);
   const exercise = topic.exercises[exerciseIndex];
 
-  // Track progress whenever the active exercise changes.
-  // Using exerciseIndex + 1 so reaching the last exercise counts as full completion.
   useEffect(() => {
-    setProgress((p) => {
+    setProgress(p => {
       const reached = exerciseIndex + 1;
       if ((p[activeTopicId] || 0) >= reached) return p;
       const updated = { ...p, [activeTopicId]: reached };
@@ -42,37 +34,22 @@ export default function App() {
     });
   }, [activeTopicId, exerciseIndex]);
 
-  function handleSelectTopic(id) {
-    setActiveTopicId(id);
-    setExerciseIndex(0);
-  }
+  function handleSelectTopic(id) { setActiveTopicId(id); setExerciseIndex(0); }
+  function handleNext() { if (exerciseIndex + 1 < topic.exercises.length) setExerciseIndex(exerciseIndex + 1); }
+  function handlePrev() { if (exerciseIndex > 0) setExerciseIndex(exerciseIndex - 1); }
 
-  function handleNext() {
-    if (exerciseIndex + 1 < topic.exercises.length) {
-      setExerciseIndex(exerciseIndex + 1);
-    }
-  }
+  if (error) return (
+    <div className="flex items-center justify-center h-screen" style={{ color: 'var(--ctp-red)' }}>
+      Failed to load database: {error}
+    </div>
+  );
 
-  function handlePrev() {
-    if (exerciseIndex > 0) setExerciseIndex(exerciseIndex - 1);
-  }
-
-  if (error) {
-    return (
-      <div className="flex items-center justify-center h-screen" style={{ color: 'var(--ctp-red)' }}>
-        Failed to load database: {error}
-      </div>
-    );
-  }
-
-  if (!ready) {
-    return (
-      <div className="flex items-center justify-center h-screen gap-3" style={{ color: 'var(--ctp-subtext0)' }}>
-        <div className="w-5 h-5 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: 'var(--ctp-blue)', borderTopColor: 'transparent' }} />
-        Loading SQL engine...
-      </div>
-    );
-  }
+  if (!ready) return (
+    <div className="flex items-center justify-center h-screen gap-3" style={{ color: 'var(--ctp-subtext0)' }}>
+      <div className="w-5 h-5 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: 'var(--ctp-blue)', borderTopColor: 'transparent' }} />
+      Loading SQL engine...
+    </div>
+  );
 
   return (
     <div className="flex flex-col min-h-screen" style={{ background: 'var(--ctp-base)' }}>
@@ -94,7 +71,13 @@ export default function App() {
           </svg>
           Topics
         </button>
-        <span className="text-sm font-bold" style={{ color: 'var(--ctp-text)' }}>SQL Drills</span>
+        <button
+          onClick={onGoHome}
+          className="text-sm font-bold cursor-pointer"
+          style={{ color: 'var(--ctp-text)', background: 'none', border: 'none' }}
+        >
+          SQL Drills
+        </button>
         <button
           onClick={() => setSchemaOpen(true)}
           className="flex items-center gap-2 text-sm px-3 py-1.5 rounded-lg cursor-pointer transition-colors"
@@ -120,7 +103,7 @@ export default function App() {
 
       <div className="flex flex-1 min-h-0">
 
-        {/* Sidebar — drawer on mobile, static on desktop */}
+        {/* Sidebar */}
         <div
           className={`fixed inset-y-0 left-0 z-40 transition-transform duration-200 lg:relative lg:inset-auto lg:z-auto lg:shrink-0 lg:translate-x-0 ${navOpen ? 'translate-x-0' : '-translate-x-full'}`}
         >
@@ -129,8 +112,9 @@ export default function App() {
             onSelectTopic={handleSelectTopic}
             progress={progress}
             theme={theme}
-            onToggleTheme={() => setTheme(t => t === 'mocha' ? 'latte' : 'mocha')}
+            onToggleTheme={onToggleTheme}
             onClose={() => setNavOpen(false)}
+            onGoHome={onGoHome}
           />
         </div>
 
@@ -153,7 +137,7 @@ export default function App() {
             </div>
           </div>
 
-          {/* Schema panel — drawer on mobile, static on desktop */}
+          {/* Schema panel */}
           <div
             className={`fixed inset-y-0 right-0 z-40 w-72 overflow-y-auto overflow-x-hidden p-4 transition-transform duration-200 lg:relative lg:inset-auto lg:z-auto lg:shrink-0 lg:translate-x-0 ${schemaOpen ? 'translate-x-0' : 'translate-x-full'}`}
             style={{ background: 'var(--ctp-mantle)', borderLeft: '1px solid var(--ctp-surface1)' }}
@@ -165,7 +149,6 @@ export default function App() {
             />
           </div>
         </main>
-
       </div>
 
       {showSchemaRef && (
@@ -174,21 +157,13 @@ export default function App() {
 
       <footer
         className="w-full flex flex-col items-center gap-2 py-5 text-xs"
-        style={{
-          borderTop: '1px solid var(--ctp-surface1)',
-          background: 'var(--ctp-mantle)',
-          color: 'var(--ctp-overlay0)',
-        }}
+        style={{ borderTop: '1px solid var(--ctp-surface1)', background: 'var(--ctp-mantle)', color: 'var(--ctp-overlay0)' }}
       >
         <span>Developed by <span style={{ color: 'var(--ctp-subtext1)', fontWeight: 600 }}>David Rosales</span></span>
         <span style={{ color: 'var(--ctp-surface2)' }}>React · Vite · SQL.js · Tailwind CSS · Prism.js</span>
         <div className="flex items-center gap-4 flex-wrap justify-center">
-          <a
-            href="https://www.davidra.dev"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1.5 transition-colors"
-            style={{ color: 'var(--ctp-overlay1)' }}
+          <a href="https://www.davidra.dev" target="_blank" rel="noopener noreferrer"
+            className="flex items-center gap-1.5 transition-colors" style={{ color: 'var(--ctp-overlay1)' }}
             onMouseEnter={e => e.currentTarget.style.color = 'var(--ctp-text)'}
             onMouseLeave={e => e.currentTarget.style.color = 'var(--ctp-overlay1)'}
           >
@@ -198,12 +173,8 @@ export default function App() {
             </svg>
             davidra.dev
           </a>
-          <a
-            href="https://github.com/davidradev"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1.5 transition-colors"
-            style={{ color: 'var(--ctp-overlay1)' }}
+          <a href="https://github.com/davidradev" target="_blank" rel="noopener noreferrer"
+            className="flex items-center gap-1.5 transition-colors" style={{ color: 'var(--ctp-overlay1)' }}
             onMouseEnter={e => e.currentTarget.style.color = 'var(--ctp-text)'}
             onMouseLeave={e => e.currentTarget.style.color = 'var(--ctp-overlay1)'}
           >
@@ -212,12 +183,8 @@ export default function App() {
             </svg>
             GitHub
           </a>
-          <a
-            href="https://www.linkedin.com/in/davidradev"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1.5 transition-colors"
-            style={{ color: 'var(--ctp-overlay1)' }}
+          <a href="https://www.linkedin.com/in/davidradev" target="_blank" rel="noopener noreferrer"
+            className="flex items-center gap-1.5 transition-colors" style={{ color: 'var(--ctp-overlay1)' }}
             onMouseEnter={e => e.currentTarget.style.color = 'var(--ctp-text)'}
             onMouseLeave={e => e.currentTarget.style.color = 'var(--ctp-overlay1)'}
           >
@@ -234,8 +201,8 @@ export default function App() {
               border: '1px solid color-mix(in srgb, var(--ctp-blue) 35%, transparent)',
               color: 'var(--ctp-blue)',
             }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'color-mix(in srgb, var(--ctp-blue) 25%, transparent)'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'color-mix(in srgb, var(--ctp-blue) 15%, transparent)'; }}
+            onMouseEnter={e => e.currentTarget.style.background = 'color-mix(in srgb, var(--ctp-blue) 25%, transparent)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'color-mix(in srgb, var(--ctp-blue) 15%, transparent)'}
           >
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
@@ -247,4 +214,25 @@ export default function App() {
       </footer>
     </div>
   );
+}
+
+export default function App() {
+  const [mode, setMode] = useState('home'); // 'home' | 'sql' | 'python'
+  const [theme, setTheme] = useState('mocha');
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
+
+  function toggleTheme() { setTheme(t => t === 'mocha' ? 'latte' : 'mocha'); }
+
+  if (mode === 'python') {
+    return <PythonApp theme={theme} onToggleTheme={toggleTheme} onGoHome={() => setMode('home')} />;
+  }
+
+  if (mode === 'sql') {
+    return <SQLApp theme={theme} onToggleTheme={toggleTheme} onGoHome={() => setMode('home')} />;
+  }
+
+  return <HomeScreen onSelectMode={setMode} theme={theme} onToggleTheme={toggleTheme} />;
 }
