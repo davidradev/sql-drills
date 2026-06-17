@@ -54,4 +54,39 @@ export const TABLES = [
       { name: 'unit_price', type: 'REAL',                         desc: 'Price per unit at the time of purchase. May differ from the current products.price.' },
     ],
   },
+  {
+    name: 'properties',
+    desc: 'Short-term rental properties listed on booking channels (Airbnb, VRBO, etc.).',
+    columns: [
+      { name: 'id',      type: 'INTEGER', pk: true, desc: 'Unique property identifier.' },
+      { name: 'name',    type: 'TEXT',              desc: 'Name of the property listing.' },
+      { name: 'type',    type: 'TEXT',              desc: "Property type: 'studio', 'apartment', 'villa', or 'house'." },
+      { name: 'city',    type: 'TEXT',              desc: 'City where the property is located.' },
+      { name: 'country', type: 'TEXT',              desc: 'Country where the property is located.' },
+      { name: 'beds',    type: 'INTEGER',           desc: 'Number of bedrooms.' },
+    ],
+  },
+  {
+    name: 'channels',
+    desc: 'OTA distribution channels through which properties are booked.',
+    columns: [
+      { name: 'id',             type: 'INTEGER', pk: true, desc: 'Unique channel identifier.' },
+      { name: 'name',           type: 'TEXT',              desc: "Channel name: 'Airbnb', 'Booking.com', 'VRBO', 'Direct', 'Expedia'." },
+      { name: 'commission_pct', type: 'REAL',              desc: 'Commission percentage charged by the channel on each booking.' },
+    ],
+  },
+  {
+    name: 'reservations',
+    desc: 'Guest bookings at properties. Each row is one stay with check-in and check-out dates.',
+    columns: [
+      { name: 'id',            type: 'TEXT',    pk: true,             desc: "Reservation ID (e.g. 'R001')." },
+      { name: 'property_id',   type: 'INTEGER', fk: 'properties',    desc: 'The property being booked.' },
+      { name: 'channel_id',    type: 'INTEGER', fk: 'channels',      desc: 'The OTA channel through which the booking was made.' },
+      { name: 'check_in',      type: 'DATE',                         desc: 'First night of the stay (arrival date).' },
+      { name: 'check_out',     type: 'DATE',                         desc: 'Day of departure (not an overnight stay — the last night is check_out - 1 day).' },
+      { name: 'guests',        type: 'INTEGER',                      desc: 'Number of guests in the reservation.' },
+      { name: 'total_revenue', type: 'REAL',                         desc: 'Total booking revenue before channel commission.' },
+      { name: 'status',        type: 'TEXT',                         desc: "Booking status: 'confirmed' or 'cancelled'." },
+    ],
+  },
 ];

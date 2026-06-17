@@ -41,6 +41,34 @@ CREATE TABLE order_items (
   FOREIGN KEY (order_id) REFERENCES orders(id),
   FOREIGN KEY (product_id) REFERENCES products(id)
 );
+
+CREATE TABLE properties (
+  id INTEGER PRIMARY KEY,
+  name TEXT NOT NULL,
+  type TEXT NOT NULL,
+  city TEXT NOT NULL,
+  country TEXT NOT NULL,
+  beds INTEGER NOT NULL
+);
+
+CREATE TABLE channels (
+  id INTEGER PRIMARY KEY,
+  name TEXT NOT NULL,
+  commission_pct REAL NOT NULL
+);
+
+CREATE TABLE reservations (
+  id TEXT PRIMARY KEY,
+  property_id INTEGER NOT NULL,
+  channel_id INTEGER NOT NULL,
+  check_in DATE NOT NULL,
+  check_out DATE NOT NULL,
+  guests INTEGER NOT NULL,
+  total_revenue REAL NOT NULL,
+  status TEXT NOT NULL,
+  FOREIGN KEY (property_id) REFERENCES properties(id),
+  FOREIGN KEY (channel_id) REFERENCES channels(id)
+);
 `;
 
 export const SEED = `
@@ -188,4 +216,48 @@ INSERT INTO order_items VALUES
 (38,28,5,1,349.99),
 (39,29,11,20,4.99),
 (40,30,1,1,1299.99);
+
+INSERT INTO properties VALUES
+(1,'Sunset Studio','studio','Barcelona','Spain',1),
+(2,'Old Town Flat','apartment','Barcelona','Spain',2),
+(3,'Beach Villa','villa','Marbella','Spain',4),
+(4,'City Loft','apartment','Madrid','Spain',2),
+(5,'Mountain Cabin','house','Andorra','Andorra',3),
+(6,'Marina View Apt','apartment','Valencia','Spain',2),
+(7,'Penthouse BCN','apartment','Barcelona','Spain',3),
+(8,'Mas Rural','house','Girona','Spain',5);
+
+INSERT INTO channels VALUES
+(1,'Airbnb',3.0),
+(2,'Booking.com',15.0),
+(3,'VRBO',5.0),
+(4,'Direct',0.0),
+(5,'Expedia',12.0);
+
+INSERT INTO reservations VALUES
+('R001',1,1,'2024-01-05','2024-01-08',1,360.0,'confirmed'),
+('R002',2,4,'2024-01-10','2024-01-15',2,800.0,'confirmed'),
+('R003',3,3,'2024-01-12','2024-01-19',4,2450.0,'confirmed'),
+('R004',4,2,'2024-01-20','2024-01-23',2,420.0,'confirmed'),
+('R005',7,1,'2024-01-25','2024-01-28',2,840.0,'cancelled'),
+('R006',1,2,'2024-02-02','2024-02-05',1,390.0,'confirmed'),
+('R007',2,1,'2024-02-08','2024-02-15',3,1120.0,'confirmed'),
+('R008',3,1,'2024-02-14','2024-02-21',4,2800.0,'confirmed'),
+('R009',5,4,'2024-02-16','2024-02-23',3,910.0,'confirmed'),
+('R010',4,4,'2024-02-20','2024-02-24',2,560.0,'confirmed'),
+('R011',6,2,'2024-03-01','2024-03-04',2,360.0,'confirmed'),
+('R012',7,4,'2024-03-05','2024-03-12',2,2100.0,'confirmed'),
+('R013',5,3,'2024-03-08','2024-03-15',4,910.0,'confirmed'),
+('R014',8,1,'2024-03-10','2024-03-14',5,1120.0,'confirmed'),
+('R015',3,2,'2024-03-15','2024-03-20',4,1750.0,'cancelled'),
+('R016',1,4,'2024-03-22','2024-03-25',1,450.0,'confirmed'),
+('R017',6,1,'2024-04-01','2024-04-06',2,700.0,'confirmed'),
+('R018',2,2,'2024-04-05','2024-04-10',2,850.0,'confirmed'),
+('R019',3,1,'2024-04-08','2024-04-15',4,2800.0,'confirmed'),
+('R020',7,5,'2024-04-10','2024-04-14',2,1160.0,'cancelled'),
+('R021',4,3,'2024-04-15','2024-04-22',3,1050.0,'confirmed'),
+('R022',8,4,'2024-04-20','2024-04-27',5,1960.0,'confirmed'),
+('R023',6,5,'2024-05-05','2024-05-10',2,700.0,'confirmed'),
+('R024',7,1,'2024-05-10','2024-05-17',3,2100.0,'confirmed'),
+('R025',8,2,'2024-05-18','2024-05-25',5,1960.0,'confirmed');
 `;

@@ -1636,4 +1636,143 @@ GROUP BY category`,
       },
     ],
   },
+  {
+    id: 'hospitality',
+    title: 'Hospitality Analytics',
+    description: 'Short-term rentals, OTA channels, ADR, and revenue attribution — Guesty interview prep',
+    lesson: {
+      intro: 'Guesty is a property management platform for short-term rentals (Airbnb, Booking.com, VRBO). Their data model revolves around properties, booking channels, and reservations. The signature interview question: "Calculate revenue in 3 ways — by first night, by last night, and distributed per night."',
+      concepts: [
+        {
+          title: 'Date arithmetic with JULIANDAY()',
+          body: 'SQLite has no DATEDIFF(). Use JULIANDAY() to subtract dates. A check_out of Jan 8 and check_in of Jan 5 = 3 nights. Cast to INTEGER to drop the decimal.',
+          code: `-- Number of nights for a booking
+SELECT id,
+       CAST(julianday(check_out) - julianday(check_in) AS INTEGER) AS nights
+FROM reservations
+
+-- Last night of a stay (the night before check_out)
+SELECT DATE(check_out, '-1 day') AS last_night
+FROM reservations`,
+        },
+        {
+          title: 'Average Daily Rate (ADR)',
+          body: "ADR = total revenue ÷ number of nights. It's the primary KPI for any short-term rental business. Use SUM(revenue) / SUM(nights) when aggregating across multiple properties (not AVG of ADRs).",
+          code: `SELECT p.type,
+       ROUND(SUM(r.total_revenue) / SUM(julianday(r.check_out) - julianday(r.check_in)), 2) AS adr
+FROM reservations r
+JOIN properties p ON r.property_id = p.id
+WHERE r.status = 'confirmed'
+GROUP BY p.type`,
+        },
+        {
+          title: 'Revenue attribution: 3 methods',
+          body: 'The same total revenue can be assigned to different dates depending on business rules. All three methods produce the same TOTAL, but a different date distribution — which matters for monthly P&L, forecasting, and occupancy analysis.',
+          code: `-- Method 1: attribute to the first night (check_in date)
+SELECT check_in AS date, SUM(total_revenue) AS revenue
+FROM reservations WHERE status = 'confirmed' GROUP BY check_in
+
+-- Method 2: attribute to the last night (day before check_out)
+SELECT DATE(check_out, '-1 day') AS date, SUM(total_revenue) AS revenue
+FROM reservations WHERE status = 'confirmed' GROUP BY DATE(check_out, '-1 day')
+
+-- Method 3: distribute evenly across every night (requires recursive CTE)`,
+        },
+        {
+          title: 'Recursive CTE — generate one row per night',
+          body: 'To distribute revenue per night, you need one row per night per reservation. A recursive CTE starts with the check_in date and adds +1 day until it reaches check_out. This is the hospitality equivalent of a calendar table join.',
+          code: `WITH RECURSIVE nights AS (
+  -- Base: one row per reservation, starting at check_in
+  SELECT id, check_in AS night, check_out,
+         total_revenue / CAST(julianday(check_out) - julianday(check_in) AS REAL) AS nightly_rev
+  FROM reservations WHERE status = 'confirmed'
+
+  UNION ALL
+
+  -- Recursive step: advance by one day while still before check_out
+  SELECT n.id, DATE(n.night, '+1 day'), n.check_out, n.nightly_rev
+  FROM nights n
+  WHERE DATE(n.night, '+1 day') < n.check_out
+)
+SELECT night, ROUND(SUM(nightly_rev), 2) AS revenue
+FROM nights
+GROUP BY night
+ORDER BY night`,
+        },
+        {
+          title: 'Conditional aggregation for rates',
+          body: 'Count rows meeting a condition inside a GROUP BY using SUM(CASE WHEN ... THEN 1 ELSE 0 END). This avoids a subquery when you need both the count and the total in the same row.',
+          code: `SELECT c.name AS channel,
+       COUNT(*) AS total_bookings,
+       SUM(CASE WHEN r.status = 'cancelled' THEN 1 ELSE 0 END) AS cancelled,
+       ROUND(100.0 * SUM(CASE WHEN r.status = 'cancelled' THEN 1 ELSE 0 END) / COUNT(*), 1) AS cancel_rate_pct
+FROM reservations r
+JOIN channels c ON r.channel_id = c.id
+GROUP BY c.name`,
+        },
+      ],
+    },
+    exercises: [
+      {
+        id: 'ha-01',
+        prompt: "Which booking channels are generating the most confirmed revenue? Show channel name, number of confirmed bookings (as bookings), and total revenue (as total_revenue), ordered from highest to lowest revenue.",
+        solution: "SELECT c.name AS channel, COUNT(r.id) AS bookings, ROUND(SUM(r.total_revenue), 2) AS total_revenue FROM reservations r JOIN channels c ON r.channel_id = c.id WHERE r.status = 'confirmed' GROUP BY c.id, c.name ORDER BY total_revenue DESC",
+        hint: "JOIN reservations with channels on channel_id. WHERE status = 'confirmed'. GROUP BY channel. SUM(total_revenue) and COUNT(id).",
+      },
+      {
+        id: 'ha-02',
+        prompt: "Show performance per property for confirmed bookings. Display property name (as property), type, city, number of stays, and total revenue. Order by total revenue descending.",
+        solution: "SELECT p.name AS property, p.type, p.city, COUNT(r.id) AS stays, ROUND(SUM(r.total_revenue), 2) AS total_revenue FROM reservations r JOIN properties p ON r.property_id = p.id WHERE r.status = 'confirmed' GROUP BY p.id ORDER BY total_revenue DESC",
+        hint: "JOIN reservations with properties. Filter confirmed. GROUP BY p.id to avoid duplicate names.",
+      },
+      {
+        id: 'ha-03',
+        prompt: "For each confirmed reservation, show: id, check_in, check_out, number of nights (as nights), and average nightly rate (as adr, rounded to 2 decimals). Order by adr descending, then by id ascending.",
+        solution: "SELECT id, check_in, check_out, CAST(julianday(check_out) - julianday(check_in) AS INTEGER) AS nights, ROUND(total_revenue / (julianday(check_out) - julianday(check_in)), 2) AS adr FROM reservations WHERE status = 'confirmed' ORDER BY adr DESC, id",
+        hint: "CAST(julianday(check_out) - julianday(check_in) AS INTEGER) gives nights. ADR = total_revenue / nights.",
+      },
+      {
+        id: 'ha-04',
+        prompt: "Show monthly revenue from confirmed bookings. Use check_in month, grouped as YYYY-MM (label it month). Show bookings count and total revenue. Order chronologically.",
+        solution: "SELECT STRFTIME('%Y-%m', check_in) AS month, COUNT(*) AS bookings, ROUND(SUM(total_revenue), 2) AS revenue FROM reservations WHERE status = 'confirmed' GROUP BY month ORDER BY month",
+        hint: "STRFTIME('%Y-%m', check_in) extracts the year-month. GROUP BY the alias. No JOIN needed.",
+      },
+      {
+        id: 'ha-05',
+        prompt: "Calculate the cancellation rate per channel. Show channel name, total bookings (all statuses), cancelled count, and cancel_rate_pct (as a percentage, rounded to 1 decimal). Order by cancellation rate descending, then channel name ascending.",
+        solution: "SELECT c.name AS channel, COUNT(*) AS total_bookings, SUM(CASE WHEN r.status = 'cancelled' THEN 1 ELSE 0 END) AS cancelled, ROUND(100.0 * SUM(CASE WHEN r.status = 'cancelled' THEN 1 ELSE 0 END) / COUNT(*), 1) AS cancel_rate_pct FROM reservations r JOIN channels c ON r.channel_id = c.id GROUP BY c.id, c.name ORDER BY cancel_rate_pct DESC, c.name",
+        hint: "No WHERE — include all statuses. SUM(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END) counts cancellations. Multiply by 100.0 (not 100) to avoid integer division.",
+      },
+      {
+        id: 'ha-06',
+        prompt: "Calculate the Average Daily Rate (ADR) by property type for confirmed bookings. ADR = total revenue ÷ total nights across all stays for that type. Show type, stays count, total_nights, and adr (rounded to 2 decimals). Order by adr descending.",
+        solution: "SELECT p.type, COUNT(r.id) AS stays, SUM(CAST(julianday(r.check_out) - julianday(r.check_in) AS INTEGER)) AS total_nights, ROUND(SUM(r.total_revenue) / SUM(julianday(r.check_out) - julianday(r.check_in)), 2) AS adr FROM reservations r JOIN properties p ON r.property_id = p.id WHERE r.status = 'confirmed' GROUP BY p.type ORDER BY adr DESC",
+        hint: "ADR for a group = SUM(revenue) / SUM(nights) — not AVG(adr per booking). SUM(julianday(out) - julianday(in)) gives total nights across all bookings.",
+      },
+      {
+        id: 'ha-07',
+        prompt: "Revenue attribution — Method 1 (First Night): Assign each confirmed booking's full revenue to its check_in date. Show revenue_date and revenue (rounded to 2 decimals), ordered chronologically.",
+        solution: "SELECT check_in AS revenue_date, ROUND(SUM(total_revenue), 2) AS revenue FROM reservations WHERE status = 'confirmed' GROUP BY check_in ORDER BY revenue_date",
+        hint: "The revenue_date is simply check_in. GROUP BY check_in. SUM total_revenue per date.",
+      },
+      {
+        id: 'ha-08',
+        prompt: "Revenue attribution — Method 2 (Last Night): Assign each confirmed booking's full revenue to its last night stayed (the day before check_out). Show revenue_date and revenue (rounded to 2 decimals), ordered chronologically.",
+        solution: "SELECT DATE(check_out, '-1 day') AS revenue_date, ROUND(SUM(total_revenue), 2) AS revenue FROM reservations WHERE status = 'confirmed' GROUP BY DATE(check_out, '-1 day') ORDER BY revenue_date",
+        hint: "Last night = DATE(check_out, '-1 day'). A check_out of Jan 8 means Jan 7 was the last night.",
+      },
+      {
+        id: 'ha-09',
+        prompt: "Revenue attribution — Method 3 (Per Night): Distribute each confirmed booking's revenue equally across all its nights using a recursive CTE. Show revenue_date and revenue (rounded to 2 decimals), ordered chronologically.",
+        solution: "WITH RECURSIVE nights AS (SELECT id, check_in AS night, check_out, total_revenue / CAST(julianday(check_out) - julianday(check_in) AS REAL) AS nightly_rev FROM reservations WHERE status = 'confirmed' UNION ALL SELECT n.id, DATE(n.night, '+1 day'), n.check_out, n.nightly_rev FROM nights n WHERE DATE(n.night, '+1 day') < n.check_out) SELECT night AS revenue_date, ROUND(SUM(nightly_rev), 2) AS revenue FROM nights GROUP BY night ORDER BY revenue_date",
+        hint: "Recursive CTE: base = one row per reservation at check_in. Recursive step: DATE(night, '+1 day') while that date < check_out. nightly_rev = total_revenue / CAST(julianday(out) - julianday(in) AS REAL).",
+      },
+      {
+        id: 'ha-10',
+        prompt: "The Guesty interview question: Calculate total confirmed revenue in 3 different ways — attributed to the first night, the last night, and distributed per night using a recursive CTE. Show method (as 'first_night', 'last_night', 'per_night') and total_revenue (rounded to 2 decimals). All three totals should be equal — that is the expected result.",
+        solution: "WITH RECURSIVE nights AS (SELECT id, check_in AS night, check_out, total_revenue / CAST(julianday(check_out) - julianday(check_in) AS REAL) AS nightly_rev FROM reservations WHERE status = 'confirmed' UNION ALL SELECT n.id, DATE(n.night, '+1 day'), n.check_out, n.nightly_rev FROM nights n WHERE DATE(n.night, '+1 day') < n.check_out) SELECT 'first_night' AS method, ROUND(SUM(total_revenue), 2) AS total_revenue FROM reservations WHERE status = 'confirmed' UNION ALL SELECT 'last_night', ROUND(SUM(total_revenue), 2) FROM reservations WHERE status = 'confirmed' UNION ALL SELECT 'per_night', ROUND(SUM(nightly_rev), 2) FROM nights ORDER BY method",
+        hint: "One WITH RECURSIVE CTE at the top for the per-night calculation. Three SELECT statements joined by UNION ALL: first_night and last_night both SUM from reservations directly; per_night SUMs from the nights CTE. ORDER BY method.",
+      },
+    ],
+  },
 ];
