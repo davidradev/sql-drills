@@ -69,6 +69,43 @@ CREATE TABLE reservations (
   FOREIGN KEY (property_id) REFERENCES properties(id),
   FOREIGN KEY (channel_id) REFERENCES channels(id)
 );
+
+CREATE TABLE glovo_restaurants (
+  id INTEGER PRIMARY KEY,
+  name TEXT NOT NULL,
+  category TEXT NOT NULL,
+  city TEXT NOT NULL,
+  rating REAL NOT NULL
+);
+
+CREATE TABLE glovo_couriers (
+  id INTEGER PRIMARY KEY,
+  name TEXT NOT NULL,
+  city TEXT NOT NULL,
+  vehicle TEXT NOT NULL
+);
+
+CREATE TABLE glovo_customers (
+  id INTEGER PRIMARY KEY,
+  city TEXT NOT NULL,
+  registered_at DATE NOT NULL,
+  premium INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE glovo_orders (
+  id TEXT PRIMARY KEY,
+  customer_id INTEGER NOT NULL,
+  restaurant_id INTEGER NOT NULL,
+  courier_id INTEGER NOT NULL,
+  city TEXT NOT NULL,
+  ordered_at TEXT NOT NULL,
+  delivered_at TEXT,
+  total_amount REAL NOT NULL,
+  status TEXT NOT NULL,
+  FOREIGN KEY (customer_id)   REFERENCES glovo_customers(id),
+  FOREIGN KEY (restaurant_id) REFERENCES glovo_restaurants(id),
+  FOREIGN KEY (courier_id)    REFERENCES glovo_couriers(id)
+);
 `;
 
 export const SEED = `
@@ -260,4 +297,51 @@ INSERT INTO reservations VALUES
 ('R023',6,5,'2024-05-05','2024-05-10',2,700.0,'confirmed'),
 ('R024',7,1,'2024-05-10','2024-05-17',3,2100.0,'confirmed'),
 ('R025',8,2,'2024-05-18','2024-05-25',5,1960.0,'confirmed');
+
+INSERT INTO glovo_restaurants VALUES
+(1,'Pizza Palace','Pizza','Madrid',4.3),
+(2,'Sushi Spot','Japanese','Barcelona',4.7),
+(3,'Burger Bar','Burgers','Madrid',4.1),
+(4,'Taco Town','Mexican','Barcelona',4.5),
+(5,'Green Bowl','Healthy','Madrid',4.6),
+(6,'Pasta House','Italian','Barcelona',4.2);
+
+INSERT INTO glovo_couriers VALUES
+(1,'Carlos Ruiz','Madrid','scooter'),
+(2,'Ana Martin','Barcelona','bike'),
+(3,'Luis Garcia','Madrid','bike'),
+(4,'Sara Torres','Barcelona','scooter'),
+(5,'Pedro Lopez','Madrid','car');
+
+INSERT INTO glovo_customers VALUES
+(1,'Madrid','2023-06-01',1),
+(2,'Madrid','2023-08-15',0),
+(3,'Madrid','2024-01-10',0),
+(4,'Madrid','2024-02-20',1),
+(5,'Barcelona','2023-05-01',1),
+(6,'Barcelona','2023-09-12',0),
+(7,'Barcelona','2024-01-05',0),
+(8,'Barcelona','2024-03-01',1);
+
+INSERT INTO glovo_orders VALUES
+('GO001',1,1,1,'Madrid','2024-03-01 12:30:00','2024-03-01 12:55:00',22.50,'delivered'),
+('GO002',2,3,3,'Madrid','2024-03-01 20:00:00','2024-03-01 20:35:00',18.90,'delivered'),
+('GO003',3,5,5,'Madrid','2024-03-02 13:00:00','2024-03-02 13:28:00',16.00,'delivered'),
+('GO004',4,1,1,'Madrid','2024-03-02 20:00:00','2024-03-02 20:42:00',31.00,'delivered'),
+('GO005',1,3,3,'Madrid','2024-03-03 12:00:00','2024-03-03 12:48:00',24.50,'delivered'),
+('GO006',2,5,5,'Madrid','2024-03-03 20:00:00','2024-03-03 20:32:00',14.50,'delivered'),
+('GO007',3,1,1,'Madrid','2024-03-04 13:00:00',NULL,19.00,'cancelled'),
+('GO008',4,3,3,'Madrid','2024-03-04 20:00:00','2024-03-04 20:40:00',27.00,'delivered'),
+('GO009',1,5,5,'Madrid','2024-03-05 12:00:00','2024-03-05 12:30:00',12.50,'delivered'),
+('GO010',2,1,1,'Madrid','2024-03-05 20:00:00',NULL,35.00,'cancelled'),
+('GO011',5,2,2,'Barcelona','2024-03-01 13:00:00','2024-03-01 13:25:00',34.00,'delivered'),
+('GO012',6,4,4,'Barcelona','2024-03-01 20:00:00','2024-03-01 20:28:00',19.50,'delivered'),
+('GO013',7,6,2,'Barcelona','2024-03-02 12:00:00','2024-03-02 12:30:00',23.00,'delivered'),
+('GO014',8,2,4,'Barcelona','2024-03-02 20:00:00',NULL,42.00,'cancelled'),
+('GO015',5,4,2,'Barcelona','2024-03-03 13:00:00','2024-03-03 13:33:00',17.50,'delivered'),
+('GO016',6,6,4,'Barcelona','2024-03-03 20:00:00','2024-03-03 20:35:00',21.00,'delivered'),
+('GO017',7,2,2,'Barcelona','2024-03-04 13:00:00','2024-03-04 13:40:00',36.00,'delivered'),
+('GO018',8,4,4,'Barcelona','2024-03-04 20:00:00',NULL,25.00,'cancelled'),
+('GO019',5,6,2,'Barcelona','2024-03-05 12:00:00','2024-03-05 12:40:00',24.00,'delivered'),
+('GO020',6,2,4,'Barcelona','2024-03-05 20:00:00',NULL,38.00,'cancelled');
 `;

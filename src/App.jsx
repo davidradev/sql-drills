@@ -144,6 +144,7 @@ function SQLApp({ theme, onToggleTheme, onGoHome }) {
           >
             <SchemaPanel
               theme={theme}
+              tables={topic.tables}
               onOpenReference={() => setShowSchemaRef(true)}
               onClose={() => setSchemaOpen(false)}
             />

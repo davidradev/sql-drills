@@ -2,8 +2,12 @@ import { useState } from 'react';
 import SchemaDiagram from './SchemaDiagram';
 import { TABLES } from '../data/schema';
 
-export default function SchemaPanel({ theme, onOpenReference, onClose }) {
+export default function SchemaPanel({ theme, tables, onOpenReference, onClose }) {
   const [showDiagram, setShowDiagram] = useState(false);
+
+  const visibleTables = tables
+    ? TABLES.filter(t => tables.includes(t.name))
+    : TABLES;
 
   return (
     <>
@@ -70,7 +74,7 @@ export default function SchemaPanel({ theme, onOpenReference, onClose }) {
         </div>
 
         {/* Tables */}
-        {TABLES.map((table) => (
+        {visibleTables.map((table) => (
           <div
             key={table.name}
             className="rounded-lg overflow-hidden"

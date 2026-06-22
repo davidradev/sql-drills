@@ -89,4 +89,50 @@ export const TABLES = [
       { name: 'status',        type: 'TEXT',                         desc: "Booking status: 'confirmed' or 'cancelled'." },
     ],
   },
+  {
+    name: 'glovo_restaurants',
+    desc: 'Food & delivery venues listed on the Glovo platform.',
+    columns: [
+      { name: 'id',       type: 'INTEGER', pk: true, desc: 'Unique restaurant identifier.' },
+      { name: 'name',     type: 'TEXT',              desc: 'Restaurant name (e.g. Pizza Palace).' },
+      { name: 'category', type: 'TEXT',              desc: "Cuisine category: 'Pizza', 'Burgers', 'Japanese', 'Mexican', 'Healthy', 'Italian'." },
+      { name: 'city',     type: 'TEXT',              desc: "City where the restaurant operates: 'Madrid' or 'Barcelona'." },
+      { name: 'rating',   type: 'REAL',              desc: 'Average customer rating (1.0–5.0).' },
+    ],
+  },
+  {
+    name: 'glovo_couriers',
+    desc: 'Delivery riders assigned to orders on the Glovo platform.',
+    columns: [
+      { name: 'id',      type: 'INTEGER', pk: true, desc: 'Unique courier identifier.' },
+      { name: 'name',    type: 'TEXT',              desc: 'Full name of the courier.' },
+      { name: 'city',    type: 'TEXT',              desc: "City the courier operates in: 'Madrid' or 'Barcelona'." },
+      { name: 'vehicle', type: 'TEXT',              desc: "Vehicle type: 'bike', 'scooter', or 'car'." },
+    ],
+  },
+  {
+    name: 'glovo_customers',
+    desc: 'Registered Glovo app users who place orders.',
+    columns: [
+      { name: 'id',            type: 'INTEGER', pk: true, desc: 'Unique customer identifier.' },
+      { name: 'city',          type: 'TEXT',              desc: "Customer city: 'Madrid' or 'Barcelona'." },
+      { name: 'registered_at', type: 'DATE',              desc: 'Date the customer created their Glovo account.' },
+      { name: 'premium',       type: 'INTEGER',           desc: 'Glovo Prime subscriber flag: 1 = premium, 0 = regular.' },
+    ],
+  },
+  {
+    name: 'glovo_orders',
+    desc: 'Delivery orders placed through Glovo. delivered_at is NULL for cancelled orders.',
+    columns: [
+      { name: 'id',            type: 'TEXT',    pk: true,                   desc: "Order ID (e.g. 'GO001')." },
+      { name: 'customer_id',   type: 'INTEGER', fk: 'glovo_customers',     desc: 'Customer who placed the order.' },
+      { name: 'restaurant_id', type: 'INTEGER', fk: 'glovo_restaurants',   desc: 'Restaurant the order was placed at.' },
+      { name: 'courier_id',    type: 'INTEGER', fk: 'glovo_couriers',      desc: 'Courier assigned to deliver the order.' },
+      { name: 'city',          type: 'TEXT',                                desc: 'City of the order (denormalised for query performance).' },
+      { name: 'ordered_at',    type: 'TEXT',                                desc: 'Timestamp when the order was placed (ISO 8601: YYYY-MM-DD HH:MM:SS).' },
+      { name: 'delivered_at',  type: 'TEXT',                                desc: 'Timestamp of delivery. NULL for cancelled orders. Delivery time = julianday(delivered_at) - julianday(ordered_at).' },
+      { name: 'total_amount',  type: 'REAL',                                desc: 'Total order value in EUR.' },
+      { name: 'status',        type: 'TEXT',                                desc: "Order status: 'delivered' or 'cancelled'." },
+    ],
+  },
 ];

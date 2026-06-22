@@ -3,6 +3,76 @@ import _CodeEditor from 'react-simple-code-editor';
 const CodeEditor = _CodeEditor.default ?? _CodeEditor;
 import Prism from '../lib/prismPython';
 
+function parseInline(text) {
+  const parts = [];
+  const regex = /(\*\*[^*]+\*\*|`[^`]+`)/g;
+  let last = 0, match;
+  while ((match = regex.exec(text)) !== null) {
+    if (match.index > last) parts.push({ type: 'text', content: text.slice(last, match.index) });
+    const raw = match[0];
+    if (raw.startsWith('**')) parts.push({ type: 'bold', content: raw.slice(2, -2) });
+    else parts.push({ type: 'code', content: raw.slice(1, -1) });
+    last = match.index + raw.length;
+  }
+  if (last < text.length) parts.push({ type: 'text', content: text.slice(last) });
+  return parts;
+}
+
+function renderInline(text) {
+  return parseInline(text).map((part, i) => {
+    if (part.type === 'bold') return <strong key={i} style={{ color: 'var(--ctp-text)', fontWeight: 600 }}>{part.content}</strong>;
+    if (part.type === 'code') return (
+      <code key={i} className="font-mono text-xs px-1 py-0.5 rounded"
+        style={{ background: 'var(--ctp-surface1)', color: 'var(--ctp-blue)' }}>
+        {part.content}
+      </code>
+    );
+    return <span key={i}>{part.content}</span>;
+  });
+}
+
+function renderPrompt(prompt) {
+  const lines = prompt.split('\n');
+  const out = [];
+  let listBuf = [];
+
+  const flushList = () => {
+    if (!listBuf.length) return;
+    out.push(
+      <ul key={out.length} className="my-2 space-y-1.5 list-none p-0 m-0">
+        {listBuf.map((item, i) => (
+          <li key={i} className="flex gap-2 text-sm leading-relaxed"
+            style={{ paddingLeft: item.indent * 14, color: 'var(--ctp-subtext1)' }}>
+            <span className="shrink-0 mt-0.5" style={{ color: 'var(--ctp-overlay1)' }}>–</span>
+            <span>{renderInline(item.text)}</span>
+          </li>
+        ))}
+      </ul>
+    );
+    listBuf = [];
+  };
+
+  lines.forEach((line) => {
+    if (/^  +- /.test(line)) {
+      listBuf.push({ indent: 1, text: line.replace(/^  +- /, '') });
+    } else if (/^- /.test(line)) {
+      listBuf.push({ indent: 0, text: line.slice(2) });
+    } else if (line.trim() === '') {
+      flushList();
+    } else {
+      flushList();
+      out.push(
+        <p key={out.length} className="text-sm leading-relaxed m-0 mb-2"
+          style={{ color: 'var(--ctp-subtext1)' }}>
+          {renderInline(line)}
+        </p>
+      );
+    }
+  });
+  flushList();
+  return out;
+}
+
 export default function PythonExercisePanel({ exercise, runExercise, onNext, onPrev, current, total }) {
   const [code, setCode]                 = useState(exercise.starterCode || '');
   const [output, setOutput]             = useState(null);
@@ -51,10 +121,8 @@ export default function PythonExercisePanel({ exercise, runExercise, onNext, onP
       </div>
 
       {/* Prompt */}
-      <div className="rounded-xl p-5" style={{ background: 'var(--ctp-surface0)', border: '1px solid var(--ctp-surface1)' }}>
-        <p className="text-base leading-relaxed m-0" style={{ color: 'var(--ctp-text)' }}>
-          {exercise.prompt}
-        </p>
+      <div className="rounded-xl px-5 py-4" style={{ background: 'var(--ctp-surface0)', border: '1px solid var(--ctp-surface1)' }}>
+        {renderPrompt(exercise.prompt)}
       </div>
 
       {/* Setup / Input data */}

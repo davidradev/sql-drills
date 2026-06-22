@@ -3,6 +3,7 @@ export const TOPICS = [
     id: 'select-basics',
     title: 'SELECT Basics',
     description: 'SELECT, FROM, LIMIT, column aliases',
+    tables: ['customers', 'products', 'employees', 'orders', 'order_items'],
     lesson: {
       intro: 'SELECT retrieves data from a table. Every query starts with SELECT and FROM. Beyond that, you can transform, rename, deduplicate, and compute values on the fly.',
       concepts: [
@@ -154,6 +155,7 @@ ORDER BY department`,
     id: 'where',
     title: 'WHERE Clause',
     description: 'Filter rows with conditions: =, !=, >, <, BETWEEN, IN, LIKE, IS NULL',
+    tables: ['customers', 'products', 'employees', 'orders', 'order_items'],
     lesson: {
       intro: 'WHERE filters rows before they reach SELECT. Only rows where the condition is true appear in the result.',
       concepts: [
@@ -307,6 +309,7 @@ ORDER BY department`,
     id: 'order-by',
     title: 'ORDER BY',
     description: 'Sort results ascending and descending',
+    tables: ['customers', 'products', 'employees', 'orders', 'order_items'],
     lesson: {
       intro: 'ORDER BY sorts the result. Without it, row order is undefined and can change between queries.',
       concepts: [
@@ -434,6 +437,7 @@ SELECT name, registered_at FROM customers ORDER BY registered_at ASC LIMIT 3`,
     id: 'aggregations',
     title: 'Aggregations',
     description: 'COUNT, SUM, AVG, MIN, MAX',
+    tables: ['customers', 'products', 'employees', 'orders', 'order_items'],
     lesson: {
       intro: 'Aggregate functions collapse multiple rows into a single value. They operate on all rows by default, or per group when combined with GROUP BY.',
       concepts: [
@@ -568,6 +572,7 @@ FROM order_items`,
     id: 'group-by',
     title: 'GROUP BY',
     description: 'Aggregate data by groups',
+    tables: ['customers', 'products', 'employees', 'orders', 'order_items'],
     lesson: {
       intro: 'GROUP BY divides rows into groups and lets you apply aggregate functions to each group independently, producing one output row per group.',
       concepts: [
@@ -720,6 +725,7 @@ ORDER BY avg_salary DESC`,
     id: 'having',
     title: 'HAVING',
     description: 'Filter groups after aggregation',
+    tables: ['customers', 'products', 'employees', 'orders', 'order_items'],
     lesson: {
       intro: 'HAVING filters groups after GROUP BY runs. Think of it as WHERE for aggregated results.',
       concepts: [
@@ -859,6 +865,7 @@ HAVING MAX(price) - MIN(price) > 100`,
     id: 'joins',
     title: 'JOINs',
     description: 'INNER JOIN, LEFT JOIN, multiple joins',
+    tables: ['customers', 'products', 'employees', 'orders', 'order_items'],
     lesson: {
       intro: 'JOINs combine rows from two or more tables based on a matching condition. The ON clause defines which columns link the tables.',
       concepts: [
@@ -1014,6 +1021,7 @@ GROUP BY c.id, c.name`,
     id: 'ctes',
     title: 'CTEs (WITH)',
     description: 'Common Table Expressions for readable multi-step queries',
+    tables: ['customers', 'products', 'employees', 'orders', 'order_items'],
     lesson: {
       intro: 'A CTE (Common Table Expression) is a named subquery defined before the main SELECT using WITH. It makes complex queries easier to read and debug one step at a time.',
       concepts: [
@@ -1178,6 +1186,7 @@ ORDER BY price`,
     id: 'case-when',
     title: 'CASE WHEN',
     description: 'Conditional logic inside queries',
+    tables: ['customers', 'products', 'employees', 'orders', 'order_items'],
     lesson: {
       intro: 'CASE WHEN is conditional logic inside a SQL expression. It returns different values depending on which condition matches — like if/else, but producing a column.',
       concepts: [
@@ -1336,6 +1345,7 @@ FROM employees`,
     id: 'window-functions',
     title: 'Window Functions',
     description: 'ROW_NUMBER, RANK, LAG, LEAD, SUM OVER, AVG OVER',
+    tables: ['customers', 'products', 'employees', 'orders', 'order_items'],
     lesson: {
       intro: 'Window functions compute a value across a set of related rows without collapsing them. Every row keeps its place, and a computed column is added based on its surrounding window.',
       concepts: [
@@ -1488,6 +1498,7 @@ FROM products`,
     id: 'real-world',
     title: 'Real-World Queries',
     description: 'Multi-concept exercises combining JOINs, CTEs, window functions, and CASE WHEN',
+    tables: ['customers', 'products', 'employees', 'orders', 'order_items'],
     lesson: {
       intro: 'Real-world queries combine multiple tools: JOINs for related tables, CTEs for step-by-step logic, GROUP BY for metrics, and window functions for ranking and comparison. The skill is deciding which layer handles which problem.',
       concepts: [
@@ -1640,6 +1651,7 @@ GROUP BY category`,
     id: 'hospitality',
     title: 'Hospitality Analytics',
     description: 'Short-term rentals, OTA channels, ADR, and revenue attribution — Guesty interview prep',
+    tables: ['properties', 'channels', 'reservations'],
     lesson: {
       intro: 'Guesty is a property management platform for short-term rentals (Airbnb, Booking.com, VRBO). Their data model revolves around properties, booking channels, and reservations. The signature interview question: "Calculate revenue in 3 ways — by first night, by last night, and distributed per night."',
       concepts: [
@@ -1772,6 +1784,113 @@ GROUP BY c.name`,
         prompt: "The Guesty interview question: Calculate total confirmed revenue in 3 different ways — attributed to the first night, the last night, and distributed per night using a recursive CTE. Show method (as 'first_night', 'last_night', 'per_night') and total_revenue (rounded to 2 decimals). All three totals should be equal — that is the expected result.",
         solution: "WITH RECURSIVE nights AS (SELECT id, check_in AS night, check_out, total_revenue / CAST(julianday(check_out) - julianday(check_in) AS REAL) AS nightly_rev FROM reservations WHERE status = 'confirmed' UNION ALL SELECT n.id, DATE(n.night, '+1 day'), n.check_out, n.nightly_rev FROM nights n WHERE DATE(n.night, '+1 day') < n.check_out) SELECT 'first_night' AS method, ROUND(SUM(total_revenue), 2) AS total_revenue FROM reservations WHERE status = 'confirmed' UNION ALL SELECT 'last_night', ROUND(SUM(total_revenue), 2) FROM reservations WHERE status = 'confirmed' UNION ALL SELECT 'per_night', ROUND(SUM(nightly_rev), 2) FROM nights ORDER BY method",
         hint: "One WITH RECURSIVE CTE at the top for the per-night calculation. Three SELECT statements joined by UNION ALL: first_night and last_night both SUM from reservations directly; per_night SUMs from the nights CTE. ORDER BY method.",
+      },
+    ],
+  },
+  {
+    id: 'glovo',
+    title: 'Glovo Interview Prep',
+    description: 'Food delivery analytics — the exact SQL skills tested in the Glovo Data/ML Engineer live interview',
+    tables: ['glovo_restaurants', 'glovo_couriers', 'glovo_customers', 'glovo_orders'],
+    lesson: {
+      intro: 'The Glovo live interview tests data manipulation at pace: joins, aggregations, window functions, and time-based analysis. All exercises use a food-delivery dataset (glovo_orders, glovo_restaurants, glovo_couriers, glovo_customers) that mirrors the real domain.',
+      concepts: [
+        {
+          title: 'Delivery time in SQLite',
+          body: 'SQLite has no DATEDIFF(). Use julianday() to subtract two datetime strings. Multiply by 1440 to get minutes.',
+          code: `SELECT id,
+  ROUND((julianday(delivered_at) - julianday(ordered_at)) * 24 * 60) AS delivery_minutes
+FROM glovo_orders
+WHERE status = 'delivered'`,
+        },
+        {
+          title: 'STRFTIME for time-of-day analysis',
+          body: "Extract the hour from a datetime string with STRFTIME('%H', col). Returns a zero-padded string: '08', '13', '20'.",
+          code: `SELECT STRFTIME('%H', ordered_at) AS hour, COUNT(*) AS orders
+FROM glovo_orders
+GROUP BY hour
+ORDER BY orders DESC`,
+        },
+        {
+          title: 'RANK() vs DENSE_RANK() within a partition',
+          body: 'RANK() leaves gaps after ties (1,1,3). DENSE_RANK() does not (1,1,2). Use PARTITION BY city to rank within each city independently.',
+          code: `SELECT name, city, deliveries,
+  RANK()       OVER (PARTITION BY city ORDER BY deliveries DESC) AS rnk,
+  DENSE_RANK() OVER (PARTITION BY city ORDER BY deliveries DESC) AS dense_rnk
+FROM courier_stats`,
+        },
+        {
+          title: 'Conditional aggregation',
+          body: 'Compute several metrics in one pass with SUM(CASE WHEN ...). Avoids expensive subqueries and extra GROUP BYs.',
+          code: `SELECT city,
+  COUNT(*) AS total_orders,
+  SUM(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END) AS cancelled,
+  ROUND(100.0 * SUM(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END) / COUNT(*), 1) AS cancel_pct
+FROM glovo_orders
+GROUP BY city`,
+        },
+        {
+          title: 'CTE + window function pattern',
+          body: 'Aggregate in a CTE, then apply the window function in the outer SELECT. Readable and lets you reference the aggregated column by its alias.',
+          code: `WITH stats AS (
+  SELECT courier_id, COUNT(*) AS deliveries
+  FROM glovo_orders WHERE status = 'delivered'
+  GROUP BY courier_id
+)
+SELECT courier_id, deliveries,
+  RANK() OVER (ORDER BY deliveries DESC) AS overall_rank
+FROM stats`,
+        },
+      ],
+    },
+    exercises: [
+      {
+        id: 'gl-01',
+        prompt: "Order summary by city. Show city, total_orders (all statuses), delivered count, and revenue (SUM of total_amount for delivered orders only, rounded to 2 decimals). Order alphabetically by city.",
+        solution: "SELECT city, COUNT(*) AS total_orders, SUM(CASE WHEN status = 'delivered' THEN 1 ELSE 0 END) AS delivered, ROUND(SUM(CASE WHEN status = 'delivered' THEN total_amount ELSE 0 END), 2) AS revenue FROM glovo_orders GROUP BY city ORDER BY city",
+        hint: "No JOIN needed — city is in glovo_orders. COUNT(*) for total. SUM(CASE WHEN status='delivered' THEN 1 ELSE 0 END) for delivered count. SUM(CASE WHEN ... THEN total_amount ELSE 0 END) for revenue.",
+      },
+      {
+        id: 'gl-02',
+        prompt: "Average delivery time by city. For delivered orders only, compute the mean delivery time in minutes (use julianday, round to 1 decimal) as avg_minutes. Order by avg_minutes ascending.",
+        solution: "SELECT city, ROUND(AVG((julianday(delivered_at) - julianday(ordered_at)) * 24 * 60), 1) AS avg_minutes FROM glovo_orders WHERE status = 'delivered' GROUP BY city ORDER BY avg_minutes",
+        hint: "(julianday(delivered_at) - julianday(ordered_at)) * 24 * 60 gives minutes per row. Wrap in AVG() and ROUND to 1 decimal. Filter WHERE status = 'delivered' before GROUP BY.",
+      },
+      {
+        id: 'gl-03',
+        prompt: "Top 3 restaurants by delivered revenue. JOIN glovo_orders with glovo_restaurants. Show name, category, order count (as orders), and revenue (SUM of total_amount, rounded to 2 decimals). Return only the top 3.",
+        solution: "SELECT r.name, r.category, COUNT(*) AS orders, ROUND(SUM(o.total_amount), 2) AS revenue FROM glovo_orders o JOIN glovo_restaurants r ON o.restaurant_id = r.id WHERE o.status = 'delivered' GROUP BY r.id, r.name, r.category ORDER BY revenue DESC LIMIT 3",
+        hint: "JOIN glovo_restaurants r ON o.restaurant_id = r.id. WHERE status = 'delivered'. GROUP BY r.id. ORDER BY revenue DESC LIMIT 3.",
+      },
+      {
+        id: 'gl-04',
+        prompt: "Courier leaderboard. For delivered orders, JOIN with glovo_couriers and show courier name, city, vehicle, and deliveries count. Order by deliveries descending, then name ascending (to break ties deterministically).",
+        solution: "SELECT c.name, c.city, c.vehicle, COUNT(*) AS deliveries FROM glovo_orders o JOIN glovo_couriers c ON o.courier_id = c.id WHERE o.status = 'delivered' GROUP BY c.id, c.name, c.city, c.vehicle ORDER BY deliveries DESC, c.name",
+        hint: "JOIN glovo_couriers c ON o.courier_id = c.id. WHERE status = 'delivered'. GROUP BY c.id. The secondary ORDER BY c.name breaks ties between couriers with equal deliveries.",
+      },
+      {
+        id: 'gl-05',
+        prompt: "Cancellation rate by city. Show city, total_orders, cancelled count, and cancel_rate_pct (percentage, rounded to 1 decimal). Order by cancel_rate_pct descending.",
+        solution: "SELECT city, COUNT(*) AS total_orders, SUM(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END) AS cancelled, ROUND(100.0 * SUM(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END) / COUNT(*), 1) AS cancel_rate_pct FROM glovo_orders GROUP BY city ORDER BY cancel_rate_pct DESC",
+        hint: "No WHERE filter — include all statuses. Use 100.0 (not 100) to force floating-point division. SUM(CASE WHEN status='cancelled' THEN 1 ELSE 0 END) in both the numerator and as the cancelled column.",
+      },
+      {
+        id: 'gl-06',
+        prompt: "Rank couriers within their city by number of delivered orders. Use a CTE to compute per-courier delivery counts (joining glovo_couriers), then apply RANK() OVER (PARTITION BY city ORDER BY deliveries DESC). Show name, city, deliveries, city_rank. Order by city, city_rank, name.",
+        solution: "WITH courier_stats AS (SELECT o.courier_id, c.name, c.city, COUNT(*) AS deliveries FROM glovo_orders o JOIN glovo_couriers c ON o.courier_id = c.id WHERE o.status = 'delivered' GROUP BY o.courier_id, c.name, c.city) SELECT name, city, deliveries, RANK() OVER (PARTITION BY city ORDER BY deliveries DESC) AS city_rank FROM courier_stats ORDER BY city, city_rank, name",
+        hint: "CTE computes (courier_id, name, city, deliveries). Outer SELECT adds RANK() OVER (PARTITION BY city ORDER BY deliveries DESC). Note: RANK() creates gaps on ties — two couriers with rank 1 mean the next rank is 3.",
+      },
+      {
+        id: 'gl-07',
+        prompt: "Peak order hours. Extract the hour from ordered_at using STRFTIME('%H', ordered_at) as hour. Show each hour and its order_count. Order by order_count descending, then hour ascending.",
+        solution: "SELECT STRFTIME('%H', ordered_at) AS hour, COUNT(*) AS order_count FROM glovo_orders GROUP BY hour ORDER BY order_count DESC, hour",
+        hint: "STRFTIME('%H', ordered_at) extracts the 2-digit hour as a string. GROUP BY hour (the alias works in SQLite). Secondary ORDER BY hour keeps ties deterministic.",
+      },
+      {
+        id: 'gl-08',
+        prompt: "Premium customer lifetime value. JOIN glovo_orders with glovo_customers. For delivered orders where premium = 1, show customer_id, city, and lifetime_value (SUM of total_amount, rounded to 2 decimals). Order by lifetime_value descending.",
+        solution: "SELECT o.customer_id, c.city, ROUND(SUM(o.total_amount), 2) AS lifetime_value FROM glovo_orders o JOIN glovo_customers c ON o.customer_id = c.id WHERE o.status = 'delivered' AND c.premium = 1 GROUP BY o.customer_id, c.city ORDER BY lifetime_value DESC",
+        hint: "JOIN glovo_customers c ON o.customer_id = c.id. WHERE status = 'delivered' AND c.premium = 1. Customers whose only orders were cancelled will not appear in this result.",
       },
     ],
   },
