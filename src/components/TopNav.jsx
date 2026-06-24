@@ -1,4 +1,4 @@
-export default function TopNav({ mode, onSetMode, theme, onToggleTheme, onOpenNav, onOpenSchema }) {
+export default function TopNav({ mode, onSetMode, theme, onToggleTheme, onToggleSidebar, sidebarOpen, onOpenSchema }) {
   const inApp = mode === 'sql' || mode === 'python' || mode === 'pandas';
 
   return (
@@ -6,19 +6,35 @@ export default function TopNav({ mode, onSetMode, theme, onToggleTheme, onOpenNa
       className="sticky top-0 z-20 flex items-center h-12 px-4 gap-3 shrink-0"
       style={{ background: 'var(--ctp-mantle)', borderBottom: '1px solid var(--ctp-surface1)' }}
     >
-      {/* Mobile sidebar toggle */}
+      {/* Sidebar toggle */}
       {inApp && (
         <button
-          onClick={onOpenNav}
-          className="lg:hidden flex items-center justify-center w-8 h-8 rounded-lg cursor-pointer transition-colors"
-          style={{ background: 'var(--ctp-surface0)', color: 'var(--ctp-subtext1)', border: '1px solid var(--ctp-surface1)' }}
-          onMouseEnter={e => e.currentTarget.style.background = 'var(--ctp-surface1)'}
-          onMouseLeave={e => e.currentTarget.style.background = 'var(--ctp-surface0)'}
+          onClick={onToggleSidebar}
+          className="flex items-center justify-center w-8 h-8 rounded-lg cursor-pointer transition-colors"
+          style={{
+            background: sidebarOpen ? 'var(--ctp-surface0)' : 'color-mix(in srgb, var(--ctp-blue) 15%, transparent)',
+            color: sidebarOpen ? 'var(--ctp-subtext1)' : 'var(--ctp-blue)',
+            border: `1px solid ${sidebarOpen ? 'var(--ctp-surface1)' : 'color-mix(in srgb, var(--ctp-blue) 35%, transparent)'}`,
+          }}
+          onMouseEnter={e => {
+            if (sidebarOpen) {
+              e.currentTarget.style.background = 'var(--ctp-surface1)';
+            } else {
+              e.currentTarget.style.background = 'color-mix(in srgb, var(--ctp-blue) 25%, transparent)';
+            }
+          }}
+          onMouseLeave={e => {
+            if (sidebarOpen) {
+              e.currentTarget.style.background = 'var(--ctp-surface0)';
+            } else {
+              e.currentTarget.style.background = 'color-mix(in srgb, var(--ctp-blue) 15%, transparent)';
+            }
+          }}
+          title={sidebarOpen ? "Hide topics" : "Show topics"}
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-            <line x1="3" y1="6" x2="21" y2="6"/>
-            <line x1="3" y1="12" x2="21" y2="12"/>
-            <line x1="3" y1="18" x2="21" y2="18"/>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+            <line x1="9" y1="3" x2="9" y2="21"/>
           </svg>
         </button>
       )}
@@ -43,6 +59,7 @@ export default function TopNav({ mode, onSetMode, theme, onToggleTheme, onOpenNa
           >
             {[
               { id: 'sql',    label: 'SQL Drills',    color: 'var(--ctp-blue)'  },
+              { id: 'pandas', label: 'Pandas Drills', color: 'var(--ctp-yellow)' },
               { id: 'python', label: 'Python Drills', color: 'var(--ctp-green)' },
             ].map(tab => (
               <button
@@ -91,6 +108,7 @@ export default function TopNav({ mode, onSetMode, theme, onToggleTheme, onOpenNa
           >
             {[
               { id: 'sql',    label: 'SQL', color: 'var(--ctp-blue)'  },
+              { id: 'pandas', label: 'Pd',  color: 'var(--ctp-yellow)' },
               { id: 'python', label: 'Py',  color: 'var(--ctp-green)' },
             ].map(tab => (
               <button

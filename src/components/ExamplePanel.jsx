@@ -33,20 +33,34 @@ function ConceptCard({ concept }) {
 }
 
 export default function ExamplePanel({ lesson, initialOpen = false, conceptIndex }) {
-  const [open, setOpen] = useState(initialOpen);
+  const [open, setOpen] = useState(conceptIndex !== undefined && conceptIndex !== null ? true : initialOpen);
 
-  // Single-concept mode: no toggle, always visible
+  // Single-concept mode: collapsible card
   if (conceptIndex !== undefined && conceptIndex !== null) {
     const concept = lesson.concepts[conceptIndex];
     if (!concept) return null;
     return (
       <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--ctp-surface1)' }}>
-        <div className="px-5 py-3" style={{ background: 'var(--ctp-surface0)', borderBottom: '1px solid var(--ctp-surface1)' }}>
-          <p className="text-xs font-semibold uppercase tracking-widest m-0" style={{ color: 'var(--ctp-overlay1)' }}>
-            Concept
-          </p>
-        </div>
-        <ConceptCard concept={concept} />
+        <button
+          onClick={() => setOpen(o => !o)}
+          className="w-full text-left px-5 py-3 flex items-center justify-between cursor-pointer transition-colors border-none"
+          style={{ background: 'var(--ctp-surface0)' }}
+          onMouseEnter={e => e.currentTarget.style.background = 'var(--ctp-surface1)'}
+          onMouseLeave={e => e.currentTarget.style.background = 'var(--ctp-surface0)'}
+        >
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-widest m-0 text-left" style={{ color: 'var(--ctp-overlay1)' }}>
+              Concept
+            </p>
+            <p className="text-sm font-bold m-0 mt-0.5 text-left" style={{ color: 'var(--ctp-blue)' }}>
+              {concept.title}
+            </p>
+          </div>
+          <span className="text-xs transition-transform inline-block" style={{ transform: open ? 'rotate(90deg)' : 'rotate(0deg)', color: 'var(--ctp-overlay1)' }}>
+            &#9658;
+          </span>
+        </button>
+        {open && <ConceptCard concept={concept} />}
       </div>
     );
   }

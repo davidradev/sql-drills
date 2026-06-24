@@ -94,6 +94,7 @@ export default function PythonApp({ theme, onToggleTheme, onSetMode }) {
   const [activeTopicId, setActiveTopicId] = useState(PYTHON_TOPICS[0].id);
   const [exerciseIndex, setExerciseIndex] = useState(0);
   const [navOpen, setNavOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   useEffect(() => { load(); }, []);
 
@@ -113,15 +114,24 @@ export default function PythonApp({ theme, onToggleTheme, onSetMode }) {
     if (exerciseIndex > 0) setExerciseIndex(exerciseIndex - 1);
   }
 
+  function handleToggleSidebar() {
+    if (window.innerWidth < 1024) {
+      setNavOpen(!navOpen);
+    } else {
+      setSidebarOpen(!sidebarOpen);
+    }
+  }
+
   return (
-    <div className="flex flex-col min-h-screen" style={{ background: 'var(--ctp-base)' }}>
+    <div className="flex flex-col min-h-screen lg:h-screen lg:overflow-hidden" style={{ background: 'var(--ctp-base)' }}>
 
       <TopNav
         mode="python"
         onSetMode={onSetMode}
         theme={theme}
         onToggleTheme={onToggleTheme}
-        onOpenNav={() => setNavOpen(true)}
+        onToggleSidebar={handleToggleSidebar}
+        sidebarOpen={sidebarOpen}
       />
 
       {/* Backdrop */}
@@ -137,7 +147,9 @@ export default function PythonApp({ theme, onToggleTheme, onSetMode }) {
 
         {/* Sidebar */}
         <div
-          className={`fixed inset-y-0 left-0 z-40 transition-transform duration-200 lg:relative lg:inset-auto lg:z-auto lg:shrink-0 lg:translate-x-0 ${navOpen ? 'translate-x-0' : '-translate-x-full'}`}
+          className={`fixed inset-y-0 left-0 z-40 transition-transform duration-200 lg:relative lg:inset-auto lg:z-auto lg:shrink-0 ${
+            navOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+          } ${sidebarOpen ? '' : 'lg:hidden'}`}
         >
           <PythonSidebar
             activeTopic={activeTopicId}

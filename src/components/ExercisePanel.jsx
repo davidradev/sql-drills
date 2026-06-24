@@ -94,7 +94,7 @@ export default function ExercisePanel({
 
         {/* Topic header */}
         {topicTitle && (
-          <div>
+          <div className="shrink-0">
             <h2 className="text-xl lg:text-2xl font-bold m-0" style={{ color: 'var(--ctp-text)' }}>
               {topicTitle}
             </h2>
@@ -108,15 +108,17 @@ export default function ExercisePanel({
 
         {/* Lesson — show the concept explicitly mapped to this exercise */}
         {lesson && (
-          <ExamplePanel
-            lesson={lesson}
-            conceptIndex={exercise.concept ?? null}
-            initialOpen={exercise.concept == null}
-          />
+          <div className="shrink-0">
+            <ExamplePanel
+              lesson={lesson}
+              conceptIndex={exercise.concept ?? null}
+              initialOpen={exercise.concept == null}
+            />
+          </div>
         )}
 
         {/* Progress */}
-        <div className="flex items-center justify-between text-sm">
+        <div className="flex items-center justify-between text-sm shrink-0">
           <span style={{ color: 'var(--ctp-subtext0)' }}>Exercise {current} of {total}</span>
           <div className="flex gap-1">
             {Array.from({ length: total }).map((_, i) => (
@@ -128,14 +130,14 @@ export default function ExercisePanel({
         </div>
 
         {/* Prompt */}
-        <div className="rounded-xl p-5" style={{ background: 'var(--ctp-surface0)', border: '1px solid var(--ctp-surface1)' }}>
+        <div className="rounded-xl p-5 shrink-0" style={{ background: 'var(--ctp-surface0)', border: '1px solid var(--ctp-surface1)' }}>
           <p className="text-base leading-relaxed m-0" style={{ color: 'var(--ctp-text)' }}>
             {exercise.prompt}
           </p>
         </div>
 
         {/* Hint */}
-        <div>
+        <div className="shrink-0">
           <button
             onClick={() => setShowHint(h => !h)}
             className="px-3 py-1.5 rounded-lg text-sm transition-colors cursor-pointer"
@@ -161,7 +163,7 @@ export default function ExercisePanel({
         </div>
 
         {/* Navigation */}
-        <div className="flex gap-2">
+        <div className="flex gap-2 shrink-0">
           <button onClick={goPrev} disabled={current <= 1}
             className="flex-1 px-4 py-2 rounded-lg text-sm transition-colors cursor-pointer disabled:opacity-30"
             style={{ background: 'var(--ctp-surface0)', color: 'var(--ctp-subtext1)', border: '1px solid var(--ctp-surface1)' }}
@@ -177,7 +179,7 @@ export default function ExercisePanel({
         </div>
 
         {/* Schema */}
-        <div className="pt-2" style={{ borderTop: '1px solid var(--ctp-surface1)' }}>
+        <div className="pt-2 shrink-0" style={{ borderTop: '1px solid var(--ctp-surface1)' }}>
           <SchemaPanel
             theme={theme}
             tables={tables}

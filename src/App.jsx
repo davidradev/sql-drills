@@ -19,6 +19,7 @@ function SQLApp({ theme, onToggleTheme, onSetMode }) {
   });
   const [showSchemaRef, setShowSchemaRef] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const topic = TOPICS.find(t => t.id === activeTopicId);
   const exercise = topic.exercises[exerciseIndex];
@@ -36,6 +37,13 @@ function SQLApp({ theme, onToggleTheme, onSetMode }) {
   function handleSelectTopic(id) { setActiveTopicId(id); setExerciseIndex(0); }
   function handleNext() { if (exerciseIndex + 1 < topic.exercises.length) setExerciseIndex(exerciseIndex + 1); }
   function handlePrev() { if (exerciseIndex > 0) setExerciseIndex(exerciseIndex - 1); }
+  function handleToggleSidebar() {
+    if (window.innerWidth < 1024) {
+      setNavOpen(!navOpen);
+    } else {
+      setSidebarOpen(!sidebarOpen);
+    }
+  }
 
   if (error) return (
     <div className="flex items-center justify-center h-screen" style={{ color: 'var(--ctp-red)' }}>
@@ -51,14 +59,15 @@ function SQLApp({ theme, onToggleTheme, onSetMode }) {
   );
 
   return (
-    <div className="flex flex-col min-h-screen" style={{ background: 'var(--ctp-base)' }}>
+    <div className="flex flex-col min-h-screen lg:h-screen lg:overflow-hidden" style={{ background: 'var(--ctp-base)' }}>
 
       <TopNav
         mode="sql"
         onSetMode={onSetMode}
         theme={theme}
         onToggleTheme={onToggleTheme}
-        onOpenNav={() => setNavOpen(true)}
+        onToggleSidebar={handleToggleSidebar}
+        sidebarOpen={sidebarOpen}
       />
 
       {/* Backdrop */}
@@ -74,7 +83,9 @@ function SQLApp({ theme, onToggleTheme, onSetMode }) {
 
         {/* Sidebar */}
         <div
-          className={`fixed inset-y-0 left-0 z-40 transition-transform duration-200 lg:relative lg:inset-auto lg:z-auto lg:shrink-0 lg:translate-x-0 ${navOpen ? 'translate-x-0' : '-translate-x-full'}`}
+          className={`fixed inset-y-0 left-0 z-40 transition-transform duration-200 lg:relative lg:inset-auto lg:z-auto lg:shrink-0 ${
+            navOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+          } ${sidebarOpen ? '' : 'lg:hidden'}`}
         >
           <Sidebar
             activeTopic={activeTopicId}

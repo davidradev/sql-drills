@@ -124,7 +124,7 @@ export default function PythonExercisePanel({
       >
         {/* Topic header */}
         {topicTitle && (
-          <div>
+          <div className="shrink-0">
             <h2 className="text-xl lg:text-2xl font-bold m-0" style={{ color: 'var(--ctp-text)' }}>
               {topicTitle}
             </h2>
@@ -138,7 +138,7 @@ export default function PythonExercisePanel({
 
         {/* Pyodide status */}
         {pyodideStatus === 'loading' && (
-          <div className="rounded-xl px-4 py-3 flex items-center gap-3 text-sm" style={{
+          <div className="rounded-xl px-4 py-3 flex items-center gap-3 text-sm shrink-0" style={{
             background: 'color-mix(in srgb, var(--ctp-blue) 10%, transparent)',
             border: '1px solid color-mix(in srgb, var(--ctp-blue) 30%, transparent)',
             color: 'var(--ctp-blue)',
@@ -149,7 +149,7 @@ export default function PythonExercisePanel({
           </div>
         )}
         {pyodideStatus === 'error' && (
-          <div className="rounded-xl px-4 py-3 text-sm" style={{
+          <div className="rounded-xl px-4 py-3 text-sm shrink-0" style={{
             background: 'color-mix(in srgb, var(--ctp-red) 10%, transparent)',
             border: '1px solid color-mix(in srgb, var(--ctp-red) 30%, transparent)',
             color: 'var(--ctp-red)',
@@ -160,15 +160,17 @@ export default function PythonExercisePanel({
 
         {/* Lesson — show only the concept relevant to this exercise */}
         {lesson && (
-          <PyLessonPanel
-            lesson={lesson}
-            conceptIndex={exercise.concept ?? null}
-            initialOpen={exercise.concept == null}
-          />
+          <div className="shrink-0">
+            <PyLessonPanel
+              lesson={lesson}
+              conceptIndex={exercise.concept ?? null}
+              initialOpen={exercise.concept == null}
+            />
+          </div>
         )}
 
         {/* Progress */}
-        <div className="flex items-center justify-between text-sm">
+        <div className="flex items-center justify-between text-sm shrink-0">
           <span style={{ color: 'var(--ctp-subtext0)' }}>Exercise {current} of {total}</span>
           <div className="flex gap-1">
             {Array.from({ length: total }).map((_, i) => (
@@ -180,12 +182,12 @@ export default function PythonExercisePanel({
         </div>
 
         {/* Prompt */}
-        <div className="rounded-xl px-5 py-4" style={{ background: 'var(--ctp-surface0)', border: '1px solid var(--ctp-surface1)' }}>
+        <div className="rounded-xl px-5 py-4 shrink-0" style={{ background: 'var(--ctp-surface0)', border: '1px solid var(--ctp-surface1)' }}>
           {renderPrompt(exercise.prompt)}
         </div>
 
         {/* Hint */}
-        <div>
+        <div className="shrink-0">
           <button
             onClick={() => setShowHint(h => !h)}
             className="px-3 py-1.5 rounded-lg text-sm transition-colors cursor-pointer"
@@ -211,7 +213,7 @@ export default function PythonExercisePanel({
         </div>
 
         {/* Navigation */}
-        <div className="flex gap-2">
+        <div className="flex gap-2 shrink-0">
           <button onClick={goPrev} disabled={current <= 1}
             className="flex-1 px-4 py-2 rounded-lg text-sm transition-colors cursor-pointer disabled:opacity-30"
             style={{ background: 'var(--ctp-surface0)', color: 'var(--ctp-subtext1)', border: '1px solid var(--ctp-surface1)' }}
