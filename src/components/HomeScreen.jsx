@@ -1,28 +1,17 @@
-export default function HomeScreen({ onSelectMode, theme, onToggleTheme }) {
+import TopNav from './TopNav';
+
+export default function HomeScreen({ onSetMode, theme, onToggleTheme }) {
   return (
     <div
       className="min-h-screen flex flex-col"
       style={{ background: 'var(--ctp-base)' }}
     >
-      {/* Top bar */}
-      <header
-        className="flex items-center justify-between px-6 py-4 shrink-0"
-        style={{ borderBottom: '1px solid var(--ctp-surface1)', background: 'var(--ctp-mantle)' }}
-      >
-        <div>
-          <span className="text-base font-bold" style={{ color: 'var(--ctp-text)' }}>Data Engineer Drills</span>
-          <span className="ml-3 text-xs" style={{ color: 'var(--ctp-overlay0)' }}>Practice for your interview</span>
-        </div>
-        <button
-          onClick={onToggleTheme}
-          className="text-xs px-2.5 py-1.5 rounded-lg font-medium transition-colors cursor-pointer"
-          style={{ background: 'var(--ctp-surface0)', color: 'var(--ctp-subtext1)', border: '1px solid var(--ctp-surface1)' }}
-          onMouseEnter={e => e.currentTarget.style.background = 'var(--ctp-surface1)'}
-          onMouseLeave={e => e.currentTarget.style.background = 'var(--ctp-surface0)'}
-        >
-          {theme === 'mocha' ? 'Latte' : 'Mocha'}
-        </button>
-      </header>
+      <TopNav
+        mode="home"
+        onSetMode={onSetMode}
+        theme={theme}
+        onToggleTheme={onToggleTheme}
+      />
 
       {/* Hero */}
       <div className="flex-1 flex flex-col items-center justify-center px-6 py-16">
@@ -44,7 +33,7 @@ export default function HomeScreen({ onSelectMode, theme, onToggleTheme }) {
 
           {/* SQL card */}
           <button
-            onClick={() => onSelectMode('sql')}
+            onClick={() => onSetMode('sql')}
             className="flex-1 text-left rounded-2xl p-6 cursor-pointer transition-all group"
             style={{
               background: 'var(--ctp-surface0)',
@@ -91,7 +80,7 @@ export default function HomeScreen({ onSelectMode, theme, onToggleTheme }) {
 
           {/* Python card */}
           <button
-            onClick={() => onSelectMode('python')}
+            onClick={() => onSetMode('python')}
             className="flex-1 text-left rounded-2xl p-6 cursor-pointer transition-all"
             style={{
               background: 'var(--ctp-surface0)',

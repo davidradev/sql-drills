@@ -55,6 +55,7 @@ def group_by(records: list[dict], key: str) -> dict[str, list]:
     exercises: [
       {
         id: 'py-c-01',
+        concept: 0,
         prompt: 'You receive log entries from a pipeline. Write `get_errors(logs)` that returns only ERROR-level entries.',
         hint: 'Use a list comprehension: [e for e in logs if e["level"] == "ERROR"]',
         starterCode: `def get_errors(logs: list[dict]) -> list[dict]:
@@ -79,6 +80,7 @@ for e in result:
       },
       {
         id: 'py-c-02',
+        concept: 3,
         prompt: 'Write `group_by_status(deals)` that groups a list of CRM deals by their "status" field and returns a dict mapping each status to the list of deals with that status.',
         hint: 'Use a plain dict: groups.setdefault(status, []).append(deal). Or use collections.defaultdict(list).',
         starterCode: `def group_by_status(deals: list[dict]) -> dict[str, list]:
@@ -109,6 +111,7 @@ for status, items in result.items():
       },
       {
         id: 'py-c-03',
+        concept: 1,
         prompt: 'Write `safe_get(record, field, default=None)` that returns a field\'s value but treats missing keys, None, and empty strings all as "missing" and returns the default instead.',
         hint: 'Use record.get(field) then check if the result is None or "".',
         starterCode: `from typing import Any, Optional
@@ -134,6 +137,7 @@ def safe_get(record: dict, field: str, default: Optional[Any] = None) -> Any:
       },
       {
         id: 'py-c-04',
+        concept: 2,
         prompt: 'Write `read_in_batches(records, batch_size)` as a generator that yields successive sublists of `batch_size` records. This is the pattern used to write to BigQuery or any API that has a row limit per request.',
         hint: 'Use yield inside a for loop over range(0, len(records), batch_size). Slice records[i : i + batch_size].',
         starterCode: `from typing import Generator
@@ -162,6 +166,7 @@ def read_in_batches(records: list, batch_size: int) -> Generator[list, None, Non
       },
       {
         id: 'py-c-05',
+        concept: 3,
         prompt: 'Write `summarize_pipeline_run(events)` that takes a list of pipeline event dicts (each with "pipeline", "status", "duration_s") and returns a summary dict: for each pipeline, the total runs, success count, failure count, and average duration in seconds (rounded to 1 decimal).',
         hint: 'Group by pipeline first using a dict of dicts. Accumulate counts and total duration, then compute avg at the end.',
         starterCode: `def summarize_pipeline_run(events: list[dict]) -> dict[str, dict]:
@@ -268,6 +273,7 @@ rows = [
     exercises: [
       {
         id: 'py-j-01',
+        concept: 0,
         prompt: 'A REST API returns paginated data where each page dict has a "data" key with a list of records. Write `flatten_pages(pages)` that returns one flat list of all records across all pages.',
         hint: 'Nested comprehension: [r for page in pages for r in page["data"]]',
         starterCode: `def flatten_pages(pages: list[dict]) -> list[dict]:
@@ -290,6 +296,7 @@ for r in result:
       },
       {
         id: 'py-j-02',
+        concept: 1,
         prompt: 'Salesforce SOQL returns `{"totalSize": N, "done": true, "records": [...]}`. Each record has an "attributes" metadata key that should be removed. Write `extract_sf_records(response)` that returns the cleaned list.',
         hint: 'Access response["records"] and build a new dict per record excluding the "attributes" key.',
         starterCode: `def extract_sf_records(response: dict) -> list[dict]:
@@ -319,6 +326,7 @@ for r in result:
       },
       {
         id: 'py-j-03',
+        concept: 0,
         prompt: 'Write `normalize_product(raw)` that returns a dict with guaranteed fields: `id` (int, required), `name` (str, required), `price` (float, default 0.0), `category` (str, default "uncategorized"), `active` (bool, default True). Raise ValueError if id or name is missing.',
         hint: 'Check required fields first, raise ValueError if absent. For optional ones, use raw.get("price") or 0.0 wrapped in float().',
         starterCode: `def normalize_product(raw: dict) -> dict:
@@ -363,6 +371,7 @@ print("All normalization cases passed!")`,
       },
       {
         id: 'py-j-04',
+        concept: 2,
         prompt: 'Write `explode_tags(records)` that takes records like `{"id": 1, "tags": ["python", "etl"]}` and returns one row per tag. Records with empty or missing tags should produce no rows.',
         hint: 'Nested comprehension: [{"id": r["id"], "tag": tag} for r in records for tag in r.get("tags", []) if tag]',
         starterCode: `def explode_tags(records: list[dict]) -> list[dict]:
@@ -391,6 +400,7 @@ for r in result:
       },
       {
         id: 'py-j-05',
+        concept: 3,
         prompt: 'Write `validate_batch(records, required_fields)` that splits records into valid and invalid. Return `{"valid": [...], "invalid": [{"record": ..., "reason": "..."}]}`. A record is invalid if any required field is absent or falsy.',
         hint: 'missing = [f for f in required_fields if not record.get(f)]. If missing is non-empty, it\'s invalid.',
         starterCode: `def validate_batch(records: list[dict], required_fields: list[str]) -> dict:
@@ -477,6 +487,7 @@ df["rank"] = df.groupby("country")["amount"].rank(ascending=False, method="dense
     exercises: [
       {
         id: 'py-p-01',
+        concept: 0,
         prompt: 'Write `get_active_big_spenders(df)` that returns only active customers with total_spend > 1000, keeping only `customer_id`, `name`, and `total_spend` columns.',
         hint: 'Filter: df[(df["is_active"]) & (df["total_spend"] > 1000)], then select columns.',
         starterCode: `import pandas as pd
@@ -508,6 +519,7 @@ def get_active_big_spenders(df: pd.DataFrame) -> pd.DataFrame:
       },
       {
         id: 'py-p-02',
+        concept: 0,
         prompt: 'Write `clean_columns(df)` that strips whitespace, lowercases, and replaces spaces with underscores in every column name. Return the modified DataFrame.',
         hint: 'Set df.columns = [c.strip().lower().replace(" ", "_") for c in df.columns]',
         starterCode: `import pandas as pd
@@ -536,6 +548,7 @@ def clean_columns(df: pd.DataFrame) -> pd.DataFrame:
       },
       {
         id: 'py-p-03',
+        concept: 1,
         prompt: 'Write `sales_summary(df)` that groups by `category` and returns a DataFrame with `category`, `total_revenue` (sum), `num_orders` (count), `avg_order` (mean rounded to 2 decimals), sorted by total_revenue descending.',
         hint: 'Use .agg(total_revenue="sum", num_orders="count", avg_order="mean") then .round(2) and .sort_values().',
         starterCode: `import pandas as pd
@@ -570,6 +583,7 @@ def sales_summary(df: pd.DataFrame) -> pd.DataFrame:
       },
       {
         id: 'py-p-04',
+        concept: 2,
         prompt: 'Write `enrich_orders(orders_df, customers_df)` that left-joins orders with customers on `customer_id`, adding `name` and `country`. Return only: `order_id`, `customer_id`, `name`, `country`, `amount`. Orders without a matching customer should have NaN.',
         hint: 'pd.merge(orders_df, customers_df, on="customer_id", how="left"), then select the 5 columns.',
         starterCode: `import pandas as pd
@@ -604,6 +618,7 @@ def enrich_orders(orders_df: pd.DataFrame, customers_df: pd.DataFrame) -> pd.Dat
       },
       {
         id: 'py-p-05',
+        concept: 0,
         prompt: 'Write `clean_dataframe(df)` that: drops rows where `id` is null, fills null `category` with "unknown", removes exact duplicate rows, and resets the index.',
         hint: 'Chain: .dropna(subset=["id"]) → .fillna({"category": "unknown"}) → .drop_duplicates() → .reset_index(drop=True)',
         starterCode: `import pandas as pd
@@ -643,6 +658,7 @@ def clean_dataframe(df: pd.DataFrame) -> pd.DataFrame:
       },
       {
         id: 'py-p-06',
+        concept: 4,
         prompt: 'Write `monthly_revenue(df)` that parses `date` (strings "YYYY-MM-DD"), groups by year and month, sums `amount` as `revenue`, and returns a DataFrame with columns `year`, `month`, `revenue` sorted ascending.',
         hint: 'pd.to_datetime(df["date"]), then .dt.year and .dt.month. GroupBy both, agg sum, rename, reset_index.',
         starterCode: `import pandas as pd
@@ -679,6 +695,7 @@ def monthly_revenue(df: pd.DataFrame) -> pd.DataFrame:
       },
       {
         id: 'py-p-07',
+        concept: 3,
         prompt: 'Write `detect_changes(current_df, new_df)` that finds records where the `value` column changed between the current state and a new snapshot. Both DataFrames have `id` and `value` columns. Return a DataFrame with `id`, `old_value`, `new_value` for changed rows only.',
         hint: 'Merge on "id" with suffixes=("_old", "_new"), then filter rows where value_old != value_new.',
         starterCode: `import pandas as pd
@@ -713,6 +730,7 @@ def detect_changes(current_df: pd.DataFrame, new_df: pd.DataFrame) -> pd.DataFra
       },
       {
         id: 'py-p-08',
+        concept: 4,
         prompt: 'Write `rank_by_country(df)` that adds a `rank` column ranking each customer by `total_spend` within their `country` (rank 1 = highest spend, dense ranking). Return the full DataFrame with the new column, sorted by country and rank.',
         hint: 'Use df.groupby("country")["total_spend"].rank(ascending=False, method="dense"). Cast to int.',
         starterCode: `import pandas as pd
@@ -816,6 +834,7 @@ def rank_by_country(df: pd.DataFrame) -> pd.DataFrame:
     exercises: [
       {
         id: 'py-e-01',
+        concept: 0,
         prompt: 'Write `extract(api_response)` that validates the response and returns the list of records. Raise ValueError if the response is not a dict, lacks a "data" key, or if "data" is not a list.',
         hint: 'Use isinstance() to check types, then check for the "data" key.',
         starterCode: `def extract(api_response) -> list[dict]:
@@ -853,6 +872,7 @@ print("All extract() validations passed!")`,
       },
       {
         id: 'py-e-02',
+        concept: 0,
         prompt: 'Write `transform(records)` that normalizes each record: convert all camelCase keys to snake_case, ensure "amount" is a float (default 0.0 if missing or invalid), and skip records without an "id". Return a tuple (clean_records, skipped_count).',
         hint: 'Return a tuple (list, int). Wrap float() in try/except. Skip if not record.get("id").',
         starterCode: `def to_snake_case(key: str) -> str:
@@ -911,6 +931,7 @@ def transform(records: list[dict]) -> tuple[list[dict], int]:
       },
       {
         id: 'py-e-03',
+        concept: 1,
         prompt: 'Write `deduplicate(records, key)` that removes duplicates, keeping the LAST occurrence of each key value.',
         hint: 'Build a dict {record[key]: record} — later records overwrite earlier. Return list(seen.values()).',
         starterCode: `def deduplicate(records: list[dict], key: str) -> list[dict]:
@@ -939,6 +960,7 @@ for r in result:
       },
       {
         id: 'py-e-04',
+        concept: 3,
         prompt: 'Write `extract_incremental(records, since)` that returns only records where `updated_at` is strictly after the `since` timestamp (both are ISO strings like "2024-03-01T00:00:00"). This simulates a watermark-based incremental load.',
         hint: 'ISO datetime strings sort correctly as plain strings. Filter: r["updated_at"] > since.',
         starterCode: `def extract_incremental(records: list[dict], since: str) -> list[dict]:
@@ -966,6 +988,7 @@ for r in result:
       },
       {
         id: 'py-e-05',
+        concept: null,
         prompt: 'Write `run_pipeline(raw_response)` that chains extract → transform → deduplicate and returns `{"processed": n, "skipped": n, "output": [records]}`. All three helper functions are provided in setup.',
         hint: 'Call extract(), then transform() which returns (clean, skipped), then deduplicate(clean, "id"). Build the summary dict.',
         starterCode: `def run_pipeline(raw_response: dict) -> dict:
@@ -1027,6 +1050,7 @@ for r in result["output"]:
       },
       {
         id: 'py-e-06',
+        concept: 2,
         prompt: 'Write `safe_pipeline(records)` that processes each record with `process_record()` individually, catching errors per record without stopping the batch. Return `{"results": [...], "errors": [{"record": ..., "error": "..."}]}`.',
         hint: 'Wrap process_record(record) in try/except. Append to results on success, to errors on failure.',
         starterCode: `def process_record(record: dict) -> dict:
@@ -1135,6 +1159,7 @@ def check_freshness(records: list[dict], max_age_hours: int = 24) -> bool:
     exercises: [
       {
         id: 'py-q-01',
+        concept: 0,
         prompt: 'Write `validate_schema(record, schema)` where `schema` is a dict mapping field names to expected Python types (e.g. `{"id": int, "name": str}`). Return a list of error strings: one for each missing field and one for each field with the wrong type. Return an empty list if the record is valid.',
         hint: 'Iterate schema.items(). Check if field is in record, then check isinstance(record[field], expected_type).',
         starterCode: `def validate_schema(record: dict, schema: dict) -> list[str]:
@@ -1181,6 +1206,7 @@ print(f"  multiple errors: {errors_multi}")`,
       },
       {
         id: 'py-q-02',
+        concept: 1,
         prompt: 'Write `check_null_rates(df)` that returns a dict mapping column names to their null rate (0.0–1.0, rounded to 4 decimals). Then write `find_high_null_columns(df, threshold)` that returns a list of column names where the null rate exceeds the threshold.',
         hint: 'df[col].isna().sum() / len(df) gives the null rate. Wrap in a dict comprehension.',
         starterCode: `import pandas as pd
@@ -1227,6 +1253,7 @@ def find_high_null_columns(df: pd.DataFrame, threshold: float = 0.2) -> list[str
       },
       {
         id: 'py-q-03',
+        concept: 2,
         prompt: 'Write `check_freshness(records, max_age_hours)` that returns True if the most recent `updated_at` timestamp in the records is within `max_age_hours` of the provided `now` datetime. Return False if records is empty or data is stale.',
         hint: 'max(r["updated_at"] for r in records) gives the latest. Parse with datetime.fromisoformat(). Compare with now - latest <= timedelta(hours=max_age_hours).',
         starterCode: `from datetime import datetime, timedelta
@@ -1275,6 +1302,7 @@ def check_freshness(records: list[dict], max_age_hours: int, now: datetime) -> b
       },
       {
         id: 'py-q-04',
+        concept: 3,
         prompt: 'Write `reconcile(source, destination, key)` that compares two lists of records and returns a report dict with: `source_count`, `dest_count`, `missing_in_dest` (IDs in source but not destination), `extra_in_dest` (IDs in destination but not source), and `match` (True if both sets are identical).',
         hint: 'Build sets of IDs for each list. missing_in_dest = src_ids - dest_ids. extra_in_dest = dest_ids - src_ids.',
         starterCode: `def reconcile(source: list[dict], destination: list[dict], key: str) -> dict:
@@ -1324,6 +1352,7 @@ print(f"  Match: {result['match']}")`,
       },
       {
         id: 'py-q-05',
+        concept: 1,
         prompt: 'Write `compute_stats(df, column)` that returns a quality stats dict for a numeric column: `count` (non-null), `null_count`, `null_rate` (0–1, 2 decimals), `min`, `max`, `mean` (2 decimals), and `outlier_ids` (list of ids where the value is more than 2 standard deviations from the mean).',
         hint: 'Use df[column].mean() and .std(). An outlier is where abs(value - mean) > 2 * std. Filter non-null rows first.',
         starterCode: `import pandas as pd
@@ -1434,6 +1463,7 @@ def customer_etl():
     exercises: [
       {
         id: 'py-a-01',
+        concept: 0,
         prompt: 'Write `extract_customers(execution_date)` — a task callable that returns all customers whose `created_at` is on or after `execution_date` (both ISO date strings). This simulates a daily Airflow task that extracts only new customers.',
         hint: 'ISO date strings sort correctly as plain strings: c["created_at"] >= execution_date',
         starterCode: `def extract_customers(execution_date: str) -> list[dict]:
@@ -1461,6 +1491,7 @@ for c in feb:
       },
       {
         id: 'py-a-02',
+        concept: 2,
         prompt: 'Simulate the Airflow TaskFlow XCom pattern: write `extract()`, `transform(raw)`, and `load(clean)` where each return value feeds the next. Then write `run_dag()` that chains them and returns the count of loaded records.',
         hint: 'extract() returns RAW_DATA, transform(raw) filters records with a valid amount, load(clean) returns len(clean).',
         starterCode: `def extract() -> list[dict]:
@@ -1511,6 +1542,7 @@ def run_dag() -> int:
       },
       {
         id: 'py-a-03',
+        concept: 1,
         prompt: 'Write an idempotent `load_partition(records, partition_date, loaded_dates)` function. If `partition_date` is already in `loaded_dates`, return `{"status": "skipped", "count": 0}`. Otherwise add it to `loaded_dates` and return `{"status": "loaded", "count": len(records)}`.',
         hint: 'Check if partition_date in loaded_dates. If yes, return skipped. Otherwise, loaded_dates.add(partition_date) and return loaded.',
         starterCode: `def load_partition(records: list[dict], partition_date: str, loaded_dates: set) -> dict:
@@ -1547,6 +1579,7 @@ print(f"Run 3 (new date): {r3}")`,
       },
       {
         id: 'py-a-04',
+        concept: 3,
         prompt: 'Write `retry(func, max_attempts=3, exceptions=(Exception,))` that calls `func()` up to `max_attempts` times, catching only exceptions in `exceptions`. If all attempts fail, raise the last exception. If an exception NOT in `exceptions` is raised, let it propagate immediately.',
         hint: 'Track last_err. Loop range(max_attempts), try func(), except exceptions as e: last_err = e. After loop: raise last_err.',
         starterCode: `def retry(func, max_attempts: int = 3, exceptions: tuple = (Exception,)):
@@ -1595,6 +1628,7 @@ print(f"retry() works: succeeded after {_calls} attempts, fails and propagates c
       },
       {
         id: 'py-a-05',
+        concept: 0,
         prompt: 'Write `build_dag_config(dag_id, schedule, tasks)` that validates inputs and returns a config dict. Raise ValueError if: dag_id is empty, schedule is not a preset (starts with "@") or a valid 5-part cron expression, or tasks is an empty list.',
         hint: 'Check schedule.startswith("@") or len(schedule.split()) == 5. Check bool(dag_id). Check bool(tasks).',
         starterCode: `def build_dag_config(dag_id: str, schedule: str, tasks: list[str]) -> dict:
@@ -1725,6 +1759,7 @@ class OrderProcessor:
       // ── Phase 1: OOP Sprint ──────────────────────────────────────────────────
       {
         id: 'gl-py-01',
+        concept: 0,
         prompt: 'Write an `Order` class. `__init__` accepts: `order_id` (str), `total_amount` (float), `status` (str), `ordered_at` (ISO datetime str), `delivered_at` (optional ISO str, default None). Raise `ValueError` for: empty order_id, negative total_amount, or status not in {"delivered","cancelled","pending"}. Store `ordered_at` and `delivered_at` as `datetime` objects (use `datetime.fromisoformat`). Add a `delivery_minutes` property that returns the integer minutes between ordered_at and delivered_at, or `None` for non-delivered orders.',
         hint: 'Guard clauses first. Use `datetime.fromisoformat(s) if s else None` for delivered_at. In the property: `int((self.delivered_at - self.ordered_at).total_seconds() / 60)`.',
         starterCode: `from datetime import datetime
@@ -1801,6 +1836,7 @@ class Order:
       },
       {
         id: 'gl-py-02',
+        concept: 0,
         prompt: 'Write an `OrderBatch` class that holds a list of `Order` objects. Implement: `add(order)` to append one order, `total_revenue(status="delivered")` that returns the sum of total_amount for orders with that status, `average_delivery_minutes()` that returns the float average delivery time across delivered orders (or None if there are none), and `__len__` returning the total number of orders. The `Order` class from gl-py-01 is available.',
         hint: 'Store orders in self._orders = []. For average_delivery_minutes: filter to orders where delivery_minutes is not None, then sum/len. Return None if the filtered list is empty.',
         starterCode: `from typing import Optional
@@ -1885,6 +1921,7 @@ class OrderBatch:
       },
       {
         id: 'gl-py-03',
+        concept: 0,
         prompt: 'Add a `@classmethod from_dict(cls, data)` to the `Order` class that constructs an Order from a dict with keys: `"id"`, `"total_amount"`, `"status"`, `"ordered_at"`, and optionally `"delivered_at"`. The full Order class (without from_dict) is provided in setup — just write the classmethod.',
         hint: '@classmethod takes cls as first arg. Return cls(order_id=data["id"], ..., delivered_at=data.get("delivered_at")). Use .get() for optional keys.',
         starterCode: `@classmethod
@@ -1955,6 +1992,7 @@ def from_dict(cls, data: dict):
       // ── Phase 2: Pandas ──────────────────────────────────────────────────────
       {
         id: 'gl-py-04',
+        concept: 1,
         prompt: 'Write `add_delivery_minutes(df)` that takes a DataFrame with string columns `ordered_at` and `delivered_at` (NULL for cancelled), converts both to datetime, and adds a `delivery_minutes` column (float, NaN for cancelled). Return the modified copy.',
         hint: 'pd.to_datetime() converts strings and handles None → NaT. Subtract datetimes to get a timedelta Series, then .dt.total_seconds() / 60.',
         starterCode: `import pandas as pd
@@ -2001,6 +2039,7 @@ def add_delivery_minutes(df: pd.DataFrame) -> pd.DataFrame:
       },
       {
         id: 'gl-py-05',
+        concept: 2,
         prompt: 'Write `city_summary(df)` that takes the orders DataFrame (which already has a `delivery_minutes` column from gl-py-04). Return a DataFrame with one row per city showing: `city`, `orders` (total count), `revenue` (sum of total_amount for delivered only), and `avg_delivery_min` (mean delivery_minutes for delivered only, rounded to 1 decimal). Sort by city.',
         hint: 'Filter to delivered for revenue and avg. Use groupby("city").agg() with named aggregations. Then join or merge the total order count separately, or compute all in one groupby on the full df using conditional logic.',
         starterCode: `import pandas as pd
@@ -2049,6 +2088,7 @@ def city_summary(df: pd.DataFrame) -> pd.DataFrame:
       },
       {
         id: 'gl-py-06',
+        concept: 2,
         prompt: 'Write `revenue_by_category(orders_df, restaurants_df)` that merges delivered orders with restaurants on `restaurant_id`, then returns a DataFrame with `category` and `revenue` (SUM of total_amount), sorted by revenue descending.',
         hint: 'Filter orders to delivered first. Merge on left_on="restaurant_id", right_on="id". GroupBy category and sum total_amount. Sort descending.',
         starterCode: `import pandas as pd
@@ -2111,6 +2151,7 @@ def revenue_by_category(orders_df: pd.DataFrame, restaurants_df: pd.DataFrame) -
       // ── Phase 3: Code Quality ────────────────────────────────────────────────
       {
         id: 'gl-py-07',
+        concept: 3,
         prompt: 'The function below has multiple code-quality problems. Rewrite it as `get_city_revenue(conn, city)` that is: (1) safe from SQL injection, (2) returns a float instead of printing, (3) uses a context manager for the cursor, (4) uses a descriptive parameter name. The bad function is in the starter code — do not modify it, just write the clean version below it.',
         hint: 'Use parameterized queries: cursor.execute("SELECT ... WHERE city = ?", (city,)). Return result[0] or 0.0. Use with conn: or just manage cursor manually.',
         starterCode: `import sqlite3
@@ -2179,6 +2220,7 @@ def get_city_revenue(conn: sqlite3.Connection, city: str) -> float:
       },
       {
         id: 'gl-py-08',
+        concept: 3,
         prompt: 'Write pytest-style tests for `categorize_order(amount, delivery_minutes)`. The function is provided in setup. Write `test_categorize_order()` that asserts: (1) high amount + fast delivery → "premium", (2) slow delivery → "slow" regardless of amount, (3) None delivery_minutes → "cancelled", (4) the exact thresholds (amount >= 30, delivery <= 30 for premium; delivery > 45 for slow). Call test_categorize_order() at the end.',
         hint: 'Cover boundary values: amount=30 + delivery=30 → "premium". amount=29.99 → not premium. delivery=46 → slow. delivery=45 → not slow. None → cancelled.',
         starterCode: `def test_categorize_order():
@@ -2233,51 +2275,104 @@ test_categorize_order()`,
     title: 'API ETL — Rick & Morty',
     description: 'Paginated REST API → extract → clean → SQLite. No pandas. Exact Guesty interview format.',
     lesson: {
-      intro: 'In a Guesty Python interview, candidates were given the Rick and Morty public API and asked to read data from it, take only the necessary fields, clean them, and store them in a database — without pandas. These 8 exercises walk you through every step of that exact pipeline.',
+      intro: 'In a real Guesty Python interview, candidates were given access to the Rick and Morty public API and a single task: "Extract character data from the API, clean it, and store it in a SQLite database — no pandas allowed." This is a classic ETL pipeline: Extract (fetch from the API), Transform (clean and filter the data), Load (write to the database).\n\nThese 8 exercises guide you through every step one at a time, then bring them all together in the final exercise. Build each function in isolation, understand exactly what it does, and by the end you will have a complete working pipeline.',
       concepts: [
         {
-          title: 'Fetching a paginated API',
-          body: 'Real APIs return pages. Each response has info.next with the URL of the next page, or null when you\'re done. The pattern: start at page 1, collect results, follow info.next until None.',
-          code: `import urllib.request, json
+          title: 'The pipeline: what you are building',
+          body: 'Before diving in, here is the full picture. You will build 5 core functions, each handling one step. Understanding how they connect makes each exercise much easier to solve.',
+          code: `# ── The complete ETL pipeline ─────────────────────────────────────
 
-def fetch_all(start_url: str) -> list[dict]:
+# 1. PAGINATE: follow the API across multiple pages → one flat list
+raw = fetch_all(start_url, fetch_fn)         # → all character objects combined
+
+# 2. EXTRACT: keep only the 6 fields we need (flatten nested "origin")
+extracted = extract_characters(api_page)    # → [{id, name, status, species, gender, origin}]
+
+# 3. CLEAN: strip whitespace, lowercase status
+cleaned = [clean_character(c) for c in extracted]
+
+# 4. FILTER: remove incomplete records (status = "unknown")
+valid = filter_characters(cleaned)          # → only "alive" and "dead" characters
+
+# 5. LOAD: create the table, bulk-insert, then query as a sanity check
+create_table(conn)
+n = insert_characters(conn, valid)          # → returns number of rows inserted
+breakdown = count_by_status(conn)          # → {"alive": 439, "dead": 241}`,
+          note: 'Each of the first 7 exercises builds one function in isolation. Exercise 8 chains them all together into the complete pipeline.',
+        },
+        {
+          title: 'How paginated APIs work',
+          body: 'Most real APIs don\'t return everything at once — they split results across pages. Each response includes a "next" field with the URL of the next page, or null when you\'ve reached the last one. Your job is to follow that chain until it ends.',
+          code: `# Each API response looks like this:
+{
+    "info": {
+        "count": 826,         # total characters
+        "pages": 42,          # total pages
+        "next": "https://rickandmortyapi.com/api/character?page=2",  # next URL
+        "prev": None          # None on the first page
+    },
+    "results": [...]          # the characters on this page
+}
+
+# The pagination pattern: follow "next" until it is None
+def fetch_all(start_url: str, fetch_fn) -> list[dict]:
     results, url = [], start_url
-    while url:
-        with urllib.request.urlopen(url) as r:
-            page = json.loads(r.read())
-        results.extend(page["results"])
-        url = page["info"]["next"]   # None on the last page
+    while url:                         # stops when url is None
+        page = fetch_fn(url)
+        results.extend(page["results"])  # extend, not append!
+        url = page["info"]["next"]
     return results`,
         },
         {
-          title: 'Selecting only the fields you need',
-          body: 'The Rick and Morty character object has 12 fields. Pick exactly what you need — id, name, status, species, gender, and origin. Flatten nested objects to plain strings: char["origin"]["name"].',
-          code: `def extract(char: dict) -> dict:
-    return {
-        "id":      char["id"],
-        "name":    char["name"],
-        "status":  char["status"],
-        "species": char["species"],
-        "gender":  char["gender"],
-        "origin":  char["origin"]["name"],  # nested dict → flat string
-    }`,
+          title: 'Extracting and flattening fields',
+          body: 'The Rick and Morty character object has 12+ fields. We only need 6. One of them, "origin", is a nested dict — we flatten it to a plain string. The key insight: build a brand new dict with only the keys you want.',
+          code: `# Raw character from the API — 12 fields, one nested dict
+raw_char = {
+    "id": 1, "name": "Rick Sanchez", "status": "Alive", "species": "Human",
+    "type": "", "gender": "Male",
+    "origin":   {"name": "Earth (C-137)", "url": "https://..."},   # ← nested!
+    "location": {"name": "Citadel of Ricks", "url": "https://..."},
+    "image":    "https://rickandmortyapi.com/api/character/avatar/1.jpeg",
+    "episode":  ["https://rickandmortyapi.com/api/episode/1", ...],
+    "url":      "https://rickandmortyapi.com/api/character/1",
+    "created":  "2017-11-04T18:48:46.250Z",
+}
+
+# After extract — 6 fields, origin is now a plain string
+extracted = {
+    "id":      1,
+    "name":    "Rick Sanchez",
+    "status":  "Alive",
+    "species": "Human",
+    "gender":  "Male",
+    "origin":  "Earth (C-137)",   # raw_char["origin"]["name"]
+}`,
         },
         {
-          title: 'Cleaning without pandas',
-          body: 'strip() removes whitespace. .lower() normalises status so "Alive", "ALIVE", "alive" all become "alive". Apply per record with a clean() function or a dict comprehension.',
-          code: `def clean(char: dict) -> dict:
+          title: 'Cleaning data without pandas',
+          body: 'Real API data is dirty. Names arrive with extra spaces, status comes in random casing. The {**char, "field": new_value} pattern creates a clean copy without modifying the original.',
+          code: `# Dirty data from the API
+raw = {"id": 1, "name": "  Rick Sanchez  ", "status": "Alive", "species": " Human"}
+
+# Clean it — strip whitespace, lowercase status
+def clean_character(char: dict) -> dict:
     return {
-        **char,
-        "name":    char["name"].strip(),
-        "status":  char["status"].lower(),
-        "species": char["species"].strip(),
-    }`,
+        **char,                              # copy all fields as-is
+        "name":    char["name"].strip(),     # "  Rick  " → "Rick"
+        "status":  char["status"].lower(),   # "Alive" → "alive"
+        "species": char["species"].strip(),  # " Human" → "Human"
+    }
+
+# Result: all original fields preserved, only three are changed
+# {"id": 1, "name": "Rick Sanchez", "status": "alive", "species": "Human"}`,
         },
         {
           title: 'Loading into SQLite with executemany',
-          body: 'sqlite3 ships with Python — no install needed. Use executemany() for bulk inserts. Always use ? placeholders (never string formatting). INSERT OR REPLACE handles re-runs safely.',
+          body: 'sqlite3 ships with Python — no install needed. executemany() inserts many rows in one call. Always use ? placeholders, never f-strings in SQL. INSERT OR REPLACE makes re-runs safe.',
           code: `import sqlite3
-conn = sqlite3.connect(":memory:")
+conn = sqlite3.connect(":memory:")   # in-memory DB for testing
+
+# Create the table (IF NOT EXISTS = safe to call more than once)
 conn.execute("""
     CREATE TABLE IF NOT EXISTS characters (
         id INTEGER PRIMARY KEY, name TEXT NOT NULL,
@@ -2285,19 +2380,38 @@ conn.execute("""
         gender TEXT NOT NULL,   origin TEXT NOT NULL
     )
 """)
+
+# Bulk insert — much faster than one execute() per row
 conn.executemany(
     "INSERT OR REPLACE INTO characters VALUES (?,?,?,?,?,?)",
     [(c["id"], c["name"], c["status"], c["species"], c["gender"], c["origin"])
      for c in chars]
 )
 conn.commit()`,
+          note: 'Never use f-strings or .format() in SQL queries. The ? placeholder is safe — f-strings open you up to SQL injection attacks.',
         },
       ],
     },
     exercises: [
       {
         id: 'rm-01',
-        prompt: 'The Rick and Morty API returns character objects with 12+ fields. Write `extract_characters(response)` that takes a raw API response page and returns a list of dicts with ONLY: `id`, `name`, `status`, `species`, `gender`, and `origin` — where `origin` is a plain string (flatten `char["origin"]["name"]`).',
+        concept: 2,
+        prompt: `The Rick and Morty API returns character objects packed with 12+ fields — image URLs, episode arrays, timestamps, and more. In a real ETL pipeline you only keep the fields you actually need and discard the rest.
+
+**Your task:** Write \`extract_characters(response)\` — it receives one API page and must return a list of dicts with **only** these 6 fields per character:
+- \`id\` — the character's numeric ID
+- \`name\` — the character's full name
+- \`status\` — "Alive", "Dead", or "unknown"
+- \`species\` — "Human", "Alien", etc.
+- \`gender\` — "Male", "Female", etc.
+- \`origin\` — must be a **plain string** (not a dict). Extract it from \`char["origin"]["name"]\`
+
+**How to solve it step by step:**
+- Open the input data panel below — look at one character object. Notice how \`"origin"\` is \`{"name": "Earth (C-137)", "url": "..."}\`. You need to pull out just the string \`"Earth (C-137)"\`
+- The list of characters lives at \`response["results"]\`
+- For each character \`c\`, build a **new** dict with just the 6 keys — drop \`image\`, \`episode\`, \`created\`, \`type\`, \`location\`
+- For origin: write \`c["origin"]["name"]\` to extract the string from the nested dict
+- A list comprehension is the cleanest approach: \`[{...} for c in response["results"]]\``,
         hint: 'Iterate response["results"]. For each character build a new dict: {"id": c["id"], ..., "origin": c["origin"]["name"]}.',
         starterCode: `def extract_characters(response: dict) -> list[dict]:
     pass`,
@@ -2384,7 +2498,23 @@ for c in result:
       },
       {
         id: 'rm-02',
-        prompt: 'API data is dirty: names have extra whitespace, status comes in any case ("Alive", "DEAD", "alive"). Write `clean_character(char)` that returns a cleaned copy: strip `name` and `species`, lowercase `status`. All other fields must be preserved unchanged.',
+        concept: 3,
+        prompt: `Real API data is rarely clean. Names arrive with extra whitespace (\`" Rick Sanchez "\`), and status values come in random casing (\`"Alive"\`, \`"DEAD"\`, \`"alive"\`). Before storing anything in a database, we normalize the data.
+
+**Your task:** Write \`clean_character(char)\` that returns a **copy** of the dict with these three fields cleaned:
+- \`name\` — remove leading and trailing whitespace with \`.strip()\`
+- \`species\` — remove leading and trailing whitespace with \`.strip()\`
+- \`status\` — convert to lowercase with \`.lower()\`
+
+All other fields (\`id\`, \`gender\`, \`origin\`) must be **preserved exactly as they are**.
+
+**How to solve it step by step:**
+- Use the spread operator pattern: \`{**char, "name": ..., "status": ..., "species": ...}\`
+- \`**char\` copies all key-value pairs from the original into the new dict
+- The keys you list after \`**char\` override only those specific fields — everything else is untouched
+- \`char["name"].strip()\` removes spaces from both the left and right — \`"  Rick  "\` becomes \`"Rick"\`
+- \`char["status"].lower()\` converts any casing — \`"DEAD"\` → \`"dead"\`, \`"Alive"\` → \`"alive"\`
+- This returns a brand new dict — it never mutates the original`,
         hint: 'Use {**char, "name": char["name"].strip(), "status": char["status"].lower(), "species": char["species"].strip()} to copy and override.',
         starterCode: `def clean_character(char: dict) -> dict:
     pass`,
@@ -2420,7 +2550,18 @@ for c in result:
       },
       {
         id: 'rm-03',
-        prompt: 'Characters with `status = "unknown"` have incomplete data and should not go into the database. Write `filter_characters(chars)` that keeps only characters where status is `"alive"` or `"dead"` (always lowercase after cleaning). Return the filtered list.',
+        concept: 3,
+        prompt: `After cleaning, some characters still have \`status = "unknown"\` — their data is incomplete and unreliable. This step removes them before we load anything into the database.
+
+**Your task:** Write \`filter_characters(chars)\` that returns only the characters where status is \`"alive"\` or \`"dead"\`. Characters with \`"unknown"\` status must be excluded entirely.
+
+**How to solve it step by step:**
+- This is a one-liner using a list comprehension with a condition
+- The pattern: \`[c for c in chars if <condition>]\`
+- The condition you want: \`c["status"] in ("alive", "dead")\`
+- The \`in\` operator checks membership in a tuple — it's shorter and cleaner than writing \`== "alive" or == "dead"\`
+- Important: always run this step **after** cleaning. Because we lowercased status in the previous step, you don't need to worry about \`"Unknown"\` or \`"UNKNOWN"\` slipping through
+- The characters you remove here will be counted as \`skipped\` in the final pipeline exercise`,
         hint: 'List comprehension: [c for c in chars if c["status"] in ("alive", "dead")]',
         starterCode: `def filter_characters(chars: list[dict]) -> list[dict]:
     pass`,
@@ -2450,7 +2591,23 @@ for c in result:
       },
       {
         id: 'rm-04',
-        prompt: 'The Rick and Morty API has 826 characters across 42 pages. Write `fetch_all(start_url, fetch_fn)` that calls `fetch_fn(url)` repeatedly, collects every item in `response["results"]`, and follows `response["info"]["next"]` until it is `None`. Return all results as one list.',
+        concept: 1,
+        prompt: `The Rick and Morty API has 826 characters split across 42 pages. Each page response contains a \`"next"\` URL pointing to the next page, or \`null\` when you have reached the end. This is called **pagination** and it's standard for any large API.
+
+**Your task:** Write \`fetch_all(start_url, fetch_fn)\` that:
+- Calls \`fetch_fn(url)\` to get each page response
+- Collects all items from \`response["results"]\`
+- Reads \`response["info"]["next"]\` to find the URL of the next page
+- Stops when \`next\` is \`None\` (that's the last page)
+- Returns all results from all pages combined into one flat list
+
+**How to solve it step by step:**
+- Start with two variables: \`results = []\` and \`url = start_url\`
+- Write a \`while url:\` loop — it keeps running as long as \`url\` is not \`None\`
+- Inside the loop: call \`response = fetch_fn(url)\` to get the current page's data
+- Add all characters: \`results.extend(response["results"])\` — use \`extend\`, NOT \`append\`. Append would nest the whole list inside your list; extend adds each item individually
+- Move to the next page: \`url = response["info"]["next"]\` — when this is \`None\`, the loop stops on the next check
+- After the loop ends, return \`results\``,
         hint: 'while url is not None: call fetch_fn(url), extend results, set url = response["info"]["next"].',
         starterCode: `def fetch_all(start_url: str, fetch_fn) -> list[dict]:
     pass`,
@@ -2510,7 +2667,24 @@ for i, c in enumerate(result):
       },
       {
         id: 'rm-05',
-        prompt: 'Write `create_table(conn)` that creates a `characters` table in the given sqlite3 connection. Columns: `id INTEGER PRIMARY KEY`, `name TEXT NOT NULL`, `status TEXT NOT NULL`, `species TEXT NOT NULL`, `gender TEXT NOT NULL`, `origin TEXT NOT NULL`. Use `CREATE TABLE IF NOT EXISTS` so calling it twice is safe.',
+        concept: 4,
+        prompt: `SQLite is Python's built-in database — no installation or setup needed, just \`import sqlite3\`. Before inserting any data, you need to define the table structure. Using \`IF NOT EXISTS\` makes this step **idempotent**: calling it twice is perfectly safe.
+
+**Your task:** Write \`create_table(conn)\` that creates a \`characters\` table with exactly these columns:
+- \`id INTEGER PRIMARY KEY\` — the character's numeric ID, must be unique
+- \`name TEXT NOT NULL\`
+- \`status TEXT NOT NULL\`
+- \`species TEXT NOT NULL\`
+- \`gender TEXT NOT NULL\`
+- \`origin TEXT NOT NULL\`
+
+**How to solve it step by step:**
+- Call \`conn.execute()\` and pass it a SQL string — you can use triple quotes \`"""..."""\` for a multi-line string
+- The SQL starts with: \`CREATE TABLE IF NOT EXISTS characters (\`
+- List each column on its own line, separated by commas
+- Close with \`)\`
+- After executing, call \`conn.commit()\` — this actually saves the change to the database
+- The function returns \`None\`, so no return statement is needed`,
         hint: 'conn.execute("""CREATE TABLE IF NOT EXISTS characters (...) """) then conn.commit().',
         starterCode: `import sqlite3
 
@@ -2555,7 +2729,18 @@ def create_table(conn: sqlite3.Connection) -> None:
       },
       {
         id: 'rm-06',
-        prompt: 'Write `insert_characters(conn, chars)` that bulk-inserts a list of cleaned character dicts into the `characters` table using `executemany` with `?` placeholders. Use `INSERT OR REPLACE` so re-running is safe. Return the number of rows inserted.',
+        concept: 4,
+        prompt: `Now that the table exists and the data is clean, it's time to load it. Instead of calling \`execute()\` once per row (slow), \`executemany()\` sends all rows in a single call. \`INSERT OR REPLACE\` makes the load **idempotent**: running the pipeline twice updates existing rows instead of crashing with a duplicate key error.
+
+**Your task:** Write \`insert_characters(conn, chars)\` that bulk-inserts all characters into the \`characters\` table and returns the number of rows inserted.
+
+**How to solve it step by step:**
+- First, build a list of tuples from your dicts — one tuple per character, in the same column order as the table:
+  - \`[(c["id"], c["name"], c["status"], c["species"], c["gender"], c["origin"]) for c in chars]\`
+- Call \`conn.executemany("INSERT OR REPLACE INTO characters VALUES (?,?,?,?,?,?)", rows)\`
+- The \`?\` are **placeholders** — SQLite fills them in safely from the tuple values. Never use f-strings or string formatting in SQL queries — that's a SQL injection vulnerability
+- Call \`conn.commit()\` to persist the inserts to the database
+- Return \`len(chars)\` as the count of inserted rows`,
         hint: 'conn.executemany("INSERT OR REPLACE INTO characters VALUES (?,?,?,?,?,?)", [(c["id"], ...) for c in chars]). Return len(chars).',
         starterCode: `import sqlite3
 
@@ -2609,7 +2794,18 @@ def insert_characters(conn: sqlite3.Connection, chars: list[dict]) -> int:
       },
       {
         id: 'rm-07',
-        prompt: 'Write `count_by_status(conn)` that queries the `characters` table and returns a dict mapping each status to the count of characters with that status. Example: `{"alive": 18, "dead": 4}`.',
+        concept: 4,
+        prompt: `Once the data is in the database, you can analyze it with SQL. After every pipeline run it's good practice to do a quick sanity check — in this case, counting how many characters are in each status bucket.
+
+**Your task:** Write \`count_by_status(conn)\` that queries the \`characters\` table and returns a dict like \`{"alive": 5, "dead": 2}\`.
+
+**How to solve it step by step:**
+- The SQL query you need: \`SELECT status, COUNT(*) FROM characters GROUP BY status\`
+- \`GROUP BY status\` groups all rows with the same status together, and \`COUNT(*)\` counts how many rows are in each group
+- Execute it: \`cursor = conn.execute("SELECT status, COUNT(*) FROM characters GROUP BY status")\`
+- Fetch all results: \`rows = cursor.fetchall()\` — this returns a list of tuples like \`[("alive", 5), ("dead", 2)]\`
+- In each tuple: \`row[0]\` is the status string, \`row[1]\` is the count
+- Convert to a dict with a comprehension: \`{row[0]: row[1] for row in rows}\``,
         hint: 'conn.execute("SELECT status, COUNT(*) FROM characters GROUP BY status"). Build a dict from cursor.fetchall().',
         starterCode: `import sqlite3
 
@@ -2650,7 +2846,32 @@ def count_by_status(conn: sqlite3.Connection) -> dict:
       },
       {
         id: 'rm-08',
-        prompt: 'Write the complete pipeline: `run_pipeline(pages, conn)` where `pages` is a dict of mock API responses keyed by URL. Chain all steps: (1) follow pagination to collect raw characters, (2) extract the 6 needed fields, (3) clean name/status/species, (4) filter out status="unknown", (5) insert into the DB. Return `{"loaded": n, "skipped": n}`.',
+        concept: 0,
+        prompt: `This is the capstone exercise. You will chain every function you have built into one complete ETL pipeline. The \`pages\` dict simulates the paginated API — same structure as the real thing, no network needed.
+
+**Your task:** Write \`run_pipeline(pages, conn)\` that runs all 5 steps and returns \`{"loaded": n, "skipped": n}\`.
+
+**Step 1 — Collect raw data (pagination):**
+- Start at \`list(pages.keys())[0]\` (the first URL in the dict)
+- Follow \`page["info"]["next"]\` in a \`while\` loop until it is \`None\`
+- Collect all \`page["results"]\` into one list called \`raw\`
+
+**Step 2 — Extract the fields you need:**
+- For each raw character, build a dict with only the 6 needed fields
+- Flatten: \`"origin": c["origin"]["name"]\`
+
+**Step 3 — Clean the data:**
+- For each extracted character, apply: \`.strip()\` on \`name\` and \`species\`, \`.lower()\` on \`status\`
+- Use the \`{**c, "name": ..., "status": ..., "species": ...}\` pattern
+
+**Step 4 — Filter and count skipped:**
+- Keep only characters where \`status in ("alive", "dead")\`
+- Count how many you removed: \`skipped = len(cleaned) - len(valid)\`
+
+**Step 5 — Insert into the database:**
+- Use \`conn.executemany("INSERT OR REPLACE INTO characters VALUES (?,?,?,?,?,?)", [...])\`
+- Call \`conn.commit()\`
+- Return \`{"loaded": len(valid), "skipped": skipped}\``,
         hint: 'Collect raw with a while loop following info.next → extract fields → clean with strip/lower → filter → executemany. skipped = total_extracted - len(valid).',
         starterCode: `import sqlite3
 
@@ -3091,6 +3312,7 @@ print(f"Done in {t.elapsed:.4f}s")  # always runs, even on exception`,
       // ── oop-01 ──────────────────────────────────────────────────────────────
       {
         id: 'oop-01',
+        concept: 0,
         title: 'Point class — constructor and methods',
         difficulty: 'easy',
         prompt: `Create a \`Point\` class that represents a point in 2D space.
@@ -3136,6 +3358,7 @@ print("OK")`,
       // ── oop-02 ──────────────────────────────────────────────────────────────
       {
         id: 'oop-02',
+        concept: 1,
         title: 'BankAccount — encapsulation and validation',
         difficulty: 'easy',
         prompt: `Implement \`BankAccount\` with a private balance and input validation.
@@ -3207,6 +3430,7 @@ print("OK")`,
       // ── oop-03 ──────────────────────────────────────────────────────────────
       {
         id: 'oop-03',
+        concept: 2,
         title: 'Temperature — @property with setter and conversion',
         difficulty: 'easy',
         prompt: `Create \`Temperature\` with a validated setter and automatic unit conversion.
@@ -3283,6 +3507,7 @@ print("OK")`,
       // ── oop-04 ──────────────────────────────────────────────────────────────
       {
         id: 'oop-04',
+        concept: 3,
         title: 'Scoreboard — class attributes and @classmethod',
         difficulty: 'easy',
         prompt: `Implement \`Scoreboard\` using class-level attributes shared across all instances.
@@ -3371,6 +3596,7 @@ print("OK")`,
       // ── oop-05 ──────────────────────────────────────────────────────────────
       {
         id: 'oop-05',
+        concept: 4,
         title: 'Card — __eq__, __lt__, __hash__, __str__',
         difficulty: 'medium',
         prompt: `Model a playing card with comparison and hashability support.
@@ -3459,6 +3685,7 @@ print("OK")`,
       // ── oop-06 ──────────────────────────────────────────────────────────────
       {
         id: 'oop-06',
+        concept: 4,
         title: 'Stack — __len__, __bool__, __contains__, __iter__',
         difficulty: 'medium',
         prompt: `Implement a stack (LIFO) with full Python protocol support.
@@ -3560,6 +3787,7 @@ print("OK")`,
       // ── oop-07 ──────────────────────────────────────────────────────────────
       {
         id: 'oop-07',
+        concept: 4,
         title: 'Vector2D — arithmetic operators',
         difficulty: 'medium',
         prompt: `Implement \`Vector2D\` with full arithmetic operator support.
@@ -3655,6 +3883,7 @@ print("OK")`,
       // ── oop-08 ──────────────────────────────────────────────────────────────
       {
         id: 'oop-08',
+        concept: 5,
         title: 'Animal, Dog, Cat — inheritance and polymorphism',
         difficulty: 'medium',
         prompt: `Build an animal class hierarchy using single inheritance.
@@ -3729,6 +3958,7 @@ print("OK")`,
       // ── oop-09 ──────────────────────────────────────────────────────────────
       {
         id: 'oop-09',
+        concept: 6,
         title: 'Shape — polymorphism with NotImplementedError',
         difficulty: 'medium',
         prompt: `Design a geometric shape hierarchy using polymorphism.
@@ -3824,6 +4054,7 @@ print("OK")`,
       // ── oop-10 ──────────────────────────────────────────────────────────────
       {
         id: 'oop-10',
+        concept: 7,
         title: 'Formatter — ABC with abstract method',
         difficulty: 'medium',
         prompt: `Implement the Template Method pattern using an Abstract Base Class.
@@ -3885,6 +4116,7 @@ print("OK")`,
       // ── oop-11 ──────────────────────────────────────────────────────────────
       {
         id: 'oop-11',
+        concept: 7,
         title: 'Mixins — LogMixin + ValidateMixin',
         difficulty: 'hard',
         prompt: `Combine two Mixins in a concrete class using multiple inheritance.
@@ -3952,6 +4184,7 @@ print("OK")`,
       // ── oop-12 ──────────────────────────────────────────────────────────────
       {
         id: 'oop-12',
+        concept: 7,
         title: 'DataPipeline — composition vs inheritance',
         difficulty: 'hard',
         prompt: `Build a data processing pipeline using composition instead of inheritance.
@@ -4030,6 +4263,7 @@ print("OK")`,
       // ── oop-13 ──────────────────────────────────────────────────────────────
       {
         id: 'oop-13',
+        concept: 4,
         title: 'RangeValidator — callable instances (__call__)',
         difficulty: 'hard',
         prompt: `Create a callable validator that can be used just like a function.
@@ -4091,6 +4325,7 @@ print("OK")`,
       // ── oop-14 ──────────────────────────────────────────────────────────────
       {
         id: 'oop-14',
+        concept: 7,
         title: 'Timer — context manager (__enter__ / __exit__)',
         difficulty: 'hard',
         prompt: `Implement a context manager that measures execution time.
@@ -4167,6 +4402,7 @@ print("OK")`,
       // ── oop-15 ──────────────────────────────────────────────────────────────
       {
         id: 'oop-15',
+        concept: null,
         title: 'ETLPipeline — capstone: putting it all together',
         difficulty: 'hard',
         prompt: `Combine everything you have learned into a reusable ETL pipeline.

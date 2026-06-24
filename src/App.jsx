@@ -3,13 +3,12 @@ import { useDatabase } from './hooks/useDatabase';
 import { TOPICS } from './data/exercises';
 import Sidebar from './components/Sidebar';
 import ExercisePanel from './components/ExercisePanel';
-import SchemaPanel from './components/SchemaPanel';
-import ExamplePanel from './components/ExamplePanel';
 import SchemaReferencePage from './components/SchemaReferencePage';
 import PythonApp from './components/PythonApp';
 import HomeScreen from './components/HomeScreen';
+import TopNav from './components/TopNav';
 
-function SQLApp({ theme, onToggleTheme, onGoHome }) {
+function SQLApp({ theme, onToggleTheme, onSetMode }) {
   const { ready, error, runQuery } = useDatabase();
   const [activeTopicId, setActiveTopicId] = useState(TOPICS[0].id);
   const [exerciseIndex, setExerciseIndex] = useState(0);
@@ -19,7 +18,6 @@ function SQLApp({ theme, onToggleTheme, onGoHome }) {
   });
   const [showSchemaRef, setShowSchemaRef] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
-  const [schemaOpen, setSchemaOpen] = useState(false);
 
   const topic = TOPICS.find(t => t.id === activeTopicId);
   const exercise = topic.exercises[exerciseIndex];
@@ -54,50 +52,20 @@ function SQLApp({ theme, onToggleTheme, onGoHome }) {
   return (
     <div className="flex flex-col min-h-screen" style={{ background: 'var(--ctp-base)' }}>
 
-      {/* Mobile top bar */}
-      <header
-        className="lg:hidden sticky top-0 z-20 flex items-center justify-between px-4 py-3 shrink-0"
-        style={{ background: 'var(--ctp-mantle)', borderBottom: '1px solid var(--ctp-surface1)' }}
-      >
-        <button
-          onClick={() => setNavOpen(true)}
-          className="flex items-center gap-2 text-sm px-3 py-1.5 rounded-lg cursor-pointer transition-colors"
-          style={{ background: 'var(--ctp-surface0)', color: 'var(--ctp-subtext1)', border: '1px solid var(--ctp-surface1)' }}
-          onMouseEnter={e => e.currentTarget.style.background = 'var(--ctp-surface1)'}
-          onMouseLeave={e => e.currentTarget.style.background = 'var(--ctp-surface0)'}
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
-          </svg>
-          Topics
-        </button>
-        <button
-          onClick={onGoHome}
-          className="text-sm font-bold cursor-pointer"
-          style={{ color: 'var(--ctp-text)', background: 'none', border: 'none' }}
-        >
-          SQL Drills
-        </button>
-        <button
-          onClick={() => setSchemaOpen(true)}
-          className="flex items-center gap-2 text-sm px-3 py-1.5 rounded-lg cursor-pointer transition-colors"
-          style={{ background: 'var(--ctp-surface0)', color: 'var(--ctp-subtext1)', border: '1px solid var(--ctp-surface1)' }}
-          onMouseEnter={e => e.currentTarget.style.background = 'var(--ctp-surface1)'}
-          onMouseLeave={e => e.currentTarget.style.background = 'var(--ctp-surface0)'}
-        >
-          Schema
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
-          </svg>
-        </button>
-      </header>
+      <TopNav
+        mode="sql"
+        onSetMode={onSetMode}
+        theme={theme}
+        onToggleTheme={onToggleTheme}
+        onOpenNav={() => setNavOpen(true)}
+      />
 
       {/* Backdrop */}
-      {(navOpen || schemaOpen) && (
+      {navOpen && (
         <div
           className="fixed inset-0 z-30 lg:hidden"
           style={{ background: 'rgba(0,0,0,0.5)' }}
-          onClick={() => { setNavOpen(false); setSchemaOpen(false); }}
+          onClick={() => setNavOpen(false)}
         />
       )}
 
@@ -111,44 +79,28 @@ function SQLApp({ theme, onToggleTheme, onGoHome }) {
             activeTopic={activeTopicId}
             onSelectTopic={handleSelectTopic}
             progress={progress}
-            theme={theme}
-            onToggleTheme={onToggleTheme}
             onClose={() => setNavOpen(false)}
-            onGoHome={onGoHome}
+            onGoHome={() => onSetMode('home')}
           />
         </div>
 
-        <main className="flex-1 flex min-w-0 overflow-hidden">
-          <div className="flex-1 overflow-y-auto p-4 lg:p-8">
-            <div className="max-w-3xl mx-auto">
-              <div className="mb-2">
-                <h2 className="text-xl lg:text-2xl font-bold m-0" style={{ color: 'var(--ctp-text)' }}>{topic.title}</h2>
-                <p className="text-sm mt-1 mb-4" style={{ color: 'var(--ctp-subtext0)' }}>{topic.description}</p>
-                <ExamplePanel lesson={topic.lesson} />
-              </div>
-              <ExercisePanel
-                exercise={exercise}
-                runQuery={runQuery}
-                onNext={handleNext}
-                onPrev={handlePrev}
-                current={exerciseIndex + 1}
-                total={topic.exercises.length}
-              />
-            </div>
-          </div>
-
-          {/* Schema panel */}
-          <div
-            className={`fixed inset-y-0 right-0 z-40 w-72 overflow-y-auto overflow-x-hidden p-4 transition-transform duration-200 lg:relative lg:inset-auto lg:z-auto lg:shrink-0 lg:translate-x-0 ${schemaOpen ? 'translate-x-0' : 'translate-x-full'}`}
-            style={{ background: 'var(--ctp-mantle)', borderLeft: '1px solid var(--ctp-surface1)' }}
-          >
-            <SchemaPanel
-              theme={theme}
-              tables={topic.tables}
-              onOpenReference={() => setShowSchemaRef(true)}
-              onClose={() => setSchemaOpen(false)}
-            />
-          </div>
+        {/* Main — overflow-hidden on desktop so each panel scrolls independently */}
+        <main className="flex-1 overflow-y-auto lg:overflow-hidden">
+          <ExercisePanel
+            key={`${activeTopicId}-${exerciseIndex}`}
+            exercise={exercise}
+            runQuery={runQuery}
+            onNext={handleNext}
+            onPrev={handlePrev}
+            current={exerciseIndex + 1}
+            total={topic.exercises.length}
+            lesson={topic.lesson}
+            topicTitle={topic.title}
+            topicDescription={topic.description}
+            tables={topic.tables}
+            theme={theme}
+            onOpenSchemaRef={() => setShowSchemaRef(true)}
+          />
         </main>
       </div>
 
@@ -228,12 +180,12 @@ export default function App() {
   function toggleTheme() { setTheme(t => t === 'mocha' ? 'latte' : 'mocha'); }
 
   if (mode === 'python') {
-    return <PythonApp theme={theme} onToggleTheme={toggleTheme} onGoHome={() => setMode('home')} />;
+    return <PythonApp theme={theme} onToggleTheme={toggleTheme} onSetMode={setMode} />;
   }
 
   if (mode === 'sql') {
-    return <SQLApp theme={theme} onToggleTheme={toggleTheme} onGoHome={() => setMode('home')} />;
+    return <SQLApp theme={theme} onToggleTheme={toggleTheme} onSetMode={setMode} />;
   }
 
-  return <HomeScreen onSelectMode={setMode} theme={theme} onToggleTheme={toggleTheme} />;
+  return <HomeScreen onSetMode={setMode} theme={theme} onToggleTheme={toggleTheme} />;
 }
