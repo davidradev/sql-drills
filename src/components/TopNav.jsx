@@ -1,5 +1,5 @@
 export default function TopNav({ mode, onSetMode, theme, onToggleTheme, onOpenNav, onOpenSchema }) {
-  const inApp = mode === 'sql' || mode === 'python';
+  const inApp = mode === 'sql' || mode === 'python' || mode === 'pandas';
 
   return (
     <header

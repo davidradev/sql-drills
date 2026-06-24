@@ -25,11 +25,11 @@ export default function HomeScreen({ onSetMode, theme, onToggleTheme }) {
           className="text-sm text-center mb-12 max-w-md"
           style={{ color: 'var(--ctp-subtext0)' }}
         >
-          Two tracks, both focused on the skills that come up in Data Engineer interviews.
+          Three tracks, all focused on the skills that come up in Data Engineer interviews.
         </p>
 
         {/* Mode cards */}
-        <div className="flex flex-col sm:flex-row gap-6 w-full max-w-2xl">
+        <div className="flex flex-col sm:flex-row gap-6 w-full max-w-3xl">
 
           {/* SQL card */}
           <button
@@ -76,6 +76,57 @@ export default function HomeScreen({ onSetMode, theme, onToggleTheme }) {
                 </span>
               ))}
             </div>
+          </button>
+
+          {/* Pandas card */}
+          <button
+            onClick={() => onSetMode('pandas')}
+            className="flex-1 text-left rounded-2xl p-6 cursor-pointer transition-all"
+            style={{
+              background: 'var(--ctp-surface0)',
+              border: '1px solid var(--ctp-surface1)',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.border = '1px solid var(--ctp-yellow)';
+              e.currentTarget.style.background = 'color-mix(in srgb, var(--ctp-yellow) 6%, var(--ctp-surface0))';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.border = '1px solid var(--ctp-surface1)';
+              e.currentTarget.style.background = 'var(--ctp-surface0)';
+            }}
+          >
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
+              style={{ background: 'color-mix(in srgb, var(--ctp-yellow) 20%, transparent)', color: 'var(--ctp-yellow)' }}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                <line x1="3" y1="9" x2="21" y2="9"/>
+                <line x1="3" y1="15" x2="21" y2="15"/>
+                <line x1="9" y1="3" x2="9" y2="21"/>
+              </svg>
+            </div>
+            <h2 className="text-lg font-bold m-0 mb-2" style={{ color: 'var(--ctp-text)' }}>Pandas Drills</h2>
+            <p className="text-sm leading-relaxed m-0 mb-4" style={{ color: 'var(--ctp-subtext0)' }}>
+              Master pandas from zero to hero. Create DataFrames, filter rows, transform columns, group data, handle nulls, and merge tables — with a full lesson for each topic.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {['filter', 'groupby', 'merge', 'transform', 'strings'].map(tag => (
+                <span
+                  key={tag}
+                  className="text-[10px] px-2 py-0.5 rounded font-mono"
+                  style={{
+                    background: 'color-mix(in srgb, var(--ctp-yellow) 15%, transparent)',
+                    color: 'var(--ctp-yellow)',
+                  }}
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+            <p className="text-[10px] mt-3 m-0" style={{ color: 'var(--ctp-overlay0)' }}>
+              Loads Python engine on first visit (~30MB, cached after)
+            </p>
           </button>
 
           {/* Python card */}

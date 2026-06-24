@@ -5,6 +5,7 @@ import Sidebar from './components/Sidebar';
 import ExercisePanel from './components/ExercisePanel';
 import SchemaReferencePage from './components/SchemaReferencePage';
 import PythonApp from './components/PythonApp';
+import PandasApp from './components/PandasApp';
 import HomeScreen from './components/HomeScreen';
 import TopNav from './components/TopNav';
 
@@ -170,7 +171,7 @@ function SQLApp({ theme, onToggleTheme, onSetMode }) {
 }
 
 export default function App() {
-  const [mode, setMode] = useState('home'); // 'home' | 'sql' | 'python'
+  const [mode, setMode] = useState('home'); // 'home' | 'sql' | 'python' | 'pandas'
   const [theme, setTheme] = useState('mocha');
 
   useEffect(() => {
@@ -181,6 +182,10 @@ export default function App() {
 
   if (mode === 'python') {
     return <PythonApp theme={theme} onToggleTheme={toggleTheme} onSetMode={setMode} />;
+  }
+
+  if (mode === 'pandas') {
+    return <PandasApp theme={theme} onToggleTheme={toggleTheme} onSetMode={setMode} />;
   }
 
   if (mode === 'sql') {
