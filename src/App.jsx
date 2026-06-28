@@ -8,9 +8,46 @@ import PythonApp from './components/PythonApp';
 import PandasApp from './components/PandasApp';
 import HomeScreen from './components/HomeScreen';
 import TopNav from './components/TopNav';
+import translations from './data/exercises_es.json';
+
+function translateTopic(topic, lang) {
+  if (lang !== 'es') return topic;
+  const t = translations[topic.id];
+  if (!t) return topic;
+
+  return {
+    ...topic,
+    title: t.title || topic.title,
+    description: t.description || topic.description,
+    lesson: topic.lesson ? {
+      ...topic.lesson,
+      intro: t.intro || topic.lesson.intro,
+      concepts: topic.lesson.concepts.map((c, idx) => {
+        const tc = t.concepts?.[idx];
+        if (!tc) return c;
+        return {
+          ...c,
+          title: tc.title || c.title,
+          body: tc.body || c.body,
+          note: tc.note || c.note
+        };
+      })
+    } : undefined,
+    exercises: topic.exercises.map((ex) => {
+      const tex = t.exercises?.[ex.id];
+      if (!tex) return ex;
+      return {
+        ...ex,
+        prompt: tex.prompt || ex.prompt,
+        hint: tex.hint || ex.hint
+      };
+    })
+  };
+}
 
 function SQLApp({ theme, onToggleTheme, onSetMode }) {
   const { ready, error, runQuery } = useDatabase();
+  const [lang, setLang] = useState(() => localStorage.getItem('sql-drills-lang') || 'en');
   const [activeTopicId, setActiveTopicId] = useState(TOPICS[0].id);
   const [exerciseIndex, setExerciseIndex] = useState(0);
   const [progress, setProgress] = useState(() => {
@@ -21,7 +58,12 @@ function SQLApp({ theme, onToggleTheme, onSetMode }) {
   const [navOpen, setNavOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  const topic = TOPICS.find(t => t.id === activeTopicId);
+  useEffect(() => {
+    localStorage.setItem('sql-drills-lang', lang);
+  }, [lang]);
+
+  const rawTopic = TOPICS.find(t => t.id === activeTopicId);
+  const topic = translateTopic(rawTopic, lang);
   const exercise = topic.exercises[exerciseIndex];
 
   useEffect(() => {
@@ -68,6 +110,8 @@ function SQLApp({ theme, onToggleTheme, onSetMode }) {
         onToggleTheme={onToggleTheme}
         onToggleSidebar={handleToggleSidebar}
         sidebarOpen={sidebarOpen}
+        lang={lang}
+        onToggleLang={() => setLang(l => l === 'en' ? 'es' : 'en')}
       />
 
       {/* Backdrop */}
@@ -93,6 +137,7 @@ function SQLApp({ theme, onToggleTheme, onSetMode }) {
             progress={progress}
             onClose={() => setNavOpen(false)}
             onGoHome={() => onSetMode('home')}
+            lang={lang}
           />
         </div>
 
@@ -112,6 +157,7 @@ function SQLApp({ theme, onToggleTheme, onSetMode }) {
             tables={topic.tables}
             theme={theme}
             onOpenSchemaRef={() => setShowSchemaRef(true)}
+            lang={lang}
           />
         </main>
       </div>

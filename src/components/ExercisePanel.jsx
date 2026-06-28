@@ -34,9 +34,60 @@ function parseError(msg) {
   return { detail: msg, raw: msg };
 }
 
+const UI_TEXT = {
+  en: {
+    exerciseOf: "Exercise",
+    of: "of",
+    hint: "Hint",
+    hideHint: "Hide Hint",
+    prev: "← Prev",
+    next: "Next →",
+    editorInfo: "Ctrl+Enter to run",
+    editorPlaceholder: "Write your SQL query here...",
+    run: "Run Query",
+    solution: "Solution",
+    hideSolution: "Hide Solution",
+    correct: "Correct!",
+    sqlError: "SQL Error",
+    wrongResult: "Wrong result",
+    columnsExpected: "Expected columns:",
+    hideExpected: "Hide expected output",
+    showExpected: "Show expected output",
+    expectedTitle: "Expected",
+    outputTitle: "Your output",
+    returned: "returned",
+    row: "row",
+    rows: "rows"
+  },
+  es: {
+    exerciseOf: "Ejercicio",
+    of: "de",
+    hint: "Pista",
+    hideHint: "Ocultar Pista",
+    prev: "← Anterior",
+    next: "Siguiente →",
+    editorInfo: "Ctrl+Enter para ejecutar",
+    editorPlaceholder: "Escribe tu consulta SQL aquí...",
+    run: "Ejecutar consulta",
+    solution: "Solución",
+    hideSolution: "Ocultar solución",
+    correct: "¡Correcto!",
+    sqlError: "Error SQL",
+    wrongResult: "Resultado incorrecto",
+    columnsExpected: "Columnas esperadas:",
+    hideExpected: "Ocultar salida esperada",
+    showExpected: "Mostrar salida esperada",
+    expectedTitle: "Esperado",
+    outputTitle: "Tu salida",
+    returned: "devuelta",
+    row: "fila",
+    rows: "filas"
+  }
+};
+
 export default function ExercisePanel({
   exercise, runQuery, onNext, onPrev, current, total,
-  lesson, topicTitle, topicDescription, tables, theme, onOpenSchemaRef,
+  lesson, topicTitle, topicDescription, tables, theme, onOpenSchemaRef, lang = 'en'
 }) {
   const [query, setQuery]               = useState('');
   const [result, setResult]             = useState(null);
@@ -45,6 +96,8 @@ export default function ExercisePanel({
   const [showHint, setShowHint]         = useState(false);
   const [showSolution, setShowSolution] = useState(false);
   const [showExpected, setShowExpected] = useState(false);
+
+  const t = UI_TEXT[lang] || UI_TEXT.en;
 
   function handleRun() {
     if (!query.trim()) return;
@@ -86,8 +139,34 @@ export default function ExercisePanel({
     ? JSON.stringify(result.columns) === JSON.stringify(expected.columns)
     : true;
 
+  const getReturnedText = (count) => {
+    if (lang === 'es') {
+      const labelFila = count === 1 ? t.row : t.rows;
+      const labelDevuelta = count === 1 ? 'devuelta' : 'devueltas';
+      return `${count} ${labelFila} ${labelDevuelta}`;
+    } else {
+      const labelFila = count === 1 ? t.row : t.rows;
+      return `${count} ${labelFila} ${t.returned}`;
+    }
+  };
+
+  const getExpectedText = (count) => {
+    const labelFila = count === 1 ? t.row : t.rows;
+    return `${t.expectedTitle} (${count} ${labelFila})`;
+  };
+
+  const getWrongResultMessage = () => {
+    if (lang === 'es') {
+      const labelFilaUser = result.rows.length === 1 ? 'fila' : 'filas';
+      return `Tu consulta devolvió ${result.rows.length} ${labelFilaUser}, se esperaban ${expected?.rows.length}.`;
+    } else {
+      const labelFilaUser = result.rows.length === 1 ? 'row' : 'rows';
+      return `Your query returned ${result.rows.length} ${labelFilaUser}, expected ${expected?.rows.length}.`;
+    }
+  };
+
   return (
-    <div className="flex flex-col lg:flex-row lg:h-full">
+    <div className="flex flex-col lg:flex-row lg:h-full lg:min-h-0 lg:overflow-hidden">
 
       {/* ── LEFT PANEL — info ──────────────────────────────── */}
       <div className="lg:w-[42%] lg:shrink-0 lg:overflow-y-auto p-4 lg:p-6 flex flex-col gap-5">
@@ -113,13 +192,14 @@ export default function ExercisePanel({
               lesson={lesson}
               conceptIndex={exercise.concept ?? null}
               initialOpen={exercise.concept == null}
+              lang={lang}
             />
           </div>
         )}
 
         {/* Progress */}
         <div className="flex items-center justify-between text-sm shrink-0">
-          <span style={{ color: 'var(--ctp-subtext0)' }}>Exercise {current} of {total}</span>
+          <span style={{ color: 'var(--ctp-subtext0)' }}>{t.exerciseOf} {current} {t.of} {total}</span>
           <div className="flex gap-1">
             {Array.from({ length: total }).map((_, i) => (
               <div key={i} className="w-2 h-2 rounded-full transition-colors" style={{
@@ -149,7 +229,7 @@ export default function ExercisePanel({
             onMouseEnter={e => { if (!showHint) e.currentTarget.style.background = 'var(--ctp-surface1)'; }}
             onMouseLeave={e => { if (!showHint) e.currentTarget.style.background = 'var(--ctp-surface0)'; }}
           >
-            {showHint ? 'Hide Hint' : 'Hint'}
+            {showHint ? t.hideHint : t.hint}
           </button>
           {showHint && (
             <div className="mt-2 rounded-lg px-4 py-3 text-sm" style={{
@@ -169,13 +249,13 @@ export default function ExercisePanel({
             style={{ background: 'var(--ctp-surface0)', color: 'var(--ctp-subtext1)', border: '1px solid var(--ctp-surface1)' }}
             onMouseEnter={e => { if (current > 1) e.currentTarget.style.background = 'var(--ctp-surface1)'; }}
             onMouseLeave={e => e.currentTarget.style.background = 'var(--ctp-surface0)'}
-          >← Prev</button>
+          >{t.prev}</button>
           <button onClick={goNext} disabled={current >= total}
             className="flex-1 px-4 py-2 rounded-lg text-sm transition-colors cursor-pointer disabled:opacity-30"
             style={{ background: 'var(--ctp-surface0)', color: 'var(--ctp-subtext1)', border: '1px solid var(--ctp-surface1)' }}
             onMouseEnter={e => { if (current < total) e.currentTarget.style.background = 'var(--ctp-surface1)'; }}
             onMouseLeave={e => e.currentTarget.style.background = 'var(--ctp-surface0)'}
-          >Next →</button>
+          >{t.next}</button>
         </div>
 
         {/* Schema */}
@@ -199,7 +279,7 @@ export default function ExercisePanel({
       <div className="flex-1 lg:overflow-y-auto p-4 lg:p-6 flex flex-col gap-4">
 
         {/* Editor */}
-        <div className="relative">
+        <div className="relative shrink-0">
           <div
             className="sql-editor-wrapper rounded-xl overflow-hidden transition-shadow"
             style={{ border: '1px solid var(--ctp-surface1)' }}
@@ -210,7 +290,7 @@ export default function ExercisePanel({
               highlight={code => Prism.highlight(code, Prism.languages.sql, 'sql')}
               onKeyDown={handleKeyDown}
               padding={16}
-              placeholder="Write your SQL query here..."
+              placeholder={t.editorPlaceholder}
               style={{
                 fontFamily: 'ui-monospace, Consolas, "Cascadia Code", monospace',
                 fontSize: 13.5,
@@ -223,19 +303,19 @@ export default function ExercisePanel({
             />
           </div>
           <span className="absolute bottom-3 right-3 text-xs pointer-events-none" style={{ color: 'var(--ctp-overlay0)' }}>
-            Ctrl+Enter to run
+            {t.editorInfo}
           </span>
         </div>
 
         {/* Controls */}
-        <div className="flex gap-2">
+        <div className="flex gap-2 shrink-0">
           <button
             onClick={handleRun}
             disabled={!query.trim()}
             className="px-5 py-2 rounded-lg text-sm font-semibold transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             style={{ background: 'var(--ctp-blue)', color: 'var(--ctp-btn-text)' }}
           >
-            Run Query
+            {t.run}
           </button>
           <button
             onClick={() => setShowSolution(!showSolution)}
@@ -244,14 +324,14 @@ export default function ExercisePanel({
             onMouseEnter={e => e.currentTarget.style.background = 'var(--ctp-surface1)'}
             onMouseLeave={e => e.currentTarget.style.background = 'var(--ctp-surface0)'}
           >
-            {showSolution ? 'Hide Solution' : 'Solution'}
+            {showSolution ? t.hideSolution : t.solution}
           </button>
         </div>
 
         {/* Solution */}
         {showSolution && (
-          <div className="rounded-lg px-4 py-3" style={{ background: 'var(--ctp-surface0)', border: '1px solid var(--ctp-surface1)' }}>
-            <p className="text-xs uppercase tracking-wide mb-2 m-0" style={{ color: 'var(--ctp-overlay0)' }}>Solution</p>
+          <div className="rounded-lg px-4 py-3 shrink-0" style={{ background: 'var(--ctp-surface0)', border: '1px solid var(--ctp-surface1)' }}>
+            <p className="text-xs uppercase tracking-wide mb-2 m-0" style={{ color: 'var(--ctp-overlay0)' }}>{t.solution}</p>
             <code className="text-sm font-mono whitespace-pre-wrap" style={{ color: 'var(--ctp-green)' }}>
               {exercise.solution}
             </code>
@@ -260,22 +340,22 @@ export default function ExercisePanel({
 
         {/* Status: correct */}
         {status === 'correct' && (
-          <div className="rounded-lg px-4 py-3 text-sm font-medium" style={{
+          <div className="rounded-lg px-4 py-3 text-sm font-medium shrink-0" style={{
             background: 'color-mix(in srgb, var(--ctp-green) 12%, transparent)',
             border: '1px solid color-mix(in srgb, var(--ctp-green) 40%, transparent)',
             color: 'var(--ctp-green)',
           }}>
-            Correct!
+            {t.correct}
           </div>
         )}
 
         {/* Status: SQL error */}
         {status === 'error' && parsedError && (
-          <div className="rounded-lg px-4 py-3 text-sm" style={{
+          <div className="rounded-lg px-4 py-3 text-sm shrink-0" style={{
             background: 'color-mix(in srgb, var(--ctp-red) 10%, transparent)',
             border: '1px solid color-mix(in srgb, var(--ctp-red) 40%, transparent)',
           }}>
-            <p className="font-semibold m-0 mb-1" style={{ color: 'var(--ctp-red)' }}>SQL Error</p>
+            <p className="font-semibold m-0 mb-1" style={{ color: 'var(--ctp-red)' }}>{t.sqlError}</p>
             <p className="m-0" style={{ color: 'var(--ctp-red)' }}>{parsedError.detail}</p>
             {parsedError.detail !== parsedError.raw && (
               <p className="m-0 mt-2 font-mono text-xs"
@@ -288,17 +368,17 @@ export default function ExercisePanel({
 
         {/* Status: wrong result */}
         {status === 'wrong' && (
-          <div className="rounded-lg px-4 py-3 text-sm" style={{
+          <div className="rounded-lg px-4 py-3 text-sm shrink-0" style={{
             background: 'color-mix(in srgb, var(--ctp-peach) 10%, transparent)',
             border: '1px solid color-mix(in srgb, var(--ctp-peach) 40%, transparent)',
           }}>
-            <p className="font-semibold m-0 mb-1" style={{ color: 'var(--ctp-peach)' }}>Wrong result</p>
+            <p className="font-semibold m-0 mb-1" style={{ color: 'var(--ctp-peach)' }}>{t.wrongResult}</p>
             <p className="m-0" style={{ color: 'var(--ctp-peach)' }}>
-              Your query returned {result.rows.length} row{result.rows.length !== 1 ? 's' : ''}, expected {expected?.rows.length}.
+              {getWrongResultMessage()}
             </p>
             {!colsMatch && (
               <p className="m-0 mt-1 font-mono text-xs" style={{ color: 'var(--ctp-peach)' }}>
-                Expected columns: {expected?.columns.join(', ')}
+                {t.columnsExpected} {expected?.columns.join(', ')}
               </p>
             )}
             {expected && (
@@ -311,7 +391,7 @@ export default function ExercisePanel({
                   color: 'var(--ctp-peach)',
                 }}
               >
-                {showExpected ? 'Hide expected output' : 'Show expected output'}
+                {showExpected ? t.hideExpected : t.showExpected}
               </button>
             )}
           </div>
@@ -319,9 +399,9 @@ export default function ExercisePanel({
 
         {/* Expected output */}
         {status === 'wrong' && showExpected && expected && (
-          <div>
+          <div className="shrink-0">
             <p className="text-xs mb-1" style={{ color: 'var(--ctp-overlay0)' }}>
-              Expected ({expected.rows.length} row{expected.rows.length !== 1 ? 's' : ''})
+              {getExpectedText(expected.rows.length)}
             </p>
             <ResultTable columns={expected.columns} rows={expected.rows} />
           </div>
@@ -329,9 +409,9 @@ export default function ExercisePanel({
 
         {/* Your result table */}
         {result && !result.error && (
-          <div>
+          <div className="shrink-0">
             <p className="text-xs mb-1" style={{ color: 'var(--ctp-overlay0)' }}>
-              Your output ({result.rows.length} row{result.rows.length !== 1 ? 's' : ''} returned)
+              {t.outputTitle} ({getReturnedText(result.rows.length)})
             </p>
             <ResultTable columns={result.columns} rows={result.rows} />
           </div>

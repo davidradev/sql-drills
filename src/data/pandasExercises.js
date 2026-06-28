@@ -115,6 +115,17 @@ print(messy.columns.tolist())  # ['index', 'product', 'price', 'stock', 'total']
 #                                             ^ unwanted extra column`,
           note: 'Always use reset_index(drop=True) unless you specifically need the old index as a column. And always work on a copy — df = df.copy() — to avoid accidentally modifying the original.',
         },
+        {
+          title: 'Conditional Columns (.apply) + Sorting (.sort_values)',
+          body: 'Create a column based on a condition using .apply() with a lambda function. The lambda function evaluates row-by-row. To sort a DataFrame, use .sort_values("column", ascending=False) (True for ascending, False for descending).',
+          code: `# Conditional column: "status" is "in stock" if stock > 0, else "out of stock"
+df["status"] = df["stock"].apply(lambda s: "in stock" if s > 0 else "out of stock")
+
+# Sort by price descending
+sorted_df = df.sort_values("price", ascending=False)
+print(sorted_df)`,
+          note: 'You can chain operations: df.sort_values(...).reset_index(drop=True) is a very common pattern.',
+        },
       ],
     },
     exercises: [
@@ -283,7 +294,7 @@ print(result)`,
       },
       {
         id: 'pd-cr-07',
-        concept: 4,
+        concept: 5,
         prompt: `Write \`make_report(df)\` that does all of the following and returns the result:
 1. Adds a \`"status"\` column: \`"in stock"\` if stock > 0, else \`"out of stock"\`
 2. Sorts by \`"price"\` descending
@@ -777,7 +788,7 @@ df = pd.DataFrame({
         testCode: `result = add_revenue(df)
 assert "revenue" in result.columns
 # Laptop:999*3=2997, Mouse:29.99*15=449.85, Keyboard:79*8=632, Monitor:349*2=698, Headset:149*6=894
-assert result["revenue"].tolist() == [2997.0, 449.85, 632.0, 698.0, 894.0]
+assert [round(x, 2) for x in result["revenue"].tolist()] == [2997.0, 449.85, 632.0, 698.0, 894.0]
 assert "revenue" not in df.columns, "Original was modified!"
 print("All tests passed!")
 print(result)`,
@@ -807,7 +818,7 @@ df = pd.DataFrame({
         testCode: `result = add_profit(df)
 assert "profit" in result.columns
 assert "margin_pct" in result.columns
-assert result["profit"].tolist() == [1197.0, 299.85, 432.0]
+assert [round(x, 2) for x in result["profit"].tolist()] == [1197.0, 299.85, 432.0]
 # Laptop: 1197/2997*100 = 39.9, Mouse: 299.85/449.85*100 = 66.7, Keyboard: 432/632*100 = 68.4
 assert result["margin_pct"].tolist() == [39.9, 66.7, 68.4]
 print("All tests passed!")
@@ -971,7 +982,7 @@ assert "revenue" in result.columns and "tier" in result.columns
 # Revenues: Laptop=2997, Mouse=449.85, Keyboard=632, Monitor=698, Headset=894, Webcam=890
 # Sorted desc: Laptop(2997), Headset(894), Webcam(890), Monitor(698), Keyboard(632), Mouse(449.85)
 assert result["product"].tolist() == ["Laptop","Headset","Webcam","Monitor","Keyboard","Mouse"]
-assert result["revenue"].tolist() == [2997.0, 894.0, 890.0, 698.0, 632.0, 449.85]
+assert [round(x, 2) for x in result["revenue"].tolist()] == [2997.0, 894.0, 890.0, 698.0, 632.0, 449.85]
 assert result["tier"].tolist() == ["high","high","high","high","high","low"]
 assert result.index.tolist() == [0,1,2,3,4,5]
 # Original unchanged

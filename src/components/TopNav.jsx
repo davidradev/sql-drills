@@ -1,4 +1,4 @@
-export default function TopNav({ mode, onSetMode, theme, onToggleTheme, onToggleSidebar, sidebarOpen, onOpenSchema }) {
+export default function TopNav({ mode, onSetMode, theme, onToggleTheme, onToggleSidebar, sidebarOpen, onOpenSchema, lang, onToggleLang }) {
   const inApp = mode === 'sql' || mode === 'python' || mode === 'pandas';
 
   return (
@@ -125,6 +125,28 @@ export default function TopNav({ mode, onSetMode, theme, onToggleTheme, onToggle
               </button>
             ))}
           </div>
+        )}
+
+        {/* Language toggle (Pandas & SQL) */}
+        {((mode === 'pandas' || mode === 'sql')) && onToggleLang && (
+          <button
+            onClick={onToggleLang}
+            className="text-xs px-2.5 py-1.5 rounded-lg font-medium transition-colors cursor-pointer"
+            style={{
+              background: lang === 'es' ? `color-mix(in srgb, var(--ctp-${mode === 'sql' ? 'blue' : 'yellow'}) 15%, transparent)` : 'var(--ctp-surface0)',
+              color: lang === 'es' ? `var(--ctp-${mode === 'sql' ? 'blue' : 'yellow'})` : 'var(--ctp-subtext1)',
+              border: `1px solid ${lang === 'es' ? `color-mix(in srgb, var(--ctp-${mode === 'sql' ? 'blue' : 'yellow'}) 45%, transparent)` : 'var(--ctp-surface1)'}`,
+            }}
+            onMouseEnter={e => {
+              if (lang !== 'es') e.currentTarget.style.background = 'var(--ctp-surface1)';
+            }}
+            onMouseLeave={e => {
+              if (lang !== 'es') e.currentTarget.style.background = 'var(--ctp-surface0)';
+            }}
+            title={lang === 'es' ? "Switch to English" : "Cambiar a Español"}
+          >
+            {lang === 'es' ? 'ES' : 'EN'}
+          </button>
         )}
 
         {/* Theme toggle */}

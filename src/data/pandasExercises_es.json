@@ -1,0 +1,499 @@
+{
+  "pd-create": {
+    "title": "Creación de DataFrames",
+    "description": "Construye DataFrames a partir de diccionarios y listas de Python, inspecciona su estructura, selecciona columnas, añade campos calculados y reinicia el índice.",
+    "intro": "Un DataFrame es el objeto central de pandas: una tabla bidimensional donde cada fila es una observación y cada columna es una variable con tipo. Puedes construir uno a partir de estructuras de datos de Python que ya tengas (listas de diccionarios, diccionarios de listas), inspeccionarlo inmediatamente y comenzar a agregar o seleccionar columnas. Comprender cómo funciona el índice — y cómo reiniciarlo — es esencial antes de cualquier otra cosa.",
+    "concepts": [
+      {
+        "title": "pd.DataFrame() a partir de una lista de diccionarios",
+        "body": "La forma más natural de crear un DataFrame: pasar una lista de diccionarios donde cada diccionario es una fila. Las claves se convierten en nombres de columnas. Si a una fila le falta una clave, obtiene NaN para esa columna. pandas asigna automáticamente un índice numérico 0, 1, 2, … a cada fila.",
+        "note": "El índice 0, 1, 2 de la izquierda lo agrega automáticamente pandas. No es una columna; vive en df.index."
+      },
+      {
+        "title": "pd.DataFrame() a partir de un diccionario de listas",
+        "body": "Un formato alternativo: un diccionario donde cada clave es un nombre de columna y el valor es una lista de valores para esa columna. Todas las listas deben tener la misma longitud; de lo contrario, pandas genera un ValueError. Este formato es útil cuando los datos ya están organizados por columnas (por ejemplo, desde un lector CSV o una respuesta de API).",
+        "note": ""
+      },
+      {
+        "title": "Inspeccionar un DataFrame: shape, dtypes, head()",
+        "body": "Antes de analizar los datos, siempre inspecciónalos primero. df.shape devuelve una tupla (filas, columnas). df.dtypes muestra el tipo de datos de cada columna. df.head(n) muestra las primeras n filas (por defecto 5). len(df) da el conteo de filas. El tipo de datos \"object\" significa cadena de texto (o tipos mixtos); las columnas numéricas guardadas como object fallarán silenciosamente en las agregaciones.",
+        "note": "Siempre ejecuta df.dtypes después de cargar datos. Si una columna numérica muestra \"object\", conviértela con df[\"col\"].astype(float)."
+      },
+      {
+        "title": "Seleccionar columnas: df[\"col\"] vs df[[\"c1\", \"c2\"]]",
+        "body": "df[\"col\"] selecciona una columna y devuelve una Series (1-D). df[[\"col1\", \"col2\"]] selecciona múltiples columnas y devuelve un DataFrame (2-D). Los corchetes dobles no son una errata: los externos [] son el operador de indexación y los internos [] son una lista de nombres de Python. Confundirlos es uno de los errores más comunes en pandas.",
+        "note": "Corchetes simples → Series. Corchetes dobles → DataFrame. Una Series no tiene el atributo .columns; un DataFrame sí."
+      },
+      {
+        "title": "Añadir columnas + reset_index(drop=True)",
+        "body": "Asigna una nueva columna con df[\"new\"] = expresión. La expresión opera elemento a elemento sobre las columnas existentes (sin necesidad de bucles). Después de filtrar filas, se preservan los valores del índice original, creando huecos (ej. 0, 2, 4). reset_index(drop=True) reinicia el índice a una secuencia limpia de 0, 1, 2. Sin drop=True, el índice antiguo se convierte en una nueva columna, lo cual raramente es lo deseado.",
+        "note": "Usa siempre reset_index(drop=True) a menos que necesites específicamente el índice antiguo como columna. Y trabaja siempre sobre una copia — df = df.copy() — para evitar modificar accidentalmente el original."
+      },
+      {
+        "title": "Columnas condicionales (.apply) + Ordenación (.sort_values)",
+        "body": "Crea una columna basada en una condición utilizando .apply() con una función lambda. La función lambda se evalúa fila por fila. Para ordenar un DataFrame, usa .sort_values(\"columna\", ascending=False) (True para orden ascendente, False para descendente).",
+        "note": "Puedes encadenar operaciones: df.sort_values(...).reset_index(drop=True) es un patrón muy común."
+      }
+    ],
+    "exercises": {
+      "pd-cr-01": {
+        "prompt": "Escribe `make_df(data)` que cree un DataFrame a partir de `data` (una lista de diccionarios) y lo devuelva. Cada diccionario tiene las claves `\"name\"`, `\"age\"` y `\"city\"`.",
+        "hint": "Una línea: return pd.DataFrame(data)"
+      },
+      "pd-cr-02": {
+        "prompt": "Escribe `build_inventory(cols)` que cree un DataFrame a partir de `cols` (un diccionario de listas) y lo devuelva.",
+        "hint": "Una línea: return pd.DataFrame(cols)"
+      },
+      "pd-cr-03": {
+        "prompt": "Escribe `inspect_df(df)` que devuelva un diccionario con tres claves: `\"rows\"` (número de filas), `\"cols\"` (número de columnas) y `\"column_names\"` (lista con los nombres de las columnas).",
+        "hint": "df.shape devuelve una tupla (rows, cols). Desempaquétala con rows, cols = df.shape. Usa list(df.columns) para obtener los nombres de las columnas."
+      },
+      "pd-cr-04": {
+        "prompt": "Escribe `get_scores(df)` que devuelva la columna `\"score\"` como una **Series** (not a DataFrame).",
+        "hint": "Usa corchetes simples: df[\"score\"]. Si usas df[[\"score\"]] obtendrás un DataFrame en lugar de una Series y la prueba fallará."
+      },
+      "pd-cr-05": {
+        "prompt": "Escribe `get_catalog(df)` que devuelva un **DataFrame** con solo las columnas `\"product\"` y `\"price\"` (en ese orden). Las columnas `\"stock\"` y `\"category\"` no deben aparecer en el resultado.",
+        "hint": "Usa corchetes dobles para obtener un DataFrame: df[[\"product\", \"price\"]]"
+      },
+      "pd-cr-06": {
+        "prompt": "Escribe `add_total_value(df)` que añada una columna `\"total_value\"` igual a `price × stock`, y devuelva el DataFrame completo. El DataFrame original **no** debe modificarse.",
+        "hint": "Empieza con df = df.copy(), luego asigna: df[\"total_value\"] = df[\"price\"] * df[\"stock\"]."
+      },
+      "pd-cr-07": {
+        "prompt": "Escribe `make_report(df)` que haga todo lo siguiente y devuelva el resultado:\n1. Añada una columna `\"status\"`: `\"in stock\"` si stock > 0, de lo contrario `\"out of stock\"`\n2. Ordene por `\"price\"` de forma descendente\n3. Reinicie el índice (usa drop=True para que el índice antiguo no se convierta en una columna)",
+        "hint": "Para la columna de estado usa .apply() con una lambda. Luego encadena .sort_values(\"price\", ascending=False).reset_index(drop=True)."
+      }
+    }
+  },
+  "pd-select": {
+    "title": "Selección y Filtrado",
+    "description": "Filtra filas con máscaras booleanas, combina condiciones con & | ~, usa isin() y selecciona filas y columnas juntas con .loc[].",
+    "intro": "El filtrado es la operación más frecuente en pandas. Construyes una máscara booleana — una Series de valores True/False con el mismo índice que tu DataFrame — y la usas para conservar solo las filas que coinciden. pandas proporciona operadores para combinar máscaras y métodos como .isin() para comprobaciones de pertenencia. El accesor .loc[] te permite filtrar filas y seleccionar columnas en un solo paso, lo cual es legible y eficiente.",
+    "concepts": [
+      {
+        "title": "Máscaras booleanas: filtrar filas con una condición",
+        "body": "Una máscara booleana es una Series de valores True/False que obtienes al comparar una columna con un valor. Al pasar la máscara de regreso al DataFrame se conservan solo las filas True. Los operadores de comparación son: > (mayor que), < (menor que), >= (≥), <= (≤), == (igual), != (diferente).",
+        "note": "Observa que el índice aún muestra 0 y 3 — las posiciones originales. Usa .reset_index(drop=True) si necesitas un índice limpio de 0, 1, 2 después de filtrar."
+      },
+      {
+        "title": "Combinar condiciones: & (Y), | (O), ~ (NO)",
+        "body": "Combina múltiples máscaras con & (ambas deben ser True), | (al menos una debe ser True) o ~ (invierte True/False). Cada condición debe estar envuelta en sus propios paréntesis; las reglas de precedencia de Python producirán resultados incorrectos sin ellos. Nunca uses las palabras clave \"and\", \"or\", \"not\" de Python con máscaras de pandas; estas comparan Series completas en lugar de hacer una comparación elemento a elemento.",
+        "note": "Envuelve siempre cada condición entre paréntesis antes de combinar con & o |. Olvidar los paréntesis es el error de sintaxis más común en pandas."
+      },
+      {
+        "title": ".isin() — filtrar por una lista de valores permitidos",
+        "body": ".isin(valores) devuelve True para cada fila cuyo valor de columna aparece en la lista proporcionada. Es el equivalente en pandas de IN (...) en SQL. Combínalo con ~ para obtener NOT IN. isin() es más limpio que encadenar múltiples condiciones == con |.",
+        "note": ""
+      },
+      {
+        "title": ".loc[mascara_filas, lista_columnas] — filtrar filas y seleccionar columnas juntas",
+        "body": ".loc[] toma dos argumentos separados por una coma: el primero selecciona filas (una máscara booleana o etiqueta), el segundo selecciona columnas (un nombre de columna o lista de nombres). Esto te permite filtrar y proyectar en un solo paso legible. El resultado siempre tiene el orden de columnas que especifiques.",
+        "note": ".loc utiliza indexación basada en etiquetas. El selector de filas puede ser una máscara booleana, una etiqueta o una porción de etiquetas. El selector de columnas puede ser un nombre único (devuelve Series) o una lista de nombres (devuelve DataFrame)."
+      },
+      {
+        "title": ".copy() — evita el SettingWithCopyWarning",
+        "body": "Cuando filtras un DataFrame y luego intentas modificar el resultado, pandas puede advertirte que estás editando una \"vista\" de otro DataFrame. La solución es llamar a .copy() en el resultado filtrado para crear un DataFrame completamente independiente. Como regla general: llama siempre a .copy() justo después de filtrar si planeas agregar o cambiar columnas.",
+        "note": "En funciones que reciben un DataFrame y devuelven una versión modificada, siempre comienza con df = df.copy() para evitar modificar los datos de quien llama a la función."
+      }
+    ],
+    "exercises": {
+      "pd-sl-01": {
+        "prompt": "Escribe `filter_expensive(df, min_price)` que devuelva las filas donde `price >= min_price`. Reinicia el índice con `drop=True`.",
+        "hint": "df[df[\"price\"] >= min_price].reset_index(drop=True)"
+      },
+      "pd-sl-02": {
+        "prompt": "Escribe `filter_by_country(df, country)` que devuelva solo las filas donde la columna `\"country\"` sea exactamente igual a `country`. Reinicia el índice.",
+        "hint": "Usa == para igualdad: df[df[\"country\"] == country]"
+      },
+      "pd-sl-03": {
+        "prompt": "Escribe `filter_senior_earners(df)` que devuelva a los empleados cuya `age >= 30` **Y** `salary > 70000`. Reinicia el índice.",
+        "hint": "Combina dos máscaras con &. Envuelve cada condición en paréntesis: (df[\"age\"] >= 30) & (df[\"salary\"] > 70000)"
+      },
+      "pd-sl-04": {
+        "prompt": "Escribe `filter_london_or_highpay(df)` que devuelva las filas donde `city == \"London\"` **O** `salary > 80000`. Reinicia el índice.",
+        "hint": "Usa | para combinar condiciones. Envuelve cada una en paréntesis: (condicion1) | (condicion2)"
+      },
+      "pd-sl-05": {
+        "prompt": "Escribe `filter_tech_products(df)` que conserve solo las filas donde `category` sea `\"Electronics\"` o `\"Accessories\"`. Usa `.isin()`. Reinicia el índice.",
+        "hint": "df[df[\"category\"].isin([\"Electronics\", \"Accessories\"])].reset_index(drop=True)"
+      },
+      "pd-sl-06": {
+        "prompt": "Escribe `get_passing_names(df)` que use `.loc[]` para devolver **solo** las columnas `\"name\"` y `\"score\"` para las filas donde `score >= 70`. Reinicia el índice.",
+        "hint": "df.loc[df[\"score\"] >= 70, [\"name\", \"score\"]].reset_index(drop=True)"
+      },
+      "pd-sl-07": {
+        "prompt": "Escribe `get_active_us_earners(df)` que:\n1. Conserve las filas donde `active == True`, `country == \"US\"` y `salary > 60000` (las tres condiciones)\n2. Devuelva **solo** las columnas `\"name\"` y `\"salary\"` usando `.loc[]`\n3. Devuelva una copia con el índice reiniciado",
+        "hint": "Construye primero la máscara combinada: mask = (cond1) & (cond2) & (cond3). Luego usa df.loc[mask, [\"name\",\"salary\"]].reset_index(drop=True).copy()"
+      }
+    }
+  },
+  "pd-transform": {
+    "title": "Transformación de Columnas",
+    "description": "Añade columnas calculadas mediante aritmética, .apply(), .map(), np.where() y el método encadenable .assign().",
+    "intro": "Transformar columnas es la forma de derivar nueva información a partir de datos existentes — ingresos a partir de precio × cantidad, categorías basadas en límites, regiones basadas en códigos de país. pandas te ofrece cuatro herramientas para esto, cada una con un balance diferente entre velocidad y flexibilidad. Entender a cuál recurrir primero te ahorrará mucho tiempo.",
+    "concepts": [
+      {
+        "title": "Aritmética vectorizada — el camino más rápido",
+        "body": "Los operadores aritméticos (+, -, *, /, //, %) funcionan elemento a elemento en columnas completas sin necesidad de bucles. Mezclar una columna con un escalar (un solo número) propaga el escalar en todas las filas. Esta es siempre la primera opción a considerar porque es la más fácil de leer y la más rápida de ejecutar.",
+        "note": "Asigna siempre el resultado de vuelta a una columna: df[\"new\"] = expresion. La expresión en sí misma no cambia df."
+      },
+      {
+        "title": ".apply() — lógica de Python elemento a elemento",
+        "body": ".apply(func) llama a func una vez por elemento. Usa una función lambda para líneas simples. Para condicionales con if/elif/else, define una función con nombre ya que las lambdas no pueden contener elif. .apply() es más flexible que la aritmética pero más lento: pandas no puede optimizar funciones nativas de Python de la misma forma que optimiza la aritmética.",
+        "note": "Si solo tienes dos resultados posibles (if/else), considera usar np.where() en su lugar — es de 10 a 100 veces más rápido en DataFrames grandes."
+      },
+      {
+        "title": ".map() — reemplazar valores usando un diccionario de consulta",
+        "body": ".map(dict) reemplaza cada valor en una Series con el valor correspondiente del diccionario. Las claves que no se encuentren en el diccionario se convierten en NaN. Esta es la forma más limpia de traducir códigos a etiquetas (código de país → nombre de región, código de estado → descripción, etc.). Solo funciona en una Series, no en un DataFrame completo.",
+        "note": "Después de .map(), verifica siempre si hay valores NaN usando df[\"col\"].isna().sum() para confirmar que todos los valores fueron encontrados en el diccionario."
+      },
+      {
+        "title": "np.where() — if/else rápido para una columna completa",
+        "body": "np.where(condicion, valor_si_true, valor_si_false) es el operador ternario vectorizado de numpy. Es equivalente a un .apply() de dos ramas pero se ejecuta completamente en C, típicamente de 10 a 100 veces más rápido. Úsalo siempre que tengas una sola condición (True → A, False → B).",
+        "note": "np.where() solo maneja True/False (dos ramas). Para tres o más ramas, usa np.where anidado o .apply() con una función con nombre."
+      },
+      {
+        "title": ".assign() — encadenar transformaciones sin mutar el original",
+        "body": ".assign(**kwargs) devuelve un NUEVO DataFrame con una o más columnas adicionales. El original nunca se modifica. Puedes encadenar múltiples llamadas a .assign(). Dentro de una función lambda pasada a assign, el argumento d hace referencia al DataFrame tal como existe en ese punto de la cadena, por lo que puedes hacer referencia a una columna creada anteriormente en la misma cadena.",
+        "note": "Usa .assign() en pipelines cuando desees transformaciones legibles paso a paso sin variables intermedias. Para una sola columna nueva en un script exploratorio, la asignación directa (df[\"col\"] = ...) está bien."
+      }
+    ],
+    "exercises": {
+      "pd-tr-01": {
+        "prompt": "Escribe `add_revenue(df)` que añada una columna `\"revenue\"` igual a `price × quantity` y devuelva el DataFrame completo. No modifiques el original.",
+        "hint": "df[\"revenue\"] = df[\"price\"] * df[\"quantity\"]. Recuerda hacer df = df.copy() primero."
+      },
+      "pd-tr-02": {
+        "prompt": "Escribe `add_profit(df)` que añada una columna `\"profit\"` (revenue − cost) y una columna `\"margin_pct\"` (profit ÷ revenue × 100, redondeada a 1 decimal). Devuelve el DataFrame completo sin modificar el original.",
+        "hint": "Realiza la aritmética paso a paso: primero calcula profit, luego usa profit y revenue para calcular margin_pct. Ambas son expresiones df[\"a\"] OP df[\"b\"]."
+      },
+      "pd-tr-03": {
+        "prompt": "Escribe `add_pass_fail(df)` que añada una columna `\"result\"`: `\"pass\"` si score ≥ 60, de lo contrario `\"fail\"`. Usa `.apply()` con una lambda. No modifiques el original.",
+        "hint": "df[\"result\"] = df[\"score\"].apply(lambda x: \"pass\" if x >= 60 else \"fail\")"
+      },
+      "pd-tr-04": {
+        "prompt": "Escribe `add_tier(df)` que añada una columna `\"tier\"` usando una función con nombre e `if/elif/else`: `\"budget\"` si price < 30, `\"standard\"` si price < 100, de lo contrario `\"premium\"`. Usa `.apply()`. No modifiques el original.",
+        "hint": "Define una función auxiliar classify(price) con if/elif/else, luego df[\"tier\"] = df[\"price\"].apply(classify). Las lambdas no pueden tener elif, así que necesitas una función con nombre."
+      },
+      "pd-tr-05": {
+        "prompt": "Escribe `add_region(df)` que añada una columna `\"region\"` mapeando la columna `\"country\"` mediante un diccionario: `\"US\"/\"BR\"/\"CA\"` → `\"Americas\"`, `\"DE\"/\"FR\"/\"ES\"` → `\"Europe\"`, `\"JP\"/\"CN\"` → `\"Asia\"`. Usa `.map()`. No modifiques el original.",
+        "hint": "Define region_map = {...}, luego df[\"region\"] = df[\"country\"].map(region_map)."
+      },
+      "pd-tr-06": {
+        "prompt": "Escribe `add_availability(df)` que añada una columna `\"status\"` usando `np.where()`: `\"available\"` si stock > 0, de lo contrario `\"out of stock\"`. No uses `.apply()`; usa `np.where()` en su lugar. No modifiques el original.",
+        "hint": "import numpy as np, luego df[\"status\"] = np.where(df[\"stock\"] > 0, \"available\", \"out of stock\")"
+      },
+      "pd-tr-07": {
+        "prompt": "Escribe `transform_sales(df)` usando `.assign()` para:\n1. Añadir `\"revenue\"` = price × quantity\n2. Añadir `\"tier\"`: `\"high\"` si revenue > 500, de lo contrario `\"low\"` (use `np.where` dentro de la lambda)\n3. Devolver ordenado por `\"revenue\"` de forma descendente con el índice reiniciado.",
+        "hint": "Encadena dos llamadas a .assign(). En la segunda, usa una lambda: .assign(tier=lambda d: np.where(d[\"revenue\"] > 500, \"high\", \"low\")). La lambda recibe d —el DataFrame tras el primer assign— así que d[\"revenue\"] ya existe."
+      }
+    }
+  },
+  "pd-groupby": {
+    "title": "Agrupación y Agregación",
+    "description": "Divide los datos en grupos y reduce cada uno a estadísticas de resumen con .groupby().agg(). Añade estadísticas a nivel de grupo a cada fila con .transform().",
+    "intro": "GroupBy es el equivalente en pandas de la cláusula GROUP BY en SQL. Sigue un patrón de dividir → aplicar → combinar: divide el DataFrame en grupos por uno o más valores de columna, aplica una función a cada grupo de forma independiente y luego combina los resultados en un nuevo DataFrame. Dominar la diferencia entre .agg() (una fila por grupo) y .transform() (mismo número de filas que la entrada) es una de las habilidades más importantes en pandas.",
+    "concepts": [
+      {
+        "title": "Cómo funciona groupby: dividir → aplicar → combinar",
+        "body": "df.groupby(\"col\") crea un objeto GroupBy; aún no calcula nada. Encadenar .agg(), .sum(), .mean(), etc. activa el cálculo real. El resultado tiene una fila por cada valor único de la columna de agrupación, y dicha columna se convierte en el índice; llama a .reset_index() para hacerla una columna regular de nuevo.",
+        "note": "Después de .groupby().agg(), la columna de agrupación se convierte en el índice del DataFrame. Casi siempre debes seguir con .reset_index() para convertirla de nuevo en una columna regular."
+      },
+      {
+        "title": "Funciones comunes de agregación",
+        "body": "Pasa una cadena con el nombre de la función o una lista de ellas. Las más útiles: \"sum\" (total), \"mean\" (promedio), \"count\" (número de filas, ignora NaN), \"nunique\" (valores distintos no nulos), \"min\" / \"max\", \"std\" (desviación estándar). Puedes agregar una sola columna o un DataFrame completo.",
+        "note": ""
+      },
+      {
+        "title": "Agregaciones nombradas — nombres de columna limpios en un solo paso",
+        "body": "Pasar argumentos clave-valor (keyword arguments) a .agg() te permite nombrar las columnas de salida directamente. La sintaxis es: agg(nombre_salida=(\"columna_entrada\", \"funcion\")). Esto evita tener que renombrar las columnas después y hace que el código se documente solo.",
+        "note": "Las agregaciones nombradas requieren pandas 0.25+. Los nombres de las columnas de salida son exactamente los que escribes como argumentos — no es necesario renombrar después."
+      },
+      {
+        "title": "Agrupar por múltiples columnas",
+        "body": "Pasa una lista de nombres de columnas a groupby() para crear grupos definidos por combinaciones únicas de todas esas columnas. El resultado tiene una fila por cada combinación que exista en los datos.",
+        "note": "El resultado solo contiene filas para las combinaciones que realmente existen en los datos. Si Eng + 2024 no tiene filas, no aparecerá en la salida."
+      },
+      {
+        "title": ".transform() — añadir estadísticas grupales a cada fila",
+        "body": ".transform(\"func\") aplica la función por grupo pero devuelve una Series con la misma longitud e índice que el DataFrame original; cada fila recibe el valor de su grupo. Esto es perfecto para añadir un promedio o total grupal como una nueva columna sin colapsar el DataFrame. La distinción clave: .agg() → una fila por grupo. .transform() → un valor por fila original.",
+        "note": "transform() admite los mismos nombres de funciones que agg(): \"mean\", \"sum\", \"min\", \"max\", \"count\", \"std\". Siempre devuelve la misma cantidad de filas que la entrada."
+      }
+    ],
+    "exercises": {
+      "pd-gb-01": {
+        "prompt": "Escribe `revenue_by_category(df)` que agrupe por `\"category\"`, calcule el `\"revenue\"` total por categoría (sum), nombre la columna resultante `\"total_revenue\"` y devuelva ordenado por `\"total_revenue\"` descendente con el índice reiniciado.",
+        "hint": "df.groupby(\"category\")[\"revenue\"].sum().reset_index() te da las columnas de categoría e ingresos. Renombra la columna de ingresos y ordena."
+      },
+      "pd-gb-02": {
+        "prompt": "Escribe `avg_salary_by_dept(df)` que agrupe por `\"department\"`, calcule el `\"salary\"` promedio por departamento redondeado a 2 decimales, nombre la columna `\"avg_salary\"` y devuelva ordenado por `\"avg_salary\"` descendente con el índice reiniciado.",
+        "hint": "Después de groupby().mean().reset_index(), renombra la columna de salario y redondéala: result[\"avg_salary\"] = result[\"avg_salary\"].round(2)"
+      },
+      "pd-gb-03": {
+        "prompt": "Escribe `dept_summary(df)` usando **agregaciones nombradas** para devolver un DataFrame con las columnas: `\"department\"`, `\"total_salary\"` (suma), `\"avg_salary\"` (promedio, redondeado a 2 dec), `\"headcount\"` (conteo). Ordena por `\"total_salary\"` descendente, reinicia el índice.",
+        "hint": "Usa .agg(total_salary=(\"salary\",\"sum\"), avg_salary=(\"salary\",\"mean\"), headcount=(\"name\",\"count\")). Redondea avg_salary después: result[\"avg_salary\"] = result[\"avg_salary\"].round(2)"
+      },
+      "pd-gb-04": {
+        "prompt": "Escribe `category_report(df)` usando agregaciones nombradas para devolver: `\"category\"`, `\"total_revenue\"` (suma de revenue), `\"avg_price\"` (promedio de price, redondeado a 2 dec), `\"total_units\"` (suma de quantity), `\"product_count\"` (valores únicos de product). Ordena por `\"total_revenue\"` descendente.",
+        "hint": "Puedes agregar diferentes columnas en la misma llamada a .agg(): agg(total_revenue=(\"revenue\",\"sum\"), avg_price=(\"price\",\"mean\"), total_units=(\"quantity\",\"sum\"), product_count=(\"product\",\"nunique\"))"
+      },
+      "pd-gb-05": {
+        "prompt": "Escribe `salary_by_dept_year(df)` que agrupe por **tanto** `\"department\"` como `\"year\"`, calcule el `\"salary\"` promedio (redondeado a 2 dec) nombrado `\"avg_salary\"`. Devuelve ordenado por departamento y luego por año de forma ascendente, reinicia el índice.",
+        "hint": "Pasa una lista a groupby: df.groupby([\"department\", \"year\"]). Ambas columnas aparecen en el resultado después de .reset_index()."
+      },
+      "pd-gb-06": {
+        "prompt": "Escribe `add_dept_avg(df)` que añada una columna `\"dept_avg_salary\"` con el salario promedio del **departamento** de cada empleado (usando `.transform()`), y una columna `\"salary_diff\"` (salario del empleado menos el promedio de su departamento). No modifiques el original.",
+        "hint": "df[\"dept_avg_salary\"] = df.groupby(\"department\")[\"salary\"].transform(\"mean\"). Luego salary_diff = salary - dept_avg_salary. transform() mantiene el mismo número de filas; cada empleado recibe el promedio de su departamento."
+      },
+      "pd-gb-07": {
+        "prompt": "Escribe `top_categories(df, n)` que:\n1. Agrupe por `\"category\"`, calculando `\"total_revenue\"` (suma), `\"avg_revenue\"` (promedio, redondeado a 2 dec), `\"product_count\"` (conteo)\n2. Ordene por `\"total_revenue\"` de forma descendente\n3. Devuelva solo las primeras `n` filas con el índice reiniciado.",
+        "hint": "Después del groupby y ordenamiento, usa .head(n) para quedarte solo con las primeras n filas, luego .reset_index(drop=True)."
+      }
+    }
+  },
+  "pd-sort": {
+    "title": "Ordenamiento y Clasificación",
+    "description": "Ordena filas con .sort_values(), obtén las N primeras/últimas con .nlargest()/.nsmallest() y asigna posiciones numéricas con .rank() — globalmente y dentro de grupos.",
+    "intro": "El ordenamiento y la clasificación te permiten establecer un orden antes de mostrar resultados, preparar exportaciones o calcular tablas de clasificación. pandas te ofrece cuatro herramientas: .sort_values() para ordenamientos completos por una o más columnas, .nlargest()/.nsmallest() para extraer rápidamente las N primeras o últimas filas sin ordenar todo, y .rank() para asignar posiciones numéricas, incluyendo dentro de subgrupos mediante .groupby().",
+    "concepts": [
+      {
+        "title": ".sort_values() — ordenar por una sola columna",
+        "body": ".sort_values(by=\"col\") devuelve un nuevo DataFrame ordenado por esa columna de forma ascendente (el más pequeño primero) por defecto. Pasa ascending=False para ordenar de forma descendente. El DataFrame original nunca se modifica. Sigue siempre con .reset_index(drop=True) para que el índice sea 0,1,2,… de nuevo; de lo contrario, se conservan los números de fila originales, lo cual es confuso.",
+        "note": "sort_values nunca modifica el DataFrame original directamente (a menos que pases inplace=True, lo cual rara vez se recomienda). Asigna siempre el resultado: result = df.sort_values(\"col\")."
+      },
+      {
+        "title": "Ordenamiento multi-columna con direcciones ascendentes mixtas",
+        "body": "Pasa una lista a by= para ordenar por múltiples columnas. Cuando ascending= es una lista de booleanos, cada booleano se aplica a la columna correspondiente en orden. Las filas con el mismo valor en la primera columna se ordenan por la segunda, y así sucesivamente — exactamente como ORDER BY col1 ASC, col2 DESC en SQL.",
+        "note": "La lista de ascending debe tener la misma longitud que la lista de by. ascending=True o ascending=False (un solo booleano) se aplica a TODAS las columnas del ordenamiento."
+      },
+      {
+        "title": ".nlargest() and .nsmallest() — N más grandes/pequeños de forma rápida",
+        "body": ".nlargest(n, \"col\") devuelve las n filas con los valores más altos en \"col\". .nsmallest(n, \"col\") devuelve las n filas con los valores más bajos. Ambos son más eficientes que sort_values().head(n) en DataFrames grandes porque utilizan un ordenamiento parcial. El resultado conserva el índice original — usa .reset_index(drop=True) si quieres indexación basada en 0.",
+        "note": "Usa nlargest/nsmallest cuando solo necesites los N primeros o últimos — evitan ordenar todo el DataFrame. Usa sort_values cuando necesites el resultado ordenado completo."
+      },
+      {
+        "title": ".rank() — asignar posiciones numéricas globalmente",
+        "body": ".rank() añade una posición numérica a cada fila. Por defecto, el rango 1 = valor más pequeño (ascendente). Usa ascending=False para que el rango 1 = valor más grande. El parámetro method= controla los empates: \"dense\" da a los valores empatados el mismo rango sin dejar huecos (1,2,2,3), \"average\" da a los empatados el promedio de sus posiciones (1,2.5,2.5,4 — por defecto), \"first\" rompe los empates según el orden de aparición.",
+        "note": "rank() devuelve números de punto flotante (1.0, 2.0, …) por defecto. Conviértelo con .astype(int) si necesitas enteros. Usa method=\"dense\" para la numeración más natural: los empates comparten rango y el siguiente rango no tiene saltos."
+      },
+      {
+        "title": ".groupby().rank() — clasificar dentro de subgrupos",
+        "body": "Encadenar .rank() después de un .groupby() aplica la clasificación de forma independiente dentro de cada grupo. Cada fila sigue recibiendo exactamente un valor de rango, y los rangos comienzan desde 1 dentro de cada grupo. Esto es equivalente a un RANK() o DENSE_RANK() OVER (PARTITION BY dept ORDER BY salary DESC) en SQL.",
+        "note": "groupby().rank() devuelve a Series aligned con el índice del DataFrame original; puedes asignarla directamente como una nueva columna sin necesidad de una unión o combinación."
+      }
+    ],
+    "exercises": {
+      "pd-so-01": {
+        "prompt": "Escribe `sort_by_revenue(df)` que devuelva el DataFrame ordenado por `\"revenue\"` de forma descendente, con el índice reiniciado. No modifiques el original.",
+        "hint": "df.sort_values(\"revenue\", ascending=False).reset_index(drop=True)"
+      },
+      "pd-so-02": {
+        "prompt": "Escribe `sort_by_category_and_name(df)` que ordene por `\"category\"` de forma ascendente, luego por `\"product\"` de forma ascendente dentro de cada categoría. Devuelve con el índice reiniciado.",
+        "hint": "df.sort_values([\"category\", \"product\"]).reset_index(drop=True) — ordenar ambas columnas de forma ascendente es el comportamiento predeterminado."
+      },
+      "pd-so-03": {
+        "prompt": "Escribe `sort_dept_salary(df)` que ordene por `\"department\"` de forma ascendente, luego por `\"salary\"` **descendente** dentro de cada departamento (el mayor salario primero). Devuelve con el índice reiniciado.",
+        "hint": "sort_values([\"department\",\"salary\"], ascending=[True, False]) — un booleano por columna en la lista."
+      },
+      "pd-so-04": {
+        "prompt": "Escribe `top_products(df, n)` que devuelva los `n` productos con los mayores `\"revenue\"` usando `.nlargest()`, con el índice reiniciado.",
+        "hint": "df.nlargest(n, \"revenue\").reset_index(drop=True)"
+      },
+      "pd-so-05": {
+        "prompt": "Escribe `cheapest_products(df, n)` que devuelva los `n` productos con los **menores** `\"price\"` usando `.nsmallest()`, con el índice reiniciado.",
+        "hint": "df.nsmallest(n, \"price\").reset_index(drop=True)"
+      },
+      "pd-so-06": {
+        "prompt": "Escribe `add_revenue_rank(df)` que añada una columna `\"rank\"` donde el rango 1 = mayor revenue. Usa `.rank(ascending=False, method=\"dense\")` y conviértela a `int`. No modifiques el original.",
+        "hint": "df[\"rank\"] = df[\"revenue\"].rank(ascending=False, method=\"dense\").astype(int). Recuerda copiar primero."
+      },
+      "pd-so-07": {
+        "prompt": "Escribe `rank_within_dept(df)` que añada una columna `\"dept_rank\"` clasificando el salario de cada empleado **dentro de su departamento** (rango 1 = salario más alto en ese departamento). Usa `.groupby().rank(ascending=False, method=\"dense\")` convertido a int. No modifiques el original.",
+        "hint": "df[\"dept_rank\"] = df.groupby(\"department\")[\"salary\"].rank(ascending=False, method=\"dense\").astype(int). groupby().rank() conserva todas las filas; es como transform(), no agg()."
+      }
+    }
+  },
+  "pd-missing": {
+    "title": "Manejo de Valores Faltantes",
+    "description": "Detecta nulos con .isna(), elimina filas con .dropna(), llena vacíos con .fillna(), propaga con .ffill()/.bfill() e imputa con estadísticas grupales.",
+    "intro": "Los conjuntos de datos del mundo real siempre tienen valores faltantes. pandas los representa como NaN (Not a Number) para tipos numéricos y None o NaN para columnas de tipo object. Manejarlos correctamente es una de las habilidades de limpieza de datos más importantes: un enfoque incorrecto distorsiona silenciosamente las agregaciones (mean, sum, count se comportan de manera diferente con NaN) y puede romper modelos o pipelines posteriores.",
+    "concepts": [
+      {
+        "title": "Detectar valores faltantes — .isna() y .notna()",
+        "body": ".isna() devuelve un DataFrame (o Series) booleano que es True en cada celda donde el valor es nulo. .notna() es lo opuesto. Usa .isna().sum() para contar nulos por columna — el primer paso más común en cualquier flujo de limpieza de datos. Usa indexación booleana con .isna() para filtrar filas que tienen o no un nulo en una columna específica.",
+        "note": "None (Python) y np.nan (float de numpy) son tratados como faltantes por pandas. df.isna() detecta ambos."
+      },
+      {
+        "title": ".dropna() — eliminar filas o columnas con nulos",
+        "body": ".dropna() elimina filas (o columnas) que contienen valores nulos. Tres parámetros clave: subset= para revisar solo columnas específicas, how=\"any\" (por defecto, elimina si CUALQUIERA de las columnas revisadas es nula) frente a how=\"all\" (solo elimina si TODAS las columnas revisadas son nulas), y thresh=n para conservar filas que tengan al menos n valores no nulos.",
+        "note": "dropna() devuelve un nuevo DataFrame y nunca modifica df en su lugar. Reinicia siempre el índice después para que las filas estén numeradas como 0, 1, 2, … sin saltos."
+      },
+      {
+        "title": ".fillna() — reemplazar nulos con una constante o diccionario",
+        "body": ".fillna(valor) reemplaza todos los nulos con ese valor. Pasa un diccionario para llenar diferentes columnas con diferentes valores: fillna({\"price\": 0.0, \"stock\": 0, \"category\": \"Unknown\"}). También puedes llenar con una estadística calculada como la mediana de la columna. Asigna siempre el resultado; fillna() nunca modifica df in lugar.",
+        "note": "fillna() con un diccionario solo llena las columnas cuyos nombres están en el diccionario; las demás columnas se dejan intactas. Esta es la forma más segura de llenar de manera selectiva."
+      },
+      {
+        "title": ".ffill() y .bfill() — propagar valores a través de vacíos",
+        "body": "El llenado hacia adelante (.ffill()) reemplaza cada NaN con el último valor válido anterior. El llenado hacia atrás (.bfill()) utiliza el siguiente valor válido posterior. Estas son las herramientas estándar para vacíos en series temporales donde una medición simplemente no se registró para algunos períodos y debe mantenerse el valor anterior.",
+        "note": ".ffill() y .bfill() solo funcionan bien en datos que ya están ordenados en el orden correcto (por ejemplo, por fecha). Ordena siempre primero si es necesario."
+      },
+      {
+        "title": "Llenar con estadísticas grupales — groupby + transform + fillna",
+        "body": "En lugar de llenar con un promedio global de la columna (lo cual puede distorsionar los datos), llena cada nulo con el promedio de su propio grupo. El patrón es: calcula la estadística del grupo con .groupby().transform(\"mean\"), luego pasa eso como argumento a .fillna(). transform() devuelve una Series con la misma longitud que el DataFrame original, por lo que cada fila nula recibe directamente la estadística de su grupo.",
+        "note": "Este patrón es extremadamente común en ingeniería de datos. transform(\"mean\") utiliza solo los valores no nulos de cada grupo para calcular el promedio del grupo; los nulos se excluyen automáticamente del cálculo del promedio."
+      }
+    ],
+    "exercises": {
+      "pd-ms-01": {
+        "prompt": "Escribe `null_summary(df)` que devuelva una `pd.Series` con el **conteo de valores nulos por columna** (el resultado de `.isna().sum()`).",
+        "hint": "return df.isna().sum() — esto ya devuelve una Series indexada por el nombre de la columna."
+      },
+      "pd-ms-02": {
+        "prompt": "Escribe `filter_complete_rows(df)` que devuelva solo las filas donde **cada columna sea no nula**, con el índice reiniciado. Usa `.notna()` e indexación booleana.",
+        "hint": "df[df.notna().all(axis=1)].reset_index(drop=True) — .all(axis=1) verifica que todas las columnas sean no nulas para cada fila."
+      },
+      "pd-ms-03": {
+        "prompt": "Escribe `drop_missing_salary(df)` que elimine las filas donde `\"salary\"` sea nulo y devuelva las filas restantes con el índice reiniciado.",
+        "hint": "df.dropna(subset=[\"salary\"]).reset_index(drop=True)"
+      },
+      "pd-ms-04": {
+        "prompt": "Escribe `fill_defaults(df)` que llene los nulos columna por columna: `\"price\"` → `0.0`, `\"stock\"` → `0`, `\"category\"` → `\"Unknown\"`. Usa una sola llamada a `.fillna(dict)`. No modifiques el original.",
+        "hint": "df.fillna({\"price\": 0.0, \"stock\": 0, \"category\": \"Unknown\"})"
+      },
+      "pd-ms-05": {
+        "prompt": "Escribe `forward_fill_prices(df)` que llene los valores nulos de `\"price\"` usando **forward fill** (cada nulo hereda el último precio no nulo anterior). No modifiques el original.",
+        "hint": "df[\"price\"] = df[\"price\"].ffill(). Trabaja sobre una copia."
+      },
+      "pd-ms-06": {
+        "prompt": "Escribe `fill_with_dept_mean(df)` que llene los valores nulos de `\"salary\"` con el **salario promedio de su mismo departamento**. Usa `.groupby().transform(\"mean\")` + `.fillna()`. No modifiques el original.",
+        "hint": "df[\"salary\"] = df[\"salary\"].fillna(df.groupby(\"department\")[\"salary\"].transform(\"mean\")). Copia primero."
+      },
+      "pd-ms-07": {
+        "prompt": "Escribe `clean_employees(df)` que realice un pipeline de limpieza completo en orden:\n1. Elimine filas donde `\"name\"` sea nulo\n2. Llene los valores nulos de `\"salary\"` con la **mediana** de los salarios no nulos (en las filas restantes)\n3. Llene los valores nulos de `\"department\"` con `\"Unknown\"`\n4. Devuelva con el índice reiniciado",
+        "hint": "Después de eliminar nombres nulos, calcula la mediana: df[\"salary\"].median(). Luego fillna({\"salary\": median_val, \"department\": \"Unknown\"})."
+      }
+    }
+  },
+  "pd-strings": {
+    "title": "Operaciones de Cadenas de Texto",
+    "description": "Limpia y transforma columnas de texto con el accesor .str — normaliza mayúsculas/minúsculas, filtra por patrón, divide, extrae y encadena operaciones en pipelines.",
+    "intro": "Los datos de texto casi siempre son caóticos: mezcla de mayúsculas/minúsculas, espacios adicionales, formatos inconsistentes, códigos integrados. pandas expone toda la API de cadenas de Python en cualquier columna de tipo object a través del accesor .str, ejecutando cada método en todas las filas sin necesidad de bucles. Dominar .str es esencial para cualquier pipeline de ETL o limpieza de datos.",
+    "concepts": [
+      {
+        "title": "El accesor .str — métodos de limpieza",
+        "body": "Cualquier columna cuyo dtype sea object (cadenas de texto) tiene un accesor .str. Todos los métodos están vectorizados; se ejecutan en todas las filas a la vez y devuelven una nueva Series. Los métodos de limpieza más comunes: .str.strip() elimina espacios iniciales y finales, .str.lower() / .str.upper() normalizan mayúsculas/minúsculas, .str.title() pone en mayúscula la primera letra de cada palabra, .str.replace(antiguo, nuevo) sustituye subcadenas. Encadenar múltiples llamadas a .str es limpio e idóneo.",
+        "note": "Cada método .str devuelve una nueva Series; la columna original no cambia hasta que la asignes de vuelta: df[\"col\"] = df[\"col\"].str.strip()."
+      },
+      {
+        "title": ".str.contains(), .str.startswith(), .str.endswith() — filtrar por patrón",
+        "body": "Estos tres métodos devuelven Series booleanas que utilizas para filtrar a nivel de fila — exactamente como df[df[\"col\"] == valor] pero para comprobaciones de subcadenas. contains() acepta un patrón de expresión regular por defecto (regex=True); establece regex=False para coincidencias de texto plano. Pasa siempre na=False cuando la columna pueda tener valores NaN; de lo contrario, las filas nulas producirán NaN en la máscara booleana y pandas generará un TypeError al indexar.",
+        "note": "str.contains() con regex=True (por defecto) te permite usar patrones de expresiones regulares completos como r\"^[A-Z]\" o r\"\\d{3}\". Usa regex=False para coincidencias de texto plano: es más rápido y evita tratar accidentalmente caracteres especiales como metacteres de expresiones regulares."
+      },
+      {
+        "title": ".str.split(), .str[n], .str.len() — dividir y rebanar",
+        "body": ".str.split(\"sep\") divide cada cadena según un separador y devuelve una Series de listas. Encadena .str[n] para extraer el n-ésimo elemento de cada lista. Usa .str.len() para obtener la cantidad de caracteres de cada cadena. También puedes rebanar cadenas directamente con .str[inicio:fin], al igual que en las rebanadas de cadenas de Python.",
+        "note": "str.split() sin argumentos divide por cualquier espacio en blanco (incluyendo múltiples espacios y tabulaciones). str.split(\",\") divide por un carácter específico."
+      },
+      {
+        "title": ".str.extract() — extraer datos estructurados usando expresiones regulares",
+        "body": ".str.extract(r\"patron\") aplica una expresión regular con grupos de captura () a cada cadena y devuelve un DataFrame con una columna por grupo. Los grupos nombrados (?P<nombre>...) se convierten en nombres de columnas en el resultado. Si una fila no coincide, esa fila obtiene NaN. Esta es la forma más limpia de analizar datos estructurados incrustados en texto (códigos de productos, versiones, fechas en nombres de archivos, etc.).",
+        "note": "extract() con un solo grupo de captura devuelve una Series si llamas a .str.extract(r\"(patron)\")[0]. Con grupos nombrados devuelve un DataFrame limpio que puedes asignar directamente."
+      },
+      {
+        "title": "Encadenar operaciones de texto en un pipeline",
+        "body": "La limpieza de texto en el mundo real suele encadenar varias llamadas a .str en secuencia. Envuelve cada transformación de columna entre paréntesis para un encadenamiento limpio en múltiples líneas. Puedes combinar métodos .str con .assign() para construir un pipeline de transformación completo que deje el DataFrame original intacto.",
+        "note": "Envolver la transformación en .assign() garantiza que el df original nunca se modifique. La lambda en el último paso de assign recibe el DataFrame tras los assigns anteriores, por lo que d[\"email\"] ya contiene el valor limpio."
+      }
+    ],
+    "exercises": {
+      "pd-st-01": {
+        "prompt": "Escribe `normalize_names(df)` que limpie la columna `\"name\"` (en una copia): elimina espacios iniciales/finales y convierte a tipo título (Title Case). Devuelve el DataFrame completo.",
+        "hint": "df[\"name\"] = df[\"name\"].str.strip().str.title(). Copia primero."
+      },
+      "pd-st-02": {
+        "prompt": "Escribe `clean_emails(df)` que limpie la columna `\"email\"` (en una copia): elimina espacios iniciales/finales y convierte a minúsculas. Devuelve el DataFrame completo.",
+        "hint": "df[\"email\"] = df[\"email\"].str.strip().str.lower()"
+      },
+      "pd-st-03": {
+        "prompt": "Escribe `filter_gmail_users(df)` que devuelva solo las filas donde `\"email\"` contenga `\"@gmail.com\"`, con el índice reiniciado. Usa `.str.contains()`.",
+        "hint": "df[df[\"email\"].str.contains(\"@gmail.com\", na=False)].reset_index(drop=True)"
+      },
+      "pd-st-04": {
+        "prompt": "Escribe `parse_domain(df)` que extraiga el dominio del correo de la columna `\"email\"` y lo guarde en una columna nueva `\"domain\"`. Devuelve el DataFrame completo. No modifiques el original.",
+        "hint": "df[\"domain\"] = df[\"email\"].str.split(\"@\").str[1] — .str[1] toma el segundo elemento de cada lista resultante de dividir."
+      },
+      "pd-st-05": {
+        "prompt": "Escribe `add_name_length(df)` que añada una columna `\"name_length\"` con la cantidad de caracteres de cada nombre en `\"full_name\"`. No modifiques el original.",
+        "hint": "df[\"name_length\"] = df[\"full_name\"].str.len()"
+      },
+      "pd-st-07": {
+        "prompt": "Escribe `clean_records(df)` que transforme la entrada cruda en un DataFrame limpio con exactamente estas columnas:\n- `\"name\"` — raw_name sin espacios iniciales/finales y en tipo título\n- `\"email\"` — raw_email sin espacios iniciales/finales y en minúsculas\n- `\"code\"` — raw_code sin espacios iniciales/finales y en mayúsculas\n- `\"domain\"` — la parte del email limpio después de `\"@\"`\n\nDevuelve solo estas 4 columnas. No modifiques el original.",
+        "hint": "Usa .assign() para construir todas las columnas a la vez. Para \"domain\", usa una lambda: lambda d: d[\"email\"].str.split(\"@\").str[1] para que lea de la columna de correo ya limpia dentro de la misma cadena. Termina con [[\"name\",\"email\",\"code\",\"domain\"]] para seleccionar las columnas finales."
+      }
+    }
+  },
+  "pd-merge": {
+    "title": "Combinación de DataFrames",
+    "description": "Combina DataFrames con pd.merge() (inner, left, outer), une en múltiples claves, maneja colisiones de columnas con sufijos y apila tablas con pd.concat().",
+    "intro": "La mayoría de los conjuntos de datos reales viven en múltiples tablas, y combinarlos es una de las operaciones más comunes en ingeniería de datos. pandas te ofrece pd.merge() para uniones estilo SQL (inner, left, right, outer), la capacidad de unir por múltiples claves simultáneamente, control de sufijos para colisiones de nombres de columnas y pd.concat() para apilar DataFrames de forma vertical u horizontal.",
+    "concepts": [
+      {
+        "title": "pd.merge() — la unión interna (inner join)",
+        "body": "pd.merge(left, right, on=\"key\") une dos DataFrames por una columna compartida. El valor predeterminado es un inner join: solo se conservan las filas donde la clave existe en AMBAS tablas. Usa left_on= y right_on= cuando las columnas clave tengan nombres diferentes en cada tabla. El resultado contiene las columnas de ambas tablas (excepto la columna clave duplicada).",
+        "note": "pd.merge() siempre devuelve un NUEVO DataFrame. Las tablas originales nunca se modifican. Si un valor clave aparece varias veces en ambas tablas, se devuelve cada combinación (un producto cartesiano para esa clave); este es el problema de la \"multiplicación de filas\" (fan-out) que debes vigilar."
+      },
+      {
+        "title": "how= — uniones izquierda, derecha y externa (left, right, outer joins)",
+        "body": "El parámetro how= controla qué filas sobreviven cuando falta una clave en un lado. \"inner\" (por defecto): solo filas que coinciden en ambos lados. \"left\": todas las filas de la tabla IZQUIERDA, NaN para las columnas de la derecha cuando no hay coincidencia. \"right\": todas las filas de la tabla DERECHA. \"outer\": todas las filas de ambos lados, NaN donde no haya coincidencia. La unión IZQUIERDA (left join) es la más común después de la interna; úsala cuando quieras conservar todos los registros de la tabla principal y opcionalmente enriquecerlos con datos de una tabla secundaria.",
+        "note": "El patrón de unión izquierda + filtrado por nulos se llama anti-join: encuentra filas en la tabla izquierda que NO tienen coincidencia en la tabla derecha. Esto es muy común para encontrar registros huérfanos."
+      },
+      {
+        "title": "Combinar por múltiples claves",
+        "body": "Pasa una lista a on= para requerir que coincidan todas las columnas listadas entre las dos tablas. Es el equivalente de JOIN ON a.col1 = b.col1 AND a.col2 = b.col2 en SQL. Las filas se combinan solo cuando coincide la combinación completa de claves en ambos lados.",
+        "note": "Al combinar por múltiples claves, el orden de las claves en la lista no importa para la exactitud, pero por convención se listan primero las claves más selectivas (por ejemplo, ID antes de la fecha) para mayor legibilidad."
+      },
+      {
+        "title": "Manejo de colisiones de nombres de columnas con sufijos",
+        "body": "Cuando ambas tablas tienen una columna que no es clave con el mismo nombre, pandas crearía nombres de columna duplicados; para evitarlo, añade automáticamente los sufijos \"_x\" e \"_y\". Usa el parámetro suffixes= para especificar nombres más significativos en su lugar. Esto es común al comparar dos instantáneas de la misma tabla (Q1 frente a Q2, antes frente a después, real frente a presupuestado).",
+        "note": "El parámetro suffixes= toma una tupla de 2 elementos: (sufijo_izquierdo, sufijo_derecho). Si sabes que la columna de una tabla debe tener prioridad, puedes renombrarla antes de la combinación y dejar la otra como está."
+      },
+      {
+        "title": "pd.concat() — apilar DataFrames",
+        "body": "pd.concat([df1, df2, ...]) apila DataFrames verticalmente (filas unas encima de otras). Usa ignore_index=True para reiniciar el índice de modo que el resultado tenga números de fila 0,1,2,… Todas las tablas deben tener los mismos nombres de columnas (de lo contrario se realiza una unión externa, con NaN para las faltantes). Usa axis=1 para apilar horizontalmente (columnas lado a lado).",
+        "note": "pd.concat() difiere de pd.merge(): concat simplemente apila sin ninguna coincidencia de claves, mientras que merge une por valores clave compartidos. Usa concat cuando las tablas tengan la misma estructura y quieras combinar sus filas; usa merge cuando las tablas tengan datos complementarios que deban unirse por una clave compartida."
+      }
+    ],
+    "exercises": {
+      "pd-mg-01": {
+        "prompt": "Escribe `merge_products_categories(products, categories)` que realice una **unión interna** (inner join) por `\"category_id\"` y devuelva el DataFrame resultante.",
+        "hint": "pd.merge(products, categories, on=\"category_id\") — how=\"inner\" es el comportamiento predeterminado."
+      },
+      "pd-mg-02": {
+        "prompt": "Escribe `merge_all_employees(employees, departments)` que realice una **unión izquierda** (left join) por `\"dept_id\"`, conservando a todos los empleados incluso si su departamento no existe en la tabla de departamentos.",
+        "hint": "pd.merge(employees, departments, on=\"dept_id\", how=\"left\")"
+      },
+      "pd-mg-03": {
+        "prompt": "Escribe `find_unmatched_employees(employees, departments)` que devuelva los empleados que **no tienen departamento coincidente** (el patrón anti-join: left join, luego filtrar donde el nombre del departamento sea nulo). Devuelve con el índice reiniciado.",
+        "hint": "Realiza una unión izquierda, luego filtra: merged[merged[\"dept_name\"].isna()].reset_index(drop=True)"
+      },
+      "pd-mg-04": {
+        "prompt": "Escribe `merge_with_targets(sales, targets)` que realice una **unión interna por `\"product_id\"` y `\"region_id\"`**, luego añada una columna `\"achieved\"` que sea `True` cuando `amount >= target`. Devuelve ordenado por `product_id`, luego por `region_id`, con el índice reiniciado.",
+        "hint": "pd.merge(sales, targets, on=[\"product_id\",\"region_id\"]) — pasa una lista a on=."
+      },
+      "pd-mg-05": {
+        "prompt": "Escribe `compare_quarters(q1, q2)` que realice una **unión interna por `\"product\"`** con `suffixes=(\"_q1\",\"_q2\")`. Devuelve el DataFrame combinado con las columnas: `product, revenue_q1, units_q1, revenue_q2, units_q2`.",
+        "hint": "pd.merge(q1, q2, on=\"product\", suffixes=(\"_q1\",\"_q2\")) — cuando ambas tablas tienen \"revenue\" and \"units\", los sufijos permiten distinguirlos."
+      },
+      "pd-mg-06": {
+        "prompt": "Escribe `stack_records(df1, df2)` que apile dos DataFrames verticalmente en uno solo usando `pd.concat()`, con el índice reiniciado a `0, 1, 2, …`.",
+        "hint": "pd.concat([df1, df2], ignore_index=True)"
+      },
+      "pd-mg-07": {
+        "prompt": "Escribe `category_revenue_report(sales, products, categories)` que:\n1. Combine `sales` con `products` por `\"product_id\"` (interna)\n2. Combine el resultado con `categories` por `\"category_id\"` (interna)\n3. Agrupe por `\"category_name\"` y sume `\"revenue\"` como `\"total_revenue\"`\n4. Devuelva ordenado por `\"total_revenue\"` descendente, con el índice reiniciado y las columnas `[\"category_name\", \"total_revenue\"]`.",
+        "hint": "Encadena dos llamadas a pd.merge(), luego .groupby(\"category_name\").agg(total_revenue=(\"revenue\",\"sum\")).reset_index().sort_values(\"total_revenue\", ascending=False).reset_index(drop=True)"
+      }
+    }
+  }
+}

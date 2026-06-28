@@ -1,0 +1,1186 @@
+{
+  "select-basics": {
+    "title": "Conceptos Básicos de SELECT",
+    "description": "SELECT, FROM, LIMIT, alias de columnas",
+    "intro": "SELECT recupera datos de una tabla. Toda consulta comienza con SELECT y FROM. Más allá de eso, puedes transformar, renombrar, deducplicar y calcular valores sobre la marcha.",
+    "concepts": [
+      {
+        "title": "SELECT todas las columnas o columnas específicas",
+        "body": "SELECT * devuelve cada columna en la tabla. Enumerar los nombres de las columnas devuelve únicamente esas columnas, lo cual es más explícito y rápido en tablas grandes.",
+        "note": ""
+      },
+      {
+        "title": "LIMIT",
+        "body": "LIMIT N restringe la salida a como máximo N filas. Siempre es útil al explorar una nueva tabla por primera vez.",
+        "note": ""
+      },
+      {
+        "title": "Alias (AS)",
+        "body": "AS renombra una columna en la salida. El alias solo afecta al conjunto de resultados; no se puede usar en la cláusula WHERE.",
+        "note": ""
+      },
+      {
+        "title": "DISTINCT",
+        "body": "DISTINCT elimina las filas duplicadas. Cuando seleccionas múltiples columnas, DISTINCT se aplica a la combinación completa de filas.",
+        "note": ""
+      },
+      {
+        "title": "Aritmética y ROUND",
+        "body": "Puedes calcular expresiones directamente en el SELECT. ROUND(valor, decimales) redondea un número a la precisión dada.",
+        "note": ""
+      },
+      {
+        "title": "Funciones de texto: LENGTH, UPPER, LOWER",
+        "body": "LENGTH(str) devuelve el conteo de caracteres. UPPER() y LOWER() cambian las mayúsculas/minúsculas de una columna de texto. Funcionan en cualquier valor de texto.",
+        "note": ""
+      },
+      {
+        "title": "COALESCE — reemplazar NULL con un valor por defecto",
+        "body": "COALESCE(valor, alternativa) devuelve el primer argumento que no sea NULL. Úsalo cuando una columna pueda ser NULL y necesites un valor por defecto seguro en su lugar.",
+        "note": "NULL no es lo mismo que 0 o una cadena vacía. Comparar NULL con = siempre devuelve falso; usa IS NULL para verificarlo."
+      }
+    ],
+    "exercises": {
+      "sb-01": {
+        "prompt": "Selecciona todas las columnas de la tabla `customers`.",
+        "hint": "Usa * para seleccionar todas las columnas."
+      },
+      "sb-02": {
+        "prompt": "Selecciona únicamente las columnas `name` y `city` de la tabla `customers`.",
+        "hint": "Enumera los nombres de las columnas separados por comas después de SELECT."
+      },
+      "sb-03": {
+        "prompt": "Selecciona las primeras 5 filas de la tabla `products`.",
+        "hint": "Usa LIMIT para restringir el número de filas devueltas."
+      },
+      "sb-04": {
+        "prompt": "Selecciona `name` y `price` de la tabla `products`. Muestra únicamente las primeras 10 filas.",
+        "hint": "Combina la selección de columnas con LIMIT."
+      },
+      "sb-05": {
+        "prompt": "Selecciona la columna `name` de la tabla `employees`. Alíala como `employee_name`.",
+        "hint": "Usa AS para crear un alias para una columna."
+      },
+      "sb-06": {
+        "prompt": "Selecciona `id`, `name` y `salary` de la tabla `employees`. Alía la columna `salary` como `annual_salary`.",
+        "hint": "Puedes aliar cualquier columna con AS."
+      },
+      "sb-07": {
+        "prompt": "Selecciona todas las columnas de la tabla `orders`. Muestra únicamente las primeras 3 filas.",
+        "hint": "Usa LIMIT 3 al final de la consulta."
+      },
+      "sb-08": {
+        "prompt": "Selecciona `order_id`, `product_id` y `quantity` de la tabla `order_items`.",
+        "hint": "Verifica el nombre de la tabla: order_items."
+      },
+      "sb-09": {
+        "prompt": "Selecciona `name` y `price` de la tabla `products`. Alía `price` como `cost`. Muestra las primeras 5 filas.",
+        "hint": "Combina alias y LIMIT juntos."
+      },
+      "sb-10": {
+        "prompt": "Selecciona `name`, `department` y `salary` de la tabla `employees`. Alía `department` como `dept` y `salary` como `pay`.",
+        "hint": "Puedes aliar múltiples columnas en la misma consulta."
+      },
+      "sb-11": {
+        "prompt": "Selecciona todos los países (`country`) distintos de la tabla `customers`.",
+        "hint": "DISTINCT elimina los valores duplicados del resultado."
+      },
+      "sb-12": {
+        "prompt": "Selecciona el nombre (`name`) y precio (`price`) de los productos. Añade una columna llamada `price_with_vat` que sea el precio multiplicado por 1.21, redondeado a 2 decimales.",
+        "hint": "Puedes realizar operaciones aritméticas directamente en el SELECT. Envuélvelo con ROUND(valor, 2)."
+      },
+      "sb-13": {
+        "prompt": "Selecciona el nombre (`name`) del cliente y la longitud de su nombre de la tabla `customers`. Etiqueta la columna de longitud como `name_length`.",
+        "hint": "LENGTH() devuelve la cantidad de caracteres en una cadena de texto."
+      },
+      "sb-14": {
+        "prompt": "Selecciona el nombre del empleado (`name`) y `manager_id`. Reemplaza el `manager_id` nulo (NULL) con 0. Nombra la columna resultante `manager_id`.",
+        "hint": "COALESCE(valor, alternativa) devuelve el primer argumento no nulo."
+      },
+      "sb-15": {
+        "prompt": "Selecciona el nombre (`name`) en mayúsculas y la ciudad (`city`) en minúsculas de la tabla `customers`. Nombra las columnas como `upper_name` y `lower_city`.",
+        "hint": "UPPER() y LOWER() convierten las mayúsculas/minúsculas de un texto."
+      }
+    }
+  },
+  "where": {
+    "title": "Cláusula WHERE",
+    "description": "Filtrar filas con condiciones: =, !=, >, <, BETWEEN, IN, LIKE, IS NULL",
+    "intro": "WHERE filtra filas antes de que lleguen al SELECT. Solo las filas para las cuales la condición es verdadera aparecen en el resultado.",
+    "concepts": [
+      {
+        "title": "Operadores de comparación",
+        "body": "Usa =, != (o <>), <, >, <=, >= para comparar valores. Las comparaciones de cadenas de texto distinguen entre mayúsculas y minúsculas en SQLite.",
+        "note": ""
+      },
+      {
+        "title": "AND y OR",
+        "body": "AND requiere que ambas condiciones sean verdaderas. OR requiere que al menos una lo sea. AND tiene mayor precedencia que OR; usa paréntesis al mezclarlos.",
+        "note": ""
+      },
+      {
+        "title": "IN y NOT IN",
+        "body": "IN verifica si un valor coincide con algún elemento de una lista. NOT IN excluye todos los valores enumerados. Ambos son formas abreviadas de múltiples condiciones OR / AND.",
+        "note": ""
+      },
+      {
+        "title": "BETWEEN",
+        "body": "BETWEEN a AND b es inclusivo en ambos extremos. NOT BETWEEN excluye todo el rango, incluyendo los límites.",
+        "note": ""
+      },
+      {
+        "title": "LIKE — coincidencia de patrones",
+        "body": "% coincide con cualquier secuencia de caracteres (incluyendo ninguna). _ coincide con exactamente un carácter. LIKE no distingue entre mayúsculas y minúsculas en SQLite por defecto.",
+        "note": ""
+      },
+      {
+        "title": "IS NULL e IS NOT NULL",
+        "body": "NULL significa desconocido; no se puede comparar con =. Usa siempre IS NULL o IS NOT NULL para verificar valores faltantes.",
+        "note": "WHERE col = NULL siempre devolverá 0 filas incluso si existen valores nulos. Este es un error muy común de principiantes."
+      }
+    ],
+    "exercises": {
+      "wh-01": {
+        "prompt": "Selecciona todos los clientes de `USA` (columna `country`).",
+        "hint": "Usa WHERE country = 'USA'."
+      },
+      "wh-02": {
+        "prompt": "Selecciona todos los productos con un precio (`price`) mayor a 100.",
+        "hint": "Usa el operador >."
+      },
+      "wh-03": {
+        "prompt": "Selecciona todas las órdenes con estado (`status`) igual a 'delivered'.",
+        "hint": "Los valores de texto se encierran entre comillas simples."
+      },
+      "wh-04": {
+        "prompt": "Selecciona a los empleados con un salario (`salary`) entre 70000 y 90000 (inclusive).",
+        "hint": "BETWEEN es inclusivo en ambos extremos."
+      },
+      "wh-05": {
+        "prompt": "Selecciona todos los productos de las categorías (`category`) 'Electronics' o 'Books'.",
+        "hint": "Usa IN con una lista de valores entre paréntesis."
+      },
+      "wh-06": {
+        "prompt": "Selecciona todos los clientes cuyo nombre (`name`) comience con la letra 'A'.",
+        "hint": "LIKE con % coincide con cualquier secuencia de caracteres."
+      },
+      "wh-07": {
+        "prompt": "Selecciona todos los empleados que NO tengan un gerente (donde `manager_id` sea nulo).",
+        "hint": "Usa IS NULL para las comprobaciones de nulos, no = NULL."
+      },
+      "wh-08": {
+        "prompt": "Selecciona todos los clientes que NO sean de 'Japan'.",
+        "hint": "Usa != o <> para indicar diferente."
+      },
+      "wh-09": {
+        "prompt": "Selecciona los productos con stock menor a 50 y precio (`price`) mayor a 50.",
+        "hint": "Combina dos condiciones con AND."
+      },
+      "wh-10": {
+        "prompt": "Selecciona todas las órdenes realizadas en 2024 (columna `ordered_at`) que tengan estado (`status`) 'pending' o 'shipped'.",
+        "hint": "Usa LIKE '2024%' para el filtro de año e IN para los múltiples estados."
+      },
+      "wh-11": {
+        "prompt": "Selecciona todos los empleados del departamento (`department`) 'Engineering' Y que tengan un gerente (`manager_id` no sea nulo).",
+        "hint": "Combina una igualdad de texto con IS NOT NULL."
+      },
+      "wh-12": {
+        "prompt": "Selecciona todos los clientes cuya ciudad (`city`) contenga la letra 'o' (minúscula).",
+        "hint": "% coincide con cualquier cantidad de caracteres a cada lado."
+      },
+      "wh-13": {
+        "prompt": "Selecciona todas las órdenes realizadas antes del '2024-04-01' que fueron entregadas ('delivered').",
+        "hint": "Las fechas en formato ISO (AAAA-MM-DD) se comparan correctamente con < y >."
+      },
+      "wh-14": {
+        "prompt": "Selecciona todos los productos que estén agotados (`stock` = 0) o que cuesten más de 400.",
+        "hint": "Usa OR para que coincida cualquiera de las condiciones."
+      },
+      "wh-15": {
+        "prompt": "Selecciona todos los empleados cuyo salario (`salary`) NO esté entre 65000 y 85000.",
+        "hint": "NOT BETWEEN excluye el rango, incluyendo los valores límite."
+      }
+    }
+  },
+  "order-by": {
+    "title": "Cláusula ORDER BY",
+    "description": "Ordenar resultados de forma ascendente y descendente",
+    "intro": "ORDER BY ordena el resultado. Sin él, el orden de las filas es indefinido y puede cambiar entre ejecuciones.",
+    "concepts": [
+      {
+        "title": "ASC y DESC",
+        "body": "ASC (ascendente) es el valor por defecto: de menor a mayor, A-Z para texto, más antiguo primero para fechas. DESC invierte esto para mostrar el mayor primero.",
+        "note": ""
+      },
+      {
+        "title": "Múltiples columnas de ordenación",
+        "body": "Separa las columnas con comas. La segunda columna solo se utiliza para desempatar las filas que coincidan en el criterio de la primera.",
+        "note": ""
+      },
+      {
+        "title": "Combinar WHERE y ORDER BY",
+        "body": "WHERE filtra las filas antes de que ORDER BY las ordene. La columna por la que ordenas no necesita aparecer en el SELECT.",
+        "note": ""
+      },
+      {
+        "title": "Primeros N: ORDER BY + LIMIT",
+        "body": "Combinar ORDER BY con LIMIT es la forma estándar de obtener las N filas con valores más altos o más bajos.",
+        "note": ""
+      }
+    ],
+    "exercises": {
+      "ob-01": {
+        "prompt": "Selecciona todos los productos ordenados por precio (`price`) de menor a mayor (del más barato al más caro).",
+        "hint": "ASC es ascendente (de menor a mayor). También es el valor predeterminado."
+      },
+      "ob-02": {
+        "prompt": "Selecciona todos los productos ordenados por precio (`price`) de mayor a menor (del más caro al más barato).",
+        "hint": "DESC es descendente (de mayor a menor)."
+      },
+      "ob-03": {
+        "prompt": "Selecciona el nombre (`name`) y el salario (`salary`) de los empleados, ordenados por salario de forma descendente.",
+        "hint": "Puedes ordenar por una columna incluso si solo la seleccionas en el SELECT."
+      },
+      "ob-04": {
+        "prompt": "Selecciona todos los clientes ordenados alfabéticamente por su nombre (`name`).",
+        "hint": "ORDER BY funciona también en columnas de texto — orden alfabético."
+      },
+      "ob-05": {
+        "prompt": "Selecciona todos los empleados ordenados por departamento (`department`) de la A a la Z, y luego por salario (`salary`) descendente dentro de cada departamento.",
+        "hint": "Separa múltiples criterios de ordenación con comas."
+      },
+      "ob-06": {
+        "prompt": "Selecciona los 3 productos más caros (muestra solo `name` y `price`).",
+        "hint": "Combina ORDER BY DESC con LIMIT."
+      },
+      "ob-07": {
+        "prompt": "Selecciona todas las órdenes ordenadas por la fecha en que se realizaron (`ordered_at`) de la más reciente a la más antigua.",
+        "hint": "Las fechas se ordenan lexicográficamente en formato ISO, por lo que ORDER BY funciona correctamente."
+      },
+      "ob-08": {
+        "prompt": "Selecciona `name`, `country` y `city` de la tabla `customers`. Ordena por país de la A a la Z, y luego por ciudad de la A a la Z.",
+        "hint": "Ordenación multi-columna: primero por país, luego por ciudad dentro de cada país."
+      },
+      "ob-09": {
+        "prompt": "Selecciona los 5 empleados con el salario (`salary`) más bajo (muestra `name` y `salary`).",
+        "hint": "ORDER BY ASC + LIMIT te da los N registros con valores más bajos."
+      },
+      "ob-10": {
+        "prompt": "Selecciona todos los productos de la categoría 'Electronics', ordenados por stock de forma ascendente.",
+        "hint": "Puedes combinar WHERE y ORDER BY en la misma consulta."
+      },
+      "ob-11": {
+        "prompt": "Selecciona `name`, `category` y `price` de los productos. Ordena por categoría de la A a la Z, y luego por nombre de la A a la Z dentro de cada categoría.",
+        "hint": "Ordenación de dos columnas: primero categoría, luego nombre dentro de cada categoría."
+      },
+      "ob-12": {
+        "prompt": "Selecciona `name` e `hired_at` de la tabla `employees`. Muestra los 3 empleados contratados más recientemente.",
+        "hint": "Más reciente = mayor fecha = DESC."
+      },
+      "ob-13": {
+        "prompt": "Selecciona todas las columnas de la tabla `order_items`. Ordena por cantidad (`quantity`) descendente, y luego por precio unitario (`unit_price`) descendente.",
+        "hint": "Ambas columnas utilizan DESC en este caso."
+      },
+      "ob-14": {
+        "prompt": "Selecciona `name`, `country` y `registered_at` de la tabla `customers`. Ordena por país de la A a la Z, y luego por registro más reciente dentro de cada país.",
+        "hint": "Mezcla ASC y DESC entre las dos columnas de ordenación."
+      },
+      "ob-15": {
+        "prompt": "Muestra los 3 productos con más stock. Selecciona únicamente las columnas `name` y `stock`.",
+        "hint": "Más stock = mayor valor = DESC, luego aplica LIMIT 3."
+      }
+    }
+  },
+  "aggregations": {
+    "title": "Agregaciones",
+    "description": "COUNT, SUM, AVG, MIN, MAX",
+    "intro": "Las funciones de agregación reducen múltiples filas a un solo valor. Operan en todas las filas de forma predeterminada, o por grupo cuando se combinan con GROUP BY.",
+    "concepts": [
+      {
+        "title": "COUNT(*) frente a COUNT(columna)",
+        "body": "COUNT(*) cuenta todas las filas, incluyendo los nulos (NULL). COUNT(columna) cuenta únicamente las filas donde esa columna no sea NULL.",
+        "note": "COUNT(*) y COUNT(id) usualmente dan el mismo resultado porque id nunca es NULL. La diferencia se nota al usar columnas que admiten valores nulos."
+      },
+      {
+        "title": "SUM y AVG",
+        "body": "SUM suma todos los valores de una columna. AVG divide la suma por la cantidad de valores no nulos. Ambas ignoran los valores NULL.",
+        "note": ""
+      },
+      {
+        "title": "MIN y MAX",
+        "body": "MIN y MAX funcionan en números, texto (alfabético) y fechas (cronológico). Ambos ignoran los valores NULL.",
+        "note": ""
+      },
+      {
+        "title": "DISTINCT dentro de las agregaciones",
+        "body": "Agregar DISTINCT dentro de una función de agregación cuenta o suma únicamente los valores únicos. Útil para contar clientes distintos, categorías, etc.",
+        "note": ""
+      },
+      {
+        "title": "Expresiones dentro de agregaciones",
+        "body": "Puedes calcular una expresión directamente dentro de la función de agregación en lugar de solo hacer referencia a una columna.",
+        "note": ""
+      }
+    ],
+    "exercises": {
+      "ag-01": {
+        "prompt": "Cuenta el número total de clientes.",
+        "hint": "COUNT(*) cuenta todas las filas."
+      },
+      "ag-02": {
+        "prompt": "Encuentra los ingresos totales (revenue) de todos los artículos de órdenes (`quantity * unit_price`).",
+        "hint": "Puedes realizar operaciones aritméticas dentro de SUM()."
+      },
+      "ag-03": {
+        "prompt": "Encuentra el salario promedio (`salary`) de todos los empleados.",
+        "hint": "AVG() calcula la media aritmética."
+      },
+      "ag-04": {
+        "prompt": "Encuentra el precio (`price`) del producto más caro.",
+        "hint": "MAX() devuelve el valor más alto."
+      },
+      "ag-05": {
+        "prompt": "Encuentra el precio (`price`) del producto más barato.",
+        "hint": "MIN() devuelve el valor más bajo."
+      },
+      "ag-06": {
+        "prompt": "Cuenta cuántas órdenes tienen estado (`status`) entregado (\"delivered\").",
+        "hint": "Combina COUNT con WHERE para contar filas filtradas."
+      },
+      "ag-07": {
+        "prompt": "Encuentra el stock total de todos los productos.",
+        "hint": "SUM() suma todos los valores de una columna."
+      },
+      "ag-08": {
+        "prompt": "Encuentra el salario más alto y el más bajo en una sola consulta. Nómbralos `max_salary` y `min_salary`.",
+        "hint": "Puedes usar múltiples funciones de agregación en un solo SELECT."
+      },
+      "ag-09": {
+        "prompt": "Cuenta el número de países distintos en la tabla `customers`.",
+        "hint": "Usa COUNT(DISTINCT columna) para contar valores únicos."
+      },
+      "ag-10": {
+        "prompt": "Encuentra el precio unitario promedio (`unit_price`) de los artículos en `order_items`. Redondéalo a 2 decimales y nómbralo `avg_price`.",
+        "hint": "Envuelve el AVG() dentro de un ROUND(valor, decimales)."
+      },
+      "ag-11": {
+        "prompt": "Cuenta el número de ciudades distintas en la tabla `customers`.",
+        "hint": "COUNT(DISTINCT columna) cuenta únicamente valores únicos."
+      },
+      "ag-12": {
+        "prompt": "Encuentra la cantidad (`quantity`) total vendida entre todos los artículos de órdenes (`order_items`).",
+        "hint": "Aplica SUM a la columna quantity."
+      },
+      "ag-13": {
+        "prompt": "Encuentra el stock promedio de todos los productos, redondeado a 0 decimales. Nómbralo `avg_stock`.",
+        "hint": "ROUND(valor, 0) redondea al entero más cercano."
+      },
+      "ag-14": {
+        "prompt": "Cuenta cuántos productos tienen un precio (`price`) mayor a 50.",
+        "hint": "Usa WHERE para filtrar antes de contar."
+      },
+      "ag-15": {
+        "prompt": "Encuentra la fecha de la orden más reciente y la fecha de la orden más antigua de la tabla `orders`. Nómbralas `latest_order` y `earliest_order`.",
+        "hint": "MAX y MIN funcionan en cadenas de texto de fecha en formato ISO."
+      }
+    }
+  },
+  "group-by": {
+    "title": "Cláusula GROUP BY",
+    "description": "Agrupar datos por categorías",
+    "intro": "GROUP BY divide las filas en grupos y te permite aplicar funciones de agregación a cada grupo de forma independiente, devolviendo una fila de resultado por grupo.",
+    "concepts": [
+      {
+        "title": "GROUP BY básico",
+        "body": "Toda columna en el SELECT que no esté dentro de una función de agregación debe aparecer en la cláusula GROUP BY. Esta es una regla estricta de SQL.",
+        "note": ""
+      },
+      {
+        "title": "Agrupamiento por múltiples columnas",
+        "body": "Agrupar por múltiples columnas crea un grupo por cada combinación única de esos valores.",
+        "note": ""
+      },
+      {
+        "title": "Expresiones dentro de agregaciones",
+        "body": "Puedes calcular un valor dentro de la función de agregación, no solo hacer referencia a una columna simple.",
+        "note": ""
+      },
+      {
+        "title": "STRFTIME para agrupamiento por fechas",
+        "body": "STRFTIME(formato, columna) extrae una cadena con formato a partir de una fecha. Formatos comunes: '%Y' = año de 4 dígitos, '%m' = número de mes, '%Y-%m' = año-mes. El resultado es una cadena que puedes agrupar en el GROUP BY.",
+        "note": "El alias creado por el STRFTIME (ej. year o month) se puede usar directamente en GROUP BY y ORDER BY."
+      },
+      {
+        "title": "ORDER BY en resultados agregados",
+        "body": "Puedes ordenar usando ORDER BY con un alias creado en el SELECT, o directamente con la expresión de agregación.",
+        "note": ""
+      }
+    ],
+    "exercises": {
+      "gb-01": {
+        "prompt": "Cuenta el número de clientes por país (`country`).",
+        "hint": "GROUP BY agrupa filas con el mismo valor. Usa COUNT(*) para contar el tamaño de cada grupo."
+      },
+      "gb-02": {
+        "prompt": "Encuentra el salario promedio por departamento (`department`).",
+        "hint": "Agrupa por departamento y luego aplica AVG a la columna salary."
+      },
+      "gb-03": {
+        "prompt": "Encuentra los ingresos totales por orden (suma de `quantity * unit_price`). Muestra `order_id` y el total etiquetado como `total`.",
+        "hint": "Agrupa por order_id y suma (SUM) los totales de las líneas."
+      },
+      "gb-04": {
+        "prompt": "Cuenta el número de productos por categoría (`category`).",
+        "hint": "Aplica GROUP BY a la columna category."
+      },
+      "gb-05": {
+        "prompt": "Encuentra el salario máximo por departamento (`department`).",
+        "hint": "Aplica MAX() en cada grupo."
+      },
+      "gb-06": {
+        "prompt": "Cuenta la cantidad de órdenes por estado (`status`).",
+        "hint": "Agrupa las órdenes por su valor de estado."
+      },
+      "gb-07": {
+        "prompt": "Encuentra el valor total del stock (`price * stock`) por categoría (`category`).",
+        "hint": "Multiplica price por stock dentro de la función SUM()."
+      },
+      "gb-08": {
+        "prompt": "Encuentra el número de empleados contratados por año. Nombra la columna de año como `hire_year`.",
+        "hint": "Usa STRFTIME('%Y', hired_at) para extraer el año de contratación."
+      },
+      "gb-09": {
+        "prompt": "Encuentra el precio promedio por categoría de producto. Redondea a 2 decimales y ordena por el promedio de forma descendente.",
+        "hint": "Puedes ordenar en el ORDER BY usando un alias creado en el SELECT."
+      },
+      "gb-10": {
+        "prompt": "Para cada categoría de producto, encuentra el conteo total de productos y el stock total. Nómbralos `product_count` y `total_stock`.",
+        "hint": "Usa dos funciones de agregación en la misma consulta GROUP BY."
+      },
+      "gb-11": {
+        "prompt": "Cuenta los clientes por ciudad (`city`). Ordena por el conteo de forma descendente.",
+        "hint": "Agrupa por city y luego ordena por el alias del conteo en sentido descendente."
+      },
+      "gb-12": {
+        "prompt": "Encuentra la cantidad total vendida por `product_id`. Ordena por cantidad total de forma descendente.",
+        "hint": "Suma (SUM) la columna quantity agrupando por product_id."
+      },
+      "gb-13": {
+        "prompt": "Encuentra el salario mínimo y máximo por departamento. Nombra las columnas `min_salary` y `max_salary`.",
+        "hint": "Usa tanto MIN como MAX en el mismo SELECT."
+      },
+      "gb-14": {
+        "prompt": "Encuentra el salario promedio por año de contratación. Extrae el año de contratación de `hired_at` usando STRFTIME('%Y', hired_at) y nómbralo `hire_year`. Redondea el promedio a 0 decimales y nómbralo `avg_salary`. Ordena por año ascendentemente.",
+        "hint": "STRFTIME('%Y', hired_at) extrae el año de 4 dígitos. ROUND(AVG(salary), 0) redondea al entero más cercano."
+      },
+      "gb-15": {
+        "prompt": "Para cada estado de orden (`status`), muestra el conteo de órdenes, la fecha de orden más antigua y la fecha de orden más reciente.",
+        "hint": "Agrupa por status y aplica COUNT, MIN y MAX en la misma consulta."
+      }
+    }
+  },
+  "having": {
+    "title": "Cláusula HAVING",
+    "description": "Filtrar grupos después de la agregación",
+    "intro": "HAVING filtra grupos después de que se ejecuta GROUP BY. Piensa en ella como una cláusula WHERE para resultados agregados.",
+    "concepts": [
+      {
+        "title": "HAVING frente a WHERE",
+        "body": "WHERE filtra filas individuales antes del agrupamiento. HAVING filtra grupos enteros después de la agregación. Se ejecutan en etapas diferentes de la consulta.",
+        "note": ""
+      },
+      {
+        "title": "HAVING con condiciones agregadas",
+        "body": "Puedes usar cualquier función de agregación en HAVING — COUNT, SUM, AVG, MIN, MAX. No puedes usar una columna simple que no esté en la cláusula GROUP BY.",
+        "note": ""
+      },
+      {
+        "title": "Múltiples condiciones en HAVING",
+        "body": "Combina condiciones en HAVING con AND u OR, de la misma forma que en la cláusula WHERE.",
+        "note": ""
+      },
+      {
+        "title": "Aritmética en HAVING",
+        "body": "HAVING puede contener expresiones construidas a partir de funciones de agregación, no solo comparaciones directas.",
+        "note": ""
+      }
+    ],
+    "exercises": {
+      "hv-01": {
+        "prompt": "Encuentra los países que tienen más de 2 clientes.",
+        "hint": "HAVING filtra grupos, no filas individuales."
+      },
+      "hv-02": {
+        "prompt": "Encuentra los departamentos donde el salario promedio (`salary`) sea superior a 75000.",
+        "hint": "Usa HAVING AVG(salary) > 75000."
+      },
+      "hv-03": {
+        "prompt": "Encuentra las categorías de productos con un valor total de stock (`price * stock`) superior a 10000.",
+        "hint": "Calcula el valor de stock dentro de un SUM(), luego filtra con HAVING."
+      },
+      "hv-04": {
+        "prompt": "Encuentra las órdenes que tengan más de 2 artículos (líneas de orden).",
+        "hint": "Cuenta las filas por order_id, luego filtra."
+      },
+      "hv-05": {
+        "prompt": "Encuentra las categorías de productos con un precio promedio inferior a 100.",
+        "hint": "Usa HAVING AVG(price) < 100."
+      },
+      "hv-06": {
+        "prompt": "Encuentra los estados de orden (`status`) con menos de 5 órdenes.",
+        "hint": "Usa HAVING COUNT(*) < 5."
+      },
+      "hv-07": {
+        "prompt": "Encuentra los departamentos con más de 3 empleados Y un salario promedio superior a 65000.",
+        "hint": "Combina dos condiciones de HAVING con AND."
+      },
+      "hv-08": {
+        "prompt": "Encuentra las órdenes cuyo valor total (suma de `quantity * unit_price`) sea superior a 500.",
+        "hint": "Agrupa por order_id y luego filtra por el total."
+      },
+      "hv-09": {
+        "prompt": "Encuentra los países que tienen exactamente 1 cliente.",
+        "hint": "Usa HAVING COUNT(*) = 1."
+      },
+      "hv-10": {
+        "prompt": "Encuentra las categorías de productos donde el precio máximo sea superior a 200 y el precio mínimo sea inferior a 50.",
+        "hint": "Usa tanto MAX() como MIN() en la cláusula HAVING."
+      },
+      "hv-11": {
+        "prompt": "Encuentra los departamentos que tengan exactamente 1 empleado.",
+        "hint": "Usa HAVING COUNT(*) = 1."
+      },
+      "hv-12": {
+        "prompt": "Encuentra los `product_id` que aparecen en `order_items` con una cantidad total vendida de 3 o más.",
+        "hint": "Suma (SUM) la cantidad por producto, luego filtra con HAVING."
+      },
+      "hv-13": {
+        "prompt": "Encuentra a los clientes que hayan realizado más de 1 orden. Muestra `customer_id` y el conteo de órdenes.",
+        "hint": "Agrupa por customer_id y filtra usando HAVING."
+      },
+      "hv-14": {
+        "prompt": "Encuentra los departamentos donde el rango de salarios (máximo menos mínimo) sea superior a 20000.",
+        "hint": "Puedes usar operaciones aritméticas en las funciones agregadas dentro de HAVING."
+      },
+      "hv-15": {
+        "prompt": "Encuentra las categorías de productos donde cada producto cueste más de 10 (es decir, el precio mínimo en la categoría es superior a 10).",
+        "hint": "Si MIN(price) > 10, entonces todos los productos de esa categoría cuestan más de 10."
+      }
+    }
+  },
+  "joins": {
+    "title": "Uniones (JOINs)",
+    "description": "INNER JOIN, LEFT JOIN, uniones múltiples",
+    "intro": "Los JOINs combinan filas de dos o más tablas en base a una condición de coincidencia. La cláusula ON define qué columnas vinculan las tablas.",
+    "concepts": [
+      {
+        "title": "INNER JOIN",
+        "body": "Devuelve únicamente las filas que tienen coincidencia en ambas tablas. Las filas sin coincidencia en alguno de los lados quedan excluidas.",
+        "note": ""
+      },
+      {
+        "title": "LEFT JOIN",
+        "body": "Devuelve todas las filas de la tabla izquierda, más las filas que coincidan de la derecha. Si no hay coincidencia, las columnas de la derecha muestran NULL.",
+        "note": "Los clientes sin órdenes seguirán apareciendo, con order_id = NULL. Usa LEFT JOIN cuando necesites conservar todas las filas de la tabla de la izquierda, independientemente de si hay coincidencias."
+      },
+      {
+        "title": "Alias de tablas",
+        "body": "Los alias cortos como c, o, oi hacen que las consultas de varias tablas sean legibles. Los defines justo después del nombre de la tabla.",
+        "note": ""
+      },
+      {
+        "title": "Encadenar múltiples JOINs",
+        "body": "Puedes encadenar tantos JOINs como necesites. Cada uno añade otra tabla al conjunto de resultados.",
+        "note": ""
+      },
+      {
+        "title": "Self JOIN (Auto unión)",
+        "body": "Un self JOIN vincula una tabla consigo misma. Debes usar alias diferentes para cada copia. Caso común: empleado y su gerente, ambos en la misma tabla.",
+        "note": ""
+      },
+      {
+        "title": "COALESCE después de LEFT JOIN",
+        "body": "Cuando un LEFT JOIN no encuentra coincidencia, las funciones de agregación devuelven NULL. COALESCE(expr, 0) convierte ese NULL en 0 o en cualquier otro valor predeterminado.",
+        "note": "COUNT(oi.id) también devuelve 0 para filas de LEFT JOIN sin coincidencia sin necesidad de COALESCE, ya que ignora los NULL."
+      }
+    ],
+    "exercises": {
+      "jn-01": {
+        "prompt": "Muestra cada orden con el nombre del cliente. Incluye el id de la orden, el nombre del cliente (`name`) y la fecha de la orden (`ordered_at`).",
+        "hint": "Une (JOIN) `orders` con `customers` usando la condición customer_id = id."
+      },
+      "jn-02": {
+        "prompt": "Muestra cada artículo de orden (`order_items`) con el nombre del producto (`name`), cantidad (`quantity`) y precio unitario (`unit_price`).",
+        "hint": "Une (JOIN) `order_items` con `products` usando la columna product_id."
+      },
+      "jn-03": {
+        "prompt": "Muestra todos los clientes y sus órdenes. Incluye clientes que no tengan órdenes. Muestra el nombre del cliente y el id de la orden (null si no tiene).",
+        "hint": "LEFT JOIN mantiene a todos los clientes incluso si no tienen órdenes coincidentes."
+      },
+      "jn-04": {
+        "prompt": "Muestra cada empleado junto con el nombre de su gerente. Nombra las columnas `employee_name` y `manager_name`.",
+        "hint": "Auto-unión: une employees consigo misma. Usa alias diferentes para las dos copias."
+      },
+      "jn-05": {
+        "prompt": "Muestra el id de la orden, el nombre del cliente y el estado de la orden para todas las órdenes entregadas ('delivered').",
+        "hint": "Une (JOIN) primero, luego aplica la cláusula WHERE para filtrar por estado."
+      },
+      "jn-06": {
+        "prompt": "Muestra cada artículo de orden con el nombre del producto, categoría, cantidad y total de la línea (`quantity * unit_price`).",
+        "hint": "Calcula total de línea como quantity * unit_price en el SELECT."
+      },
+      "jn-07": {
+        "prompt": "Muestra el importe total gastado por cliente. Incluye el nombre del cliente y el total. Ordena por el total de forma descendente.",
+        "hint": "Encadena dos JOINs: customers → orders → order_items, luego agrupa (GROUP BY) por cliente."
+      },
+      "jn-08": {
+        "prompt": "Muestra todos los productos y cuántas veces aparecen en la tabla `order_items`. Incluye productos con cero órdenes.",
+        "hint": "LEFT JOIN conserva los productos sin órdenes. COUNT(oi.id) devuelve 0 para las filas sin coincidencia."
+      },
+      "jn-09": {
+        "prompt": "Muestra el nombre del cliente, la fecha de la orden y el nombre del producto para cada artículo ordenado. Ordena por fecha de orden.",
+        "hint": "Encadena 4 tablas: customers → orders → order_items → products."
+      },
+      "jn-10": {
+        "prompt": "Muestra los ingresos totales por estado de orden (`status`). Une `orders` con `order_items` para calcular los ingresos. Muestra `status` y `total_revenue`. Ordena por `total_revenue` de forma descendente.",
+        "hint": "Une orders con order_items, agrupa (GROUP BY) por status y suma (SUM) los totales de las líneas."
+      },
+      "jn-11": {
+        "prompt": "Encuentra los clientes que nunca han realizado una orden. Muestra su nombre y país.",
+        "hint": "LEFT JOIN mantiene todos los clientes. Filtra WHERE o.id IS NULL para conservar solo aquellos sin coincidencia."
+      },
+      "jn-12": {
+        "prompt": "Muestra el nombre de cada producto y la cantidad total vendida históricamente. Incluye productos sin ventas (muestra 0). Ordena por cantidad vendida (`total_sold`) de forma descendente.",
+        "hint": "Usa LEFT JOIN + COALESCE para convertir NULL en 0 para productos sin ventas."
+      },
+      "jn-13": {
+        "prompt": "Muestra el nombre del empleado y el nombre de su gerente. Solo muestra a los empleados que tengan un gerente.",
+        "hint": "Auto-unión con INNER JOIN para que aparezcan únicamente empleados con gerente."
+      },
+      "jn-14": {
+        "prompt": "Muestra nombres de productos y categorías distintas que aparezcan en al menos una orden entregada ('delivered').",
+        "hint": "Une products con order_items y orders, filtra por status = 'delivered' y usa DISTINCT."
+      },
+      "jn-15": {
+        "prompt": "Muestra el nombre del departamento y la cantidad de empleados que tiene. Incluye departamentos que tengan 0 empleados.",
+        "hint": "Usa LEFT JOIN desde los departamentos hacia los empleados para no perder departamentos vacíos."
+      }
+    }
+  },
+  "ctes": {
+    "title": "CTEs (WITH)",
+    "description": "Expresiones de tabla comunes para consultas legibles de varios pasos",
+    "intro": "Una CTE (Common Table Expression) es una subconsulta con nombre definida antes del SELECT principal usando WITH. Hace que las consultas complejas sean más fáciles de leer y depurar, paso a paso.",
+    "concepts": [
+      {
+        "title": "Sintaxis básica de WITH",
+        "body": "Define la CTE usando WITH nombre AS (...), luego utilízala por su nombre en la consulta principal. La CTE existe únicamente durante la ejecución de esa consulta.",
+        "note": ""
+      },
+      {
+        "title": "CTE con agregación, filtrada en la consulta externa",
+        "body": "Coloca el trabajo pesado (JOINs, GROUP BY) dentro de la CTE. La consulta externa filtrará o clasificará limpiamente el resultado pre-agregado.",
+        "note": ""
+      },
+      {
+        "title": "Múltiples CTEs",
+        "body": "Separa múltiples CTEs con comas, todas bajo la misma palabra clave WITH. Las CTEs posteriores pueden hacer referencia a las anteriores.",
+        "note": ""
+      },
+      {
+        "title": "CTEs encadenadas",
+        "body": "La segunda CTE puede hacer referencia a la primera, construyendo un pipeline paso a paso. Esto reemplaza a las subconsultas profundamente anidadas.",
+        "note": ""
+      },
+      {
+        "title": "Subconsulta dentro de una CTE",
+        "body": "Una CTE puede contener una subconsulta en su cláusula WHERE — por ejemplo, para comparar cada fila frente a un agregado global.",
+        "note": ""
+      }
+    ],
+    "exercises": {
+      "ct-01": {
+        "prompt": "Usando una CTE llamada `high_earners`, selecciona a los empleados con salario (`salary`) superior a 80000. Luego, selecciona todas las columnas de la CTE.",
+        "hint": "WITH nombre_cte AS (consulta) SELECT * FROM nombre_cte"
+      },
+      "ct-02": {
+        "prompt": "Usando una CTE llamada `order_totals`, calcula el total por `order_id` desde `order_items`. Luego, selecciona `order_id` y el total donde el total sea superior a 400.",
+        "hint": "Define la agregación en la CTE, luego filtra en la consulta externa."
+      },
+      "ct-03": {
+        "prompt": "Usando una CTE llamada `dept_avg`, obtén el salario promedio por departamento. Luego, selecciona los departamentos donde `avg_salary` sea superior a 75000.",
+        "hint": "Filtra en el WHERE externo usando el alias de la CTE avg_salary."
+      },
+      "ct-04": {
+        "prompt": "Usando una CTE llamada `expensive_products`, obtén los productos con precio (`price`) superior a 200. Luego, cuenta cuántos hay.",
+        "hint": "Aplica COUNT(*) a la CTE en la consulta externa."
+      },
+      "ct-05": {
+        "prompt": "Usando una CTE llamada `customer_orders`, cuenta las órdenes por `customer_id`. Luego une (JOIN) con `customers` para mostrar el nombre del cliente y su cantidad de órdenes. Ordena por cantidad de órdenes de forma descendente.",
+        "hint": "Define el conteo en la CTE, luego realiza el JOIN en la consulta externa para obtener el nombre."
+      },
+      "ct-06": {
+        "prompt": "Usando una CTE llamada `product_revenue`, calcula los ingresos totales por `product_id` (suma de `quantity * unit_price`). Luego muestra los 5 productos con mayores ingresos, uniéndolos a la tabla `products` para obtener el nombre.",
+        "hint": "La CTE agrega los ingresos, la consulta externa une para obtener el nombre y restringe el resultado a 5 filas."
+      },
+      "ct-07": {
+        "prompt": "Usando dos CTEs: `dept_count` (cantidad de empleados por departamento) y `dept_salary` (salario promedio por departamento). Luego, únelas para mostrar el departamento, la cantidad de empleados (`headcount`) y el salario promedio (`avg_salary`).",
+        "hint": "Separa las CTEs con una coma. Únelas por la columna del departamento en la consulta final."
+      },
+      "ct-08": {
+        "prompt": "Usando una CTE llamada `recent_orders`, selecciona las órdenes realizadas en 2024. Luego, cuenta cuántas órdenes recientes tiene cada cliente. Muestra `customer_id` y `order_count`.",
+        "hint": "Filtra en la CTE, agrega en la consulta externa."
+      },
+      "ct-09": {
+        "prompt": "Usando una CTE llamada `above_avg_salary`, obtén los empleados cuyo salario sea superior al promedio de la empresa. Luego, cuenta cuántos empleados cumplen esta condición.",
+        "hint": "Puedes utilizar una subconsulta dentro de la definición de la CTE."
+      },
+      "ct-10": {
+        "prompt": "Usando una CTE llamada `category_stats`, obtén cada categoría con su cantidad de productos y precio promedio. Luego, selecciona únicamente las categorías con más de 2 productos.",
+        "hint": "Filtra en la consulta externa con WHERE usando la columna product_count de la CTE."
+      },
+      "ct-11": {
+        "prompt": "Usando una CTE llamada `engineering_team`, obtén todos los empleados del departamento 'Engineering'. Luego, selecciona la cantidad de empleados (`headcount`) y el salario promedio a partir de ella.",
+        "hint": "Define el filtro en la CTE, aplica las funciones de agregación en el SELECT externo."
+      },
+      "ct-12": {
+        "prompt": "Usando una CTE llamada `customer_spend`, calcula el gasto total por cliente (une `orders` con `order_items`). Luego, muestra el nombre del cliente que más ha gastado uniéndolo a la tabla `customers`.",
+        "hint": "Agrega en la CTE, une en la consulta externa para obtener el nombre, y usa LIMIT 1 para el resultado superior."
+      },
+      "ct-13": {
+        "prompt": "Usando una CTE llamada `category_revenue`, calcula los ingresos totales por categoría de producto (une `products` con `order_items`). Luego, selecciona únicamente las categorías donde los ingresos superen 500. Ordena por ingresos de forma descendente.",
+        "hint": "La CTE se encarga de los JOINs y del GROUP BY. La consulta externa simplemente filtra y ordena."
+      },
+      "ct-14": {
+        "prompt": "Usando una CTE llamada `last_order`, obtén la fecha de la orden más reciente por cliente. Muestra el nombre del cliente y la fecha de su última orden, ordenados de la más reciente a la más antigua.",
+        "hint": "Usa MAX(ordered_at) por customer_id en la CTE, luego une para obtener el nombre."
+      },
+      "ct-15": {
+        "prompt": "Usando dos CTEs: `dept_avg` (salario promedio por departamento) y `above_avg` (empleados que ganan por encima del promedio de su departamento). Muestra cuántos empleados con salario por encima del promedio tiene cada departamento.",
+        "hint": "Une employees con dept_avg en la segunda CTE para comparar cada salario frente al promedio de su respectivo departamento."
+      }
+    }
+  },
+  "case-when": {
+    "title": "Expresión CASE WHEN",
+    "description": "Lógica condicional dentro de las consultas",
+    "intro": "CASE WHEN permite aplicar lógica condicional dentro de una expresión SQL. Devuelve diferentes valores según las condiciones que coincidan, como un bloque if/else, pero generando una columna.",
+    "concepts": [
+      {
+        "title": "CASE WHEN evaluado",
+        "body": "Las condiciones se evalúan de arriba a abajo. Gana la primera condición WHEN que coincida. ELSE es el valor de respaldo; sin él, las filas que no coincidan devolverán NULL.",
+        "note": ""
+      },
+      {
+        "title": "Comprobaciones de NULL en CASE",
+        "body": "Usa IS NULL o IS NOT NULL dentro de WHEN. No puedes utilizar = NULL ya que las comparaciones con NULL siempre devuelven falso.",
+        "note": ""
+      },
+      {
+        "title": "Agregación condicional: SUM(CASE WHEN ...)",
+        "body": "Envolver CASE WHEN dentro de SUM te permite pivotar datos: contar o sumar filas que cumplan una condición específica como columnas independientes.",
+        "note": "Este patrón genera múltiples métricas en una sola fila, convirtiendo valores de filas en columnas. Es uno de los patrones más comunes en analítica de datos."
+      },
+      {
+        "title": "CASE dentro de GROUP BY",
+        "body": "Puedes agrupar mediante GROUP BY usando directamente una expresión CASE; esto define agrupamientos personalizados sin necesidad de una CTE o subconsulta adicional.",
+        "note": ""
+      },
+      {
+        "title": "Envolver CASE con otras funciones",
+        "body": "CASE WHEN es una expresión, lo que significa que puedes pasar su resultado a ROUND, UPPER, o cualquier otra función que acepte valores.",
+        "note": ""
+      }
+    ],
+    "exercises": {
+      "cw-01": {
+        "prompt": "Añade una columna llamada `price_tier` a los productos: 'cheap' si el precio es menor a 30, 'mid' si es menor a 150, y 'expensive' en cualquier otro caso.",
+        "hint": "CASE WHEN condicion THEN valor ... ELSE por_defecto END"
+      },
+      "cw-02": {
+        "prompt": "Clasifica el salario de cada empleado como 'junior' (< 65000), 'mid' (65000-85000), o 'senior' (> 85000). Muestra el nombre (`name`), salario (`salary`) y nivel (`level`).",
+        "hint": "Las condiciones se evalúan en orden; una vez que un WHEN coincide, las demás se omiten."
+      },
+      "cw-03": {
+        "prompt": "Añade una columna llamada `has_manager`: 'yes' si `manager_id` no es nulo, de lo contrario 'no'. Muestra el nombre (`name`) y `has_manager`.",
+        "hint": "Usa IS NOT NULL en la condición del WHEN."
+      },
+      "cw-04": {
+        "prompt": "Cuenta la cantidad de órdenes entregadas ('delivered'), enviadas ('shipped'), pendientes ('pending') y canceladas ('cancelled') usando CASE WHEN dentro de SUM. Muestra cada estado como una columna independiente.",
+        "hint": "SUM(CASE WHEN ... THEN 1 ELSE 0 END) es el patrón estándar para pivotar datos."
+      },
+      "cw-05": {
+        "prompt": "Muestra el nombre de cada producto (`name`) y una columna `in_stock`: 'yes' si el stock es mayor a 0, 'no' si el stock es igual a 0.",
+        "hint": "Un CASE simple de dos ramas."
+      },
+      "cw-06": {
+        "prompt": "Muestra cada orden junto con una columna `urgency`: 'high' si el estado (`status`) es 'pending', 'medium' si es 'shipped', 'low' si es 'delivered', y 'none' si es 'cancelled'.",
+        "hint": "Una rama WHEN por cada valor de estado."
+      },
+      "cw-07": {
+        "prompt": "Para cada empleado, muestra su nombre, departamento y una columna `dept_group`: 'Technical' si el departamento es 'Engineering' o 'Data', y 'Business' en cualquier otro caso.",
+        "hint": "Usa IN dentro de la condición WHEN."
+      },
+      "cw-08": {
+        "prompt": "Muestra los ingresos totales divididos en dos columnas: `electronics_revenue` para productos de la categoría 'Electronics' y `other_revenue` para el resto. Une `order_items` con `products`.",
+        "hint": "SUM condicional utilizando un JOIN para obtener la categoría."
+      },
+      "cw-09": {
+        "prompt": "Muestra el nombre del cliente y una columna `region`: 'Americas' para USA, Canada, Brazil, Mexico; 'Europe' para UK, Germany, Spain, Italy, Portugal; 'Asia' for Japan, South Korea, China, India; y 'Other' para el resto.",
+        "hint": "Cada WHEN utiliza IN con una lista de países."
+      },
+      "cw-10": {
+        "prompt": "Cuenta los empleados por rangos salariales usando GROUP BY en una expresión CASE. Rangos: 'under 60k', '60k-79k', '80k+'. Muestra el rango (`band`) y la cantidad.",
+        "hint": "Puedes agrupar por una expresión CASE directamente en el GROUP BY."
+      },
+      "cw-11": {
+        "prompt": "Añade una columna `stock_level` a los productos: 'High' si stock > 100, 'Medium' si stock > 30, de lo contrario 'Low'.",
+        "hint": "Las condiciones se evalúan en orden: la primera coincidencia es la que se aplica."
+      },
+      "cw-12": {
+        "prompt": "Para cada orden, añade una columna `recency`: 'Recent' si fue realizada el '2024-06-01' o después, de lo contrario 'Old'.",
+        "hint": "Las fechas en formato ISO se comparan lexicográficamente, por lo que >= funciona correctamente."
+      },
+      "cw-13": {
+        "prompt": "Cuenta las órdenes realizadas en 2024 frente a las de 2023 en una sola fila. Etiqueta las columnas `orders_2024` y `orders_2023`. Usa STRFTIME('%Y', ordered_at) para obtener el año.",
+        "hint": "SUM(CASE WHEN year = '2024' THEN 1 ELSE 0 END) cuenta las filas que coinciden."
+      },
+      "cw-14": {
+        "prompt": "Muestra el nombre de cada producto, categoría y un `discounted_price`: 10% de descuento si el precio es menor a 30, 5% si es menor a 100, de lo contrario precio completo. Redondea a 2 decimales.",
+        "hint": "Envuelve toda la expresión CASE dentro de ROUND(..., 2)."
+      },
+      "cw-15": {
+        "prompt": "Para cada categoría de producto, cuenta cuántos productos tienen stock bajo (stock < 30) y cuántos están bien (stock >= 30). Nombra las columnas `low_stock` y `ok_stock`.",
+        "hint": "SUM condicional por categoría: dos expresiones CASE, un solo GROUP BY."
+      }
+    }
+  },
+  "window-functions": {
+    "title": "Funciones de Ventana",
+    "description": "ROW_NUMBER, RANK, LAG, LEAD, SUM OVER, AVG OVER",
+    "intro": "Las funciones de ventana calculan un valor a través de un conjunto de filas relacionadas sin contraerlas. Cada fila conserva su lugar y se añade una columna calculada en función de su ventana circundante.",
+    "concepts": [
+      {
+        "title": "OVER() — la cláusula de ventana",
+        "body": "Toda función de ventana requiere la cláusula OVER(). Un OVER() vacío significa que toda la tabla actúa como la ventana. El resultado se muestra en cada fila.",
+        "note": ""
+      },
+      {
+        "title": "PARTITION BY — subventanas",
+        "body": "PARTITION BY divide las filas en grupos. La función de ventana se reinicia para cada grupo; funciona como GROUP BY pero sin colapsar las filas.",
+        "note": ""
+      },
+      {
+        "title": "ORDER BY dentro de OVER — cálculos acumulativos",
+        "body": "Añadir ORDER BY dentro de OVER hace que la ventana crezca fila por fila en ese orden. SUM OVER con ORDER BY calcula un total acumulado.",
+        "note": ""
+      },
+      {
+        "title": "ROW_NUMBER, RANK, DENSE_RANK",
+        "body": "Las tres asignan una posición dentro de la ventana. Se diferencian en cómo manejan los empates: ROW_NUMBER asigna números únicos secuenciales siempre; RANK salta números después de un empate; DENSE_RANK nunca salta números.",
+        "note": "Para obtener el top-1 por grupo: usa ROW_NUMBER() OVER (PARTITION BY grupo ORDER BY valor DESC) en una subconsulta y luego filtra con WHERE rn = 1 en la consulta externa."
+      },
+      {
+        "title": "LAG y LEAD",
+        "body": "LAG(col) devuelve el valor de la fila anterior en la ventana. LEAD(col) devuelve el de la fila siguiente. Ambos devuelven NULL en los extremos de la ventana.",
+        "note": ""
+      },
+      {
+        "title": "NTILE — grupos o cubos",
+        "body": "NTILE(n) divide la ventana en n grupos aproximadamente iguales y asigna a cada fila el número del grupo al que pertenece. Se utiliza para cuartiles, deciles y rangos percentiles.",
+        "note": ""
+      }
+    ],
+    "exercises": {
+      "wf-01": {
+        "prompt": "Asigna un número de fila a cada empleado ordenado por salario (`salary`) de forma descendente. Muestra el nombre (`name`), salario (`salary`) y la columna `row_num`.",
+        "hint": "ROW_NUMBER() OVER (ORDER BY ...) asigna números secuenciales."
+      },
+      "wf-02": {
+        "prompt": "Clasifica (rango) a los empleados por salario (`salary`) dentro de cada departamento. Muestra name, department, salary y rank. Los salarios empatados deben recibir la misma clasificación (usa RANK, no ROW_NUMBER).",
+        "hint": "PARTITION BY divide la ventana por departamento. RANK() maneja los empates."
+      },
+      "wf-03": {
+        "prompt": "Para cada empleado, muestra su salario y el salario promedio de su departamento en la misma fila. Nombra la columna `dept_avg_salary`.",
+        "hint": "AVG() OVER (PARTITION BY department) calcula el promedio por departamento sin colapsar las filas."
+      },
+      "wf-04": {
+        "prompt": "Muestra cada artículo de orden (`order_items`) junto con un total acumulado de `quantity * unit_price` ordenado por id. Nombra la columna `running_total`.",
+        "hint": "SUM() OVER (ORDER BY id) acumula el valor fila por fila."
+      },
+      "wf-05": {
+        "prompt": "Para cada empleado, muestra su nombre, salario y el salario del empleado contratado justo antes de él (ordenado por fecha de contratación). Nombra la columna `prev_salary`.",
+        "hint": "LAG(columna) obtiene el valor de la fila anterior en la ventana."
+      },
+      "wf-06": {
+        "prompt": "Para cada empleado, muestra su nombre, salario y el salario del siguiente empleado (ordenado por salario de forma ascendente). Nombra la columna `next_salary`.",
+        "hint": "LEAD(columna) obtiene el valor de la siguiente fila."
+      },
+      "wf-07": {
+        "prompt": "Muestra el empleado con el salario más alto por departamento. Usa ROW_NUMBER para clasificar por salario desc en cada departamento y filtra el resultado donde el rango sea igual a 1.",
+        "hint": "Envuelve la función de ventana en una subconsulta o CTE, luego filtra por la columna del rango."
+      },
+      "wf-08": {
+        "prompt": "Para cada producto, muestra su nombre, categoría, precio y su rango de precio dentro de su categoría (donde 1 es el más caro). Usa DENSE_RANK.",
+        "hint": "DENSE_RANK asigna rangos consecutivos sin dejar huecos después de los empates."
+      },
+      "wf-09": {
+        "prompt": "Muestra cada orden junto con la cantidad total de órdenes realizadas por el mismo cliente (en la misma fila de resultado). Nombra la columna `customer_order_count`.",
+        "hint": "COUNT(*) OVER (PARTITION BY customer_id) cuenta por cliente sin contraer las filas."
+      },
+      "wf-10": {
+        "prompt": "Para cada empleado, muestra su nombre, salario, el salario promedio de su departamento y la diferencia entre su salario y dicho promedio. Nombra la columna `salary_diff`.",
+        "hint": "Puedes usar la misma expresión de ventana dos veces en el SELECT, o bien utilizar una subconsulta."
+      },
+      "wf-11": {
+        "prompt": "Muestra el nombre de cada empleado, fecha de contratación, salario y el costo acumulado de los salarios ordenado por fecha de contratación. Nombra la columna `cumulative_salary`.",
+        "hint": "SUM(salary) OVER (ORDER BY hired_at) acumula los salarios a medida que se procesan las filas en orden de contratación."
+      },
+      "wf-12": {
+        "prompt": "Para cada producto, muestra su nombre, categoría, precio y el precio máximo dentro de su categoría (sin contraer las filas). Nombra la columna `category_max`.",
+        "hint": "MAX(price) OVER (PARTITION BY category) calcula el precio máximo de la categoría para cada fila."
+      },
+      "wf-13": {
+        "prompt": "Muestra el nombre de cada empleado, su salario, el salario promedio global de toda la empresa y una columna `vs_avg` que muestre 'above' si su salario es superior al promedio global, o 'below' en caso contrario.",
+        "hint": "AVG(salary) OVER () sin PARTITION BY calcula el promedio de toda la tabla. Puedes usar esta expresión dentro de un CASE WHEN."
+      },
+      "wf-14": {
+        "prompt": "Para cada artículo de orden, muestra su total de línea (`quantity * unit_price`) y el porcentaje que representa sobre el valor total de esa orden. Redondea a 1 decimal. Nombra la columna `pct_of_order`.",
+        "hint": "Divide el total de línea entre SUM(total_linea) OVER (PARTITION BY order_id) y multiplica por 100."
+      },
+      "wf-15": {
+        "prompt": "Asigna un cuartil de precio (1 = más barato, 4 = más caro) a cada producto usando NTILE(4). Muestra el nombre, precio y la columna `price_quartile`.",
+        "hint": "NTILE(4) OVER (ORDER BY price) divide las filas en 4 grupos o cubos de tamaño aproximadamente igual."
+      }
+    }
+  },
+  "real-world": {
+    "title": "Consultas del Mundo Real",
+    "description": "Ejercicios multiconcepto que combinan JOINs, CTEs, funciones de ventana y CASE WHEN",
+    "intro": "Las consultas del mundo real combinan múltiples herramientas: JOINs para relacionar tablas, CTEs para estructurar la lógica paso a paso, GROUP BY para métricas y funciones de ventana para clasificar y comparar. La clave está en decidir qué capa resuelve cada problema.",
+    "concepts": [
+      {
+        "title": "JOIN + GROUP BY + HAVING",
+        "body": "El patrón analítico más común: unir tablas para traer contexto, agrupar para calcular agregados y usar HAVING para conservar solo los grupos que superen un límite.",
+        "note": ""
+      },
+      {
+        "title": "CTE → rango de ventana → filtrar",
+        "body": "No puedes filtrar por una función de ventana en la misma cláusula WHERE donde la defines. La solución es colocar la función de ventana en una CTE y filtrar en la consulta externa.",
+        "note": ""
+      },
+      {
+        "title": "Pipeline de CTEs de varios pasos",
+        "body": "Cada CTE añade una transformación. El SELECT final lee de la última CTE. Esto es mucho más legible que usar subconsultas anidadas cuando hay 3 o más pasos.",
+        "note": ""
+      },
+      {
+        "title": "Subconsulta dentro de una CTE",
+        "body": "Una CTE puede contener una subconsulta escalar en su cláusula WHERE, útil por ejemplo para comparar cada fila con una métrica global.",
+        "note": ""
+      }
+    ],
+    "exercises": {
+      "rw-01": {
+        "prompt": "Muestra los 3 clientes que más han gastado. Para cada uno, muestra su nombre (`name`), su cantidad de órdenes (como `orders`) y el importe total gastado. Ordena por total descendente.",
+        "hint": "Une customers → orders → order_items, agrupa por cliente, ordena por total desc y limita a 3."
+      },
+      "rw-02": {
+        "prompt": "Para cada departamento, muestra el empleado que tiene el salario más alto. Muestra el departamento, el nombre del empleado y el salario. Usa una CTE con ROW_NUMBER para clasificar por salario desc en cada departamento y filtra donde el rango sea igual a 1.",
+        "hint": "Define ROW_NUMBER() OVER (PARTITION BY department ORDER BY salary DESC) en la CTE. Filtra WHERE rn = 1."
+      },
+      "rw-03": {
+        "prompt": "Clasifica cada producto como 'top seller' (ingresos en el 25% superior de todos los productos), 'mid seller' (en el 50% superior) o 'low seller' (el resto). Usa una CTE para calcular los ingresos por producto, luego NTILE(4) para asignar cuartiles y finalmente un CASE para etiquetarlos.",
+        "hint": "Tres pasos: (1) CTE de ingresos vía JOIN+GROUP BY, (2) función NTILE(4) y (3) expresión CASE WHEN sobre el número de cuartil."
+      },
+      "rw-04": {
+        "prompt": "Muestra el nombre de cada empleado, departamento, salario y cuánto gana por encima o por debajo del promedio de su departamento. Etiqueta la diferencia como `salary_vs_avg`. Muestra únicamente a los empleados de los departamentos 'Engineering' o 'Data'.",
+        "hint": "AVG(salary) OVER (PARTITION BY department) da el promedio del departamento sin contraer las filas. Filtra con WHERE antes de aplicar la función de ventana."
+      },
+      "rw-05": {
+        "prompt": "Encuentra el producto más vendido (por cantidad total vendida) en cada categoría. Muestra la categoría, el nombre del producto y la cantidad total. Usa una CTE con ROW_NUMBER.",
+        "hint": "CTE 1: JOIN + GROUP BY para obtener cantidad por producto. CTE 2: ROW_NUMBER por categoría. Consulta externa filtra rn = 1."
+      },
+      "rw-06": {
+        "prompt": "Muestra la contribución de ingresos de cada categoría de producto como un porcentaje sobre los ingresos totales de la empresa. Nombra las columnas `category`, `revenue` y `pct_of_total` (redondeado a 1 decimal). Ordena por ingresos de forma descendente.",
+        "hint": "SUM(SUM(...)) OVER () — el SUM externo es una función de ventana sobre los resultados del GROUP BY. Calcula el gran total de todas las categorías."
+      },
+      "rw-07": {
+        "prompt": "Clasifica a los clientes como 'active' (realizaron al menos una orden en 2024) o 'inactive' (ninguna orden en 2024). Muestra el nombre del cliente, el total de órdenes históricas y su estado. Incluye clientes con cero órdenes.",
+        "hint": "Usa LEFT JOIN para conservar clientes sin órdenes. Usa un CASE dentro de SUM para contar las órdenes de 2024 y otro CASE para etiquetar active/inactive."
+      },
+      "rw-08": {
+        "prompt": "Muestra cada empleado, su salario y un total acumulado de salarios ordenado por fecha de contratación. Muestra también qué porcentaje del presupuesto total de salarios representa cada fila (acumulado %). Redondea a 1 decimal.",
+        "hint": "Dos funciones de ventana: SUM(salary) OVER (ORDER BY hired_at) para el acumulado, dividido entre SUM(salary) OVER () (presupuesto global) por 100."
+      },
+      "rw-09": {
+        "prompt": "Para cada producto, muestra su nombre, categoría, ingresos totales, su rango de ingresos dentro de su categoría, y si es el producto más vendido de la categoría ('yes'/'no'). Usa una CTE.",
+        "hint": "CTE para ingresos vía JOIN+GROUP BY. En la consulta externa, usa RANK() dos veces: una para la columna de rango y otra dentro del CASE. Ambos windows son idénticos."
+      },
+      "rw-10": {
+        "prompt": "Encuentra a todos los empleados que ganan más que el salario promedio de su departamento Y pertenecen a un departamento con más de 2 empleados. Muestra su nombre, departamento, salario y el promedio del departamento (redondeado a 0 decimales). Usa CTEs.",
+        "hint": "CTE 1: calcula promedio y cantidad de empleados por departamento. CTE 2: une employees a la CTE anterior y aplica ambos filtros."
+      },
+      "rw-11": {
+        "prompt": "Calcula los ingresos totales por mes en 2024. Usa STRFTIME('%Y-%m', ordered_at) como mes. Muestra el mes, los ingresos, los ingresos del mes anterior (LAG) y el porcentaje de crecimiento respecto al mes anterior (redondeado a 1 decimal). Une orders con order_items. Usa una CTE para los totales mensuales.",
+        "hint": "CTE calcula ingresos por mes con JOIN+GROUP BY. El SELECT externo usa LAG(revenue) OVER (ORDER BY month). Crecimiento = (actual - anterior) / anterior * 100."
+      },
+      "rw-12": {
+        "prompt": "Clasifica a los clientes como 'Frequent' (3+ órdenes), 'Occasional' (2 órdenes), 'One-time' (1 orden), o 'Inactive' (0 órdenes). Muestra el nombre, país, cantidad de órdenes y el segmento. Incluye clientes sin órdenes.",
+        "hint": "LEFT JOIN mantiene clientes con 0 órdenes. COUNT(o.id) devuelve 0 para ellos. El CASE WHEN evalúa ese conteo."
+      },
+      "rw-13": {
+        "prompt": "Para cada cliente que haya realizado al menos 2 órdenes, muestra: su nombre, cantidad de órdenes, fecha de la primera orden, fecha de la última orden, y la cantidad de días transcurridos entre la primera y la última. Usa JULIANDAY() para calcular la diferencia de fechas. Usa una CTE.",
+        "hint": "JULIANDAY(fecha) convierte a un número decimal de días. Resta dos JULIANDAY para obtener la diferencia en días. Conviértela a INTEGER para descartar los decimales."
+      },
+      "rw-14": {
+        "prompt": "Para cada producto vendido, muestra: nombre, categoría, ingresos totales, su rango de ingresos global, su rango de ingresos dentro de su categoría, y los ingresos totales de su categoría. Usa una CTE para calcular ingresos por producto y aplica tres funciones de ventana en la consulta externa.",
+        "hint": "Una CTE para el JOIN+GROUP BY. Tres funciones de ventana en el SELECT externo: RANK() global, RANK() particionado por categoría, y SUM() particionado por categoría para el total de la misma."
+      },
+      "rw-15": {
+        "prompt": "Construye un reporte completo de líneas de orden. Para cada artículo de orden muestra: id de orden, nombre del cliente, nombre del producto, cantidad, total de línea, total de la orden, qué % representa la línea sobre la orden, y el total acumulado que el cliente ha gastado de por vida. Redondea importes a 2 decimales y porcentajes a 1 decimal. Usa CTEs para totales de orden y totales por cliente.",
+        "hint": "Dos CTEs aíslan las agregaciones (por orden y por cliente). La consulta principal une las tablas base con ambas CTEs."
+      }
+    }
+  },
+  "hospitality": {
+    "title": "Analítica de Hospitalidad",
+    "description": "Alquileres de corto plazo, canales OTA, ADR y atribución de ingresos — Preparación Guesty",
+    "intro": "Guesty es una plataforma de gestión de propiedades para alquileres de corto plazo (Airbnb, Booking.com, VRBO). Su modelo de datos gira en torno a propiedades, canales de reserva y reservaciones. La pregunta clásica de entrevista: \"Calcula los ingresos de 3 formas: por primera noche, por última noche, y distribuidos por noche.\"",
+    "concepts": [
+      {
+        "title": "Aritmética de fechas con JULIANDAY()",
+        "body": "SQLite no tiene DATEDIFF(). Usa JULIANDAY() para restar fechas. check_out el 8 de enero y check_in el 5 de enero = 3 noches. Conviértelo a INTEGER para descartar los decimales.",
+        "note": ""
+      },
+      {
+        "title": "Tarifa Diaria Promedio (ADR)",
+        "body": "ADR = ingresos totales ÷ cantidad de noches. Es el principal KPI de cualquier negocio de rentas cortas. Usa SUM(revenue) / SUM(nights) al agregar entre múltiples propiedades (no hagas un promedio de los ADRs individuales).",
+        "note": ""
+      },
+      {
+        "title": "Atribución de ingresos: 3 métodos",
+        "body": "El mismo ingreso total se puede asignar a diferentes fechas según las reglas de negocio. Los tres métodos producen el mismo TOTAL, pero una distribución de fechas diferente — lo que influye en los balances de pérdidas y ganancias (P&L) mensuales, proyecciones y análisis de ocupación.",
+        "note": ""
+      },
+      {
+        "title": "CTE recursiva — generar una fila por noche",
+        "body": "Para distribuir ingresos por noche, necesitas una fila por cada noche de la reservación. Una CTE recursiva comienza en la fecha de check_in y añade +1 día de forma recursiva hasta llegar a check_out. Este es el equivalente en hospitalidad a un join con una tabla de calendario.",
+        "note": ""
+      },
+      {
+        "title": "Agregación condicional para tasas o conteos",
+        "body": "Cuenta filas que cumplan una condición dentro de un GROUP BY usando SUM(CASE WHEN ... THEN 1 ELSE 0 END). Esto evita consultas anidadas cuando necesitas el conteo y el total en la misma fila.",
+        "note": ""
+      }
+    ],
+    "exercises": {
+      "ha-01": {
+        "prompt": "¿Qué canales de reserva (channels) generan más ingresos confirmados? Muestra el nombre del canal, la cantidad de reservas confirmadas (como `bookings`) y los ingresos totales (como `total_revenue`), ordenados de mayor a menor ingreso.",
+        "hint": "Une reservations con channels usando la columna channel_id. Filtra WHERE status = 'confirmed'. Agrupa por canal y calcula SUM(total_revenue) y COUNT(id)."
+      },
+      "ha-02": {
+        "prompt": "Muestra el desempeño por propiedad para reservaciones confirmadas. Muestra el nombre de la propiedad (como `property`), tipo (`type`), ciudad (`city`), cantidad de estancias (`stays`) e ingresos totales. Ordena por ingresos de forma descendente.",
+        "hint": "Une reservations con properties. Filtra confirmadas. Agrupa por p.id para evitar nombres duplicados."
+      },
+      "ha-03": {
+        "prompt": "Para cada reservación confirmada, muestra: su id, check_in, check_out, cantidad de noches (como `nights`), y la tarifa diaria promedio (como `adr`, redondeado a 2 decimales). Ordena por adr desc, y luego por id asc.",
+        "hint": "Resta fechas usando julianday y convirtiendo a INTEGER. El ADR es total_revenue entre la cantidad de noches."
+      },
+      "ha-04": {
+        "prompt": "Muestra los ingresos mensuales de reservas confirmadas agrupados por el mes de check_in en formato AAAA-MM (nombra la columna `month`). Muestra la cantidad de reservas y los ingresos totales. Ordena cronológicamente.",
+        "hint": "STRFTIME('%Y-%m', check_in) extrae el año-mes. Agrupa por dicho alias. No necesitas JOIN."
+      },
+      "ha-05": {
+        "prompt": "Calcula la tasa de cancelación por canal. Muestra el nombre del canal, las reservas totales (todos los estados), las canceladas y el porcentaje `cancel_rate_pct` (redondeado a 1 decimal). Ordena por tasa de cancelación desc, y luego por nombre asc.",
+        "hint": "No uses WHERE — incluye todos los estados. SUM(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END) cuenta cancelaciones. Multiplica por 100.0 (no por 100) para forzar división decimal."
+      },
+      "ha-06": {
+        "prompt": "Calcula el ADR promedio por tipo de propiedad para reservaciones confirmadas (ADR = ingresos totales ÷ noches totales de todas las reservaciones del tipo). Muestra el tipo (`type`), cantidad de estancias (`stays`), noches totales (`total_nights`) y `adr` (redondeado a 2 decimales). Ordena por adr desc.",
+        "hint": "ADR grupal = SUM(revenue) / SUM(nights) — no hagas un AVG de los ADRs. Resta check_out y check_in con julianday para obtener las noches."
+      },
+      "ha-07": {
+        "prompt": "Atribución de ingresos — Método 1 (Primera noche): Asigna la totalidad de los ingresos de cada reserva confirmada a su fecha de check_in. Muestra `revenue_date` y `revenue` (redondeado a 2 decimales), ordenados cronológicamente.",
+        "hint": "La fecha de ingresos (revenue_date) es simplemente check_in. Agrupa por check_in y suma los ingresos por fecha."
+      },
+      "ha-08": {
+        "prompt": "Atribución de ingresos — Método 2 (Última noche): Asigna la totalidad de los ingresos de cada reserva confirmada a su última noche hospedada (el día anterior a check_out). Muestra `revenue_date` y `revenue` (redondeado a 2 decimales), ordenados cronológicamente.",
+        "hint": "La última noche es DATE(check_out, '-1 day'). Si el check_out es el 8 de enero, la última noche fue el 7."
+      },
+      "ha-09": {
+        "prompt": "Atribución de ingresos — Método 3 (Por noche): Distribuye los ingresos de cada reserva confirmada equitativamente entre todas sus noches usando una CTE recursiva. Muestra `revenue_date` y `revenue` (redondeado a 2 decimales), ordenados cronológicamente.",
+        "hint": "CTE recursiva: el caso base es check_in. El paso recursivo es DATE(fecha, '+1 day') mientras sea menor a check_out. El ingreso diario es total_revenue / noches."
+      },
+      "ha-10": {
+        "prompt": "La pregunta de entrevista de Guesty: Calcula los ingresos totales confirmados de las 3 formas — atribuidos a la primera noche, a la última noche y distribuidos por noche. Muestra la columna `method` (con valores 'first_night', 'last_night', 'per_night') y `total_revenue` (redondeado a 2 decimales). Los tres totales deben ser exactamente iguales.",
+        "hint": "Usa una CTE recursiva para la parte de per-night. Une las tres consultas usando UNION ALL. Las consultas de primera y última noche suman de reservations directamente; la de per-night suma de la CTE recursiva."
+      }
+    }
+  },
+  "glovo": {
+    "title": "Preparación Glovo",
+    "description": "Analítica de entrega de comida a domicilio — las habilidades evaluadas en la entrevista de Glovo",
+    "intro": "La entrevista de Glovo evalúa la manipulación de datos a buen ritmo: uniones, agregaciones, funciones de ventana y análisis temporal. Todos los ejercicios utilizan un conjunto de datos (glovo_orders, glovo_restaurants, glovo_couriers, glovo_customers) similar al de producción real.",
+    "concepts": [
+      {
+        "title": "Tiempo de entrega en SQLite",
+        "body": "SQLite no tiene DATEDIFF(). Usa julianday() para restar dos marcas de tiempo de fecha y hora. Multiplica por 1440 para convertir a minutos.",
+        "note": ""
+      },
+      {
+        "title": "STRFTIME para análisis horario",
+        "body": "Extrae la hora de una fecha con STRFTIME('%H', columna). Devuelve cadenas con ceros a la izquierda: '08', '13', '20'.",
+        "note": ""
+      },
+      {
+        "title": "RANK() frente a DENSE_RANK() dentro de una partición",
+        "body": "RANK() deja huecos en la secuencia tras los empates (1,1,3). DENSE_RANK() no los deja (1,1,2). Usa PARTITION BY city para clasificar dentro de cada ciudad de forma independiente.",
+        "note": ""
+      },
+      {
+        "title": "Agregación condicional",
+        "body": "Calcula múltiples métricas de una sola pasada con SUM(CASE WHEN ...). Evita hacer subconsultas costosas y agrupamientos extra.",
+        "note": ""
+      },
+      {
+        "title": "Patrón CTE + función de ventana",
+        "body": "Agrupa en una CTE y luego aplica la función de ventana en el SELECT externo. Esto es legible y te permite hacer referencia a la columna agregada por su alias.",
+        "note": ""
+      }
+    ],
+    "exercises": {
+      "gl-01": {
+        "prompt": "Resumen de órdenes por ciudad. Muestra la ciudad (`city`), órdenes totales (`total_orders`), cantidad de órdenes entregadas, e ingresos (suma de `total_amount` solo para órdenes entregadas, redondeado a 2 decimales). Ordena alfabéticamente por ciudad.",
+        "hint": "No se requiere JOIN — la ciudad está en glovo_orders. Usa COUNT(*) para el total, SUM(CASE WHEN status='delivered' THEN 1 ELSE 0 END) para las entregadas y SUM(CASE WHEN status='delivered' THEN total_amount ELSE 0 END) para los ingresos."
+      },
+      "gl-02": {
+        "prompt": "Tiempo de entrega promedio por ciudad. Para órdenes entregadas únicamente, calcula el tiempo promedio de entrega en minutos (usa julianday, redondeado a 1 decimal) como `avg_minutes`. Ordena por promedio de forma ascendente.",
+        "hint": "(julianday(delivered_at) - julianday(ordered_at)) * 24 * 60 da los minutos. Aplica AVG y ROUND a 1 decimal. Filtra WHERE status = 'delivered' antes de agrupar."
+      },
+      "gl-03": {
+        "prompt": "Los 3 restaurantes con mayores ingresos por órdenes entregadas. Une `glovo_orders` con `glovo_restaurants`. Muestra el nombre del restaurante, su categoría, cantidad de órdenes (como `orders`) e ingresos (suma de `total_amount`, redondeado a 2 decimales). Devuelve solo los 3 primeros.",
+        "hint": "Une glovo_restaurants r en o.restaurant_id = r.id. Filtra status = 'delivered'. Agrupa por r.id, ordena por ingresos desc y limita a 3."
+      },
+      "gl-04": {
+        "prompt": "Clasificación de repartidores. Para órdenes entregadas, une con `glovo_couriers` y muestra el nombre del repartidor, ciudad, vehículo y cantidad de entregas realizadas. Ordena por entregas descendente, y luego por nombre ascendente.",
+        "hint": "Une glovo_couriers c en o.courier_id = c.id. Filtra status = 'delivered'. Agrupa por c.id. El orden secundario por nombre ayuda a desempatar de forma determinista."
+      },
+      "gl-05": {
+        "prompt": "Tasa de cancelación por ciudad. Muestra la ciudad (`city`), órdenes totales, canceladas y el porcentaje `cancel_rate_pct` (redondeado a 1 decimal). Ordena por tasa de cancelación desc.",
+        "hint": "Sin filtro WHERE — incluye todos los estados. Usa 100.0 para evitar división entera. SUM(CASE WHEN status='cancelled' THEN 1 ELSE 0 END) te da las canceladas."
+      },
+      "gl-06": {
+        "prompt": "Clasifica a los repartidores en su ciudad según las órdenes entregadas. Usa una CTE para calcular las entregas por repartidor (uniendo con glovo_couriers) y luego aplica RANK() OVER (PARTITION BY city ORDER BY entregas DESC). Muestra el nombre, ciudad, entregas y el rango `city_rank`. Ordena por ciudad, rango y nombre.",
+        "hint": "La CTE calcula repartidor, nombre, ciudad y entregas. El SELECT externo añade el RANK() con partición por ciudad. Nota: RANK() deja saltos en caso de empates."
+      },
+      "gl-07": {
+        "prompt": "Horas pico de órdenes. Extrae la hora de `ordered_at` usando STRFTIME('%H', ordered_at) como `hour`. Muestra cada hora y su cantidad de órdenes (`order_count`). Ordena por cantidad desc, y luego por hora asc.",
+        "hint": "STRFTIME('%H', ordered_at) extrae la hora de 2 dígitos. Agrupa por el alias hour. El orden secundario por hour desempata los empates de forma estable."
+      },
+      "gl-08": {
+        "prompt": "Valor de vida del cliente Premium (CLV). Une `glovo_orders` con `glovo_customers`. Para órdenes entregadas de clientes premium (`premium = 1`), muestra `customer_id`, ciudad e ingresos totales (`lifetime_value`, redondeado a 2 decimales). Ordena por `lifetime_value` desc.",
+        "hint": "Une glovo_customers c en o.customer_id = c.id. Filtra status = 'delivered' AND premium = 1. Los clientes cuyas órdenes hayan sido todas canceladas no aparecerán."
+      }
+    }
+  }
+}

@@ -3,6 +3,7 @@ import { usePyodide } from '../hooks/usePyodide';
 import { PANDAS_TOPICS } from '../data/pandasExercises';
 import PythonExercisePanel from './PythonExercisePanel';
 import TopNav from './TopNav';
+import translations from '../data/pandasExercises_es.json';
 
 const PD_SECTIONS = [
   { label: 'Core Operations',        ids: ['pd-create', 'pd-select', 'pd-transform'] },
@@ -11,10 +12,58 @@ const PD_SECTIONS = [
   { label: 'Combining Data',         ids: ['pd-merge'] },
 ];
 
-function PandasSidebar({ activeTopic, onSelectTopic, onClose, progress }) {
-  const topicsById = Object.fromEntries(PANDAS_TOPICS.map(t => [t.id, t]));
+const SECTION_TRANSLATIONS = {
+  es: {
+    'Core Operations': 'Operaciones Principales',
+    'Aggregation & Analysis': 'Agregación y Análisis',
+    'Data Cleaning': 'Limpieza de Datos',
+    'Combining Data': 'Combinación de Datos'
+  }
+};
+
+function translateTopic(topic, lang) {
+  if (lang !== 'es') return topic;
+  const t = translations[topic.id];
+  if (!t) return topic;
+
+  return {
+    ...topic,
+    title: t.title || topic.title,
+    description: t.description || topic.description,
+    lesson: topic.lesson ? {
+      ...topic.lesson,
+      intro: t.intro || topic.lesson.intro,
+      concepts: topic.lesson.concepts.map((c, idx) => {
+        const tc = t.concepts?.[idx];
+        if (!tc) return c;
+        return {
+          ...c,
+          title: tc.title || c.title,
+          body: tc.body || c.body,
+          note: tc.note || c.note
+        };
+      })
+    } : undefined,
+    exercises: topic.exercises.map((ex) => {
+      const tex = t.exercises?.[ex.id];
+      if (!tex) return ex;
+      return {
+        ...ex,
+        prompt: tex.prompt || ex.prompt,
+        hint: tex.hint || ex.hint
+      };
+    })
+  };
+}
+
+function PandasSidebar({ activeTopic, onSelectTopic, onClose, progress, lang }) {
+  const topicsById = Object.fromEntries(PANDAS_TOPICS.map(t => [t.id, translateTopic(t, lang)]));
 
   let globalNum = 0;
+
+  const translateSectionLabel = (label) => {
+    return SECTION_TRANSLATIONS[lang]?.[label] || label;
+  };
 
   return (
     <aside
@@ -49,7 +98,7 @@ function PandasSidebar({ activeTopic, onSelectTopic, onClose, progress }) {
               className="px-5 pt-4 pb-1 text-[10px] uppercase tracking-widest font-semibold m-0"
               style={{ color: 'var(--ctp-overlay0)' }}
             >
-              {section.label}
+              {translateSectionLabel(section.label)}
             </p>
             {section.ids.map(id => {
               const topic = topicsById[id];
@@ -92,6 +141,7 @@ function PandasSidebar({ activeTopic, onSelectTopic, onClose, progress }) {
 
 export default function PandasApp({ theme, onToggleTheme, onSetMode }) {
   const { status, load, runExercise } = usePyodide();
+  const [lang, setLang] = useState(() => localStorage.getItem('pandas-drills-lang') || 'en');
   const [activeTopicId, setActiveTopicId] = useState(PANDAS_TOPICS[0].id);
   const [exerciseIndex, setExerciseIndex] = useState(0);
   const [navOpen, setNavOpen] = useState(false);
@@ -103,7 +153,12 @@ export default function PandasApp({ theme, onToggleTheme, onSetMode }) {
 
   useEffect(() => { load(); }, []);
 
-  const topic = PANDAS_TOPICS.find(t => t.id === activeTopicId);
+  useEffect(() => {
+    localStorage.setItem('pandas-drills-lang', lang);
+  }, [lang]);
+
+  const rawTopic = PANDAS_TOPICS.find(t => t.id === activeTopicId);
+  const topic = translateTopic(rawTopic, lang);
   const exercise = topic.exercises[exerciseIndex];
 
   useEffect(() => {
@@ -136,6 +191,8 @@ export default function PandasApp({ theme, onToggleTheme, onSetMode }) {
         onToggleTheme={onToggleTheme}
         onToggleSidebar={handleToggleSidebar}
         sidebarOpen={sidebarOpen}
+        lang={lang}
+        onToggleLang={() => setLang(l => l === 'en' ? 'es' : 'en')}
       />
 
       {navOpen && (
@@ -155,6 +212,7 @@ export default function PandasApp({ theme, onToggleTheme, onSetMode }) {
             onSelectTopic={handleSelectTopic}
             onClose={() => setNavOpen(false)}
             progress={progress}
+            lang={lang}
           />
         </div>
 
@@ -171,6 +229,7 @@ export default function PandasApp({ theme, onToggleTheme, onSetMode }) {
             topicTitle={topic.title}
             topicDescription={topic.description}
             pyodideStatus={status}
+            lang={lang}
           />
         </main>
       </div>

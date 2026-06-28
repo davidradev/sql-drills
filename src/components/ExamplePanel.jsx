@@ -32,8 +32,11 @@ function ConceptCard({ concept }) {
   );
 }
 
-export default function ExamplePanel({ lesson, initialOpen = false, conceptIndex }) {
+export default function ExamplePanel({ lesson, initialOpen = false, conceptIndex, lang = 'en' }) {
   const [open, setOpen] = useState(conceptIndex !== undefined && conceptIndex !== null ? true : initialOpen);
+
+  const labelConcept = lang === 'es' ? 'Concepto' : 'Concept';
+  const labelLesson = lang === 'es' ? 'Lección' : 'Lesson';
 
   // Single-concept mode: collapsible card
   if (conceptIndex !== undefined && conceptIndex !== null) {
@@ -50,7 +53,7 @@ export default function ExamplePanel({ lesson, initialOpen = false, conceptIndex
         >
           <div>
             <p className="text-xs font-semibold uppercase tracking-widest m-0 text-left" style={{ color: 'var(--ctp-overlay1)' }}>
-              Concept
+              {labelConcept}
             </p>
             <p className="text-sm font-bold m-0 mt-0.5 text-left" style={{ color: 'var(--ctp-blue)' }}>
               {concept.title}
@@ -80,7 +83,7 @@ export default function ExamplePanel({ lesson, initialOpen = false, conceptIndex
         <span className="text-xs transition-transform inline-block" style={{ transform: open ? 'rotate(90deg)' : 'rotate(0deg)' }}>
           &#9658;
         </span>
-        Lesson
+        {labelLesson}
       </button>
 
       {open && (

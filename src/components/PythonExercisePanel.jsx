@@ -4,6 +4,49 @@ const CodeEditor = _CodeEditor.default ?? _CodeEditor;
 import Prism from '../lib/prismPython';
 import PyLessonPanel from './PyLessonPanel';
 
+const UI_TEXT = {
+  en: {
+    engineLoading: "Loading Python engine (~30MB, cached after first load)…",
+    engineError: "Failed to load Python engine. Check your connection and reload.",
+    exerciseOf: "Exercise",
+    of: "of",
+    hint: "Hint",
+    hideHint: "Hide Hint",
+    prev: "← Prev",
+    next: "Next →",
+    editorInfo: "Editor · Ctrl+Enter to run",
+    reset: "↺ Reset",
+    run: "▶ Run",
+    solution: "Solution",
+    hideSolution: "Hide Solution",
+    output: "Output",
+    printHint: "add print() calls to see results here",
+    noOutput: "(no output)",
+    testsPassed: "All tests passed!",
+    testFailed: "Test failed"
+  },
+  es: {
+    engineLoading: "Cargando el motor de Python (~30MB, guardado en caché tras la primera carga)…",
+    engineError: "Error al cargar el motor de Python. Revisa tu conexión y recarga la página.",
+    exerciseOf: "Ejercicio",
+    of: "de",
+    hint: "Pista",
+    hideHint: "Ocultar Pista",
+    prev: "← Anterior",
+    next: "Siguiente →",
+    editorInfo: "Editor · Ctrl+Enter para ejecutar",
+    reset: "↺ Reiniciar",
+    run: "▶ Ejecutar",
+    solution: "Solución",
+    hideSolution: "Ocultar Solución",
+    output: "Consola",
+    printHint: "añade llamadas a print() para ver los resultados aquí",
+    noOutput: "(sin salida)",
+    testsPassed: "¡Todas las pruebas pasaron!",
+    testFailed: "Prueba fallida"
+  }
+};
+
 function parseInline(text) {
   const parts = [];
   const regex = /(\*\*[^*]+\*\*|`[^`]+`)/g;
@@ -84,7 +127,7 @@ function buildInitialCode(exercise) {
 
 export default function PythonExercisePanel({
   exercise, runExercise, onNext, onPrev, current, total,
-  lesson, topicTitle, topicDescription, pyodideStatus,
+  lesson, topicTitle, topicDescription, pyodideStatus, lang = 'en'
 }) {
   const initial = buildInitialCode(exercise);
   const [code, setCode]                 = useState(initial);
@@ -92,6 +135,8 @@ export default function PythonExercisePanel({
   const [status, setStatus]             = useState(null);
   const [showHint, setShowHint]         = useState(false);
   const [showSolution, setShowSolution] = useState(false);
+
+  const t = UI_TEXT[lang] || UI_TEXT.en;
 
   function handleRun() {
     if (!code.trim()) return;
@@ -116,7 +161,7 @@ export default function PythonExercisePanel({
   function goPrev() { reset(); onPrev(); }
 
   return (
-    <div className="flex flex-col lg:flex-row lg:h-full">
+    <div className="flex flex-col lg:flex-row lg:h-full lg:min-h-0 lg:overflow-hidden">
 
       {/* ── LEFT PANEL — info ──────────────────────────────── */}
       <div
@@ -145,7 +190,7 @@ export default function PythonExercisePanel({
           }}>
             <div className="w-4 h-4 border-2 border-t-transparent rounded-full animate-spin shrink-0"
               style={{ borderColor: 'var(--ctp-blue)', borderTopColor: 'transparent' }} />
-            Loading Python engine (~30MB, cached after first load)…
+            {t.engineLoading}
           </div>
         )}
         {pyodideStatus === 'error' && (
@@ -154,7 +199,7 @@ export default function PythonExercisePanel({
             border: '1px solid color-mix(in srgb, var(--ctp-red) 30%, transparent)',
             color: 'var(--ctp-red)',
           }}>
-            Failed to load Python engine. Check your connection and reload.
+            {t.engineError}
           </div>
         )}
 
@@ -165,13 +210,14 @@ export default function PythonExercisePanel({
               lesson={lesson}
               conceptIndex={exercise.concept ?? null}
               initialOpen={exercise.concept == null}
+              lang={lang}
             />
           </div>
         )}
 
         {/* Progress */}
         <div className="flex items-center justify-between text-sm shrink-0">
-          <span style={{ color: 'var(--ctp-subtext0)' }}>Exercise {current} of {total}</span>
+          <span style={{ color: 'var(--ctp-subtext0)' }}>{t.exerciseOf} {current} {t.of} {total}</span>
           <div className="flex gap-1">
             {Array.from({ length: total }).map((_, i) => (
               <div key={i} className="w-2 h-2 rounded-full transition-colors" style={{
@@ -199,7 +245,7 @@ export default function PythonExercisePanel({
             onMouseEnter={e => { if (!showHint) e.currentTarget.style.background = 'var(--ctp-surface1)'; }}
             onMouseLeave={e => { if (!showHint) e.currentTarget.style.background = 'var(--ctp-surface0)'; }}
           >
-            {showHint ? 'Hide Hint' : 'Hint'}
+            {showHint ? t.hideHint : t.hint}
           </button>
           {showHint && (
             <div className="mt-2 rounded-lg px-4 py-3 text-sm" style={{
@@ -219,13 +265,13 @@ export default function PythonExercisePanel({
             style={{ background: 'var(--ctp-surface0)', color: 'var(--ctp-subtext1)', border: '1px solid var(--ctp-surface1)' }}
             onMouseEnter={e => { if (current > 1) e.currentTarget.style.background = 'var(--ctp-surface1)'; }}
             onMouseLeave={e => e.currentTarget.style.background = 'var(--ctp-surface0)'}
-          >← Prev</button>
+          >{t.prev}</button>
           <button onClick={goNext} disabled={current >= total}
             className="flex-1 px-4 py-2 rounded-lg text-sm transition-colors cursor-pointer disabled:opacity-30"
             style={{ background: 'var(--ctp-surface0)', color: 'var(--ctp-subtext1)', border: '1px solid var(--ctp-surface1)' }}
             onMouseEnter={e => { if (current < total) e.currentTarget.style.background = 'var(--ctp-surface1)'; }}
             onMouseLeave={e => e.currentTarget.style.background = 'var(--ctp-surface0)'}
-          >Next →</button>
+          >{t.next}</button>
         </div>
       </div>
 
@@ -239,10 +285,10 @@ export default function PythonExercisePanel({
       <div className="flex-1 lg:overflow-y-auto p-4 lg:p-6 flex flex-col gap-4">
 
         {/* Editor */}
-        <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--ctp-surface1)' }}>
+        <div className="rounded-xl overflow-hidden shrink-0" style={{ border: '1px solid var(--ctp-surface1)' }}>
           <div className="flex items-center justify-between px-3 py-1.5" style={{ background: 'var(--ctp-surface1)' }}>
             <span className="text-[10px] uppercase tracking-widest font-semibold" style={{ color: 'var(--ctp-overlay0)' }}>
-              Editor · Ctrl+Enter to run
+              {t.editorInfo}
             </span>
             <button
               onClick={reset}
@@ -252,7 +298,7 @@ export default function PythonExercisePanel({
               onMouseLeave={e => e.currentTarget.style.color = 'var(--ctp-overlay0)'}
               title="Reset to starter code"
             >
-              ↺ Reset
+              {t.reset}
             </button>
           </div>
           <div className="py-editor-wrapper">
@@ -277,14 +323,14 @@ export default function PythonExercisePanel({
         </div>
 
         {/* Controls */}
-        <div className="flex gap-2">
+        <div className="flex gap-2 shrink-0">
           <button
             onClick={handleRun}
             disabled={!code.trim()}
             className="px-5 py-2 rounded-lg text-sm font-semibold transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             style={{ background: 'var(--ctp-green)', color: 'var(--ctp-crust)' }}
           >
-            ▶ Run
+            {t.run}
           </button>
           <button
             onClick={() => setShowSolution(s => !s)}
@@ -293,18 +339,18 @@ export default function PythonExercisePanel({
             onMouseEnter={e => e.currentTarget.style.background = 'var(--ctp-surface1)'}
             onMouseLeave={e => e.currentTarget.style.background = 'var(--ctp-surface0)'}
           >
-            {showSolution ? 'Hide Solution' : 'Solution'}
+            {showSolution ? t.hideSolution : t.solution}
           </button>
         </div>
 
         {/* Output */}
         {output !== null && (
-          <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--ctp-surface1)' }}>
+          <div className="rounded-xl overflow-hidden shrink-0" style={{ border: '1px solid var(--ctp-surface1)' }}>
             <div className="flex items-center justify-between px-3 py-1.5" style={{ background: 'var(--ctp-surface1)' }}>
-              <span className="text-[10px] uppercase tracking-widest font-semibold" style={{ color: 'var(--ctp-overlay0)' }}>Output</span>
+              <span className="text-[10px] uppercase tracking-widest font-semibold" style={{ color: 'var(--ctp-overlay0)' }}>{t.output}</span>
               {!output.text && (
                 <span className="text-[10px] italic" style={{ color: 'var(--ctp-overlay0)' }}>
-                  add print() calls to see results here
+                  {t.printHint}
                 </span>
               )}
             </div>
@@ -316,7 +362,7 @@ export default function PythonExercisePanel({
             ) : (
               <div className="px-4 py-3 text-xs italic"
                 style={{ background: 'var(--ctp-crust)', color: 'var(--ctp-overlay0)' }}>
-                (no output)
+                {t.noOutput}
               </div>
             )}
           </div>
@@ -324,28 +370,28 @@ export default function PythonExercisePanel({
 
         {/* Test result */}
         {status === 'correct' && (
-          <div className="rounded-lg px-4 py-3 text-sm font-medium" style={{
+          <div className="rounded-lg px-4 py-3 text-sm font-medium shrink-0" style={{
             background: 'color-mix(in srgb, var(--ctp-green) 12%, transparent)',
             border: '1px solid color-mix(in srgb, var(--ctp-green) 40%, transparent)',
             color: 'var(--ctp-green)',
           }}>
-            All tests passed!
+            {t.testsPassed}
           </div>
         )}
         {status === 'error' && output?.error && (
-          <div className="rounded-lg px-4 py-3 text-sm" style={{
+          <div className="rounded-lg px-4 py-3 text-sm shrink-0" style={{
             background: 'color-mix(in srgb, var(--ctp-red) 10%, transparent)',
             border: '1px solid color-mix(in srgb, var(--ctp-red) 40%, transparent)',
           }}>
-            <p className="font-semibold m-0 mb-1" style={{ color: 'var(--ctp-red)' }}>Test failed</p>
+            <p className="font-semibold m-0 mb-1" style={{ color: 'var(--ctp-red)' }}>{t.testFailed}</p>
             <p className="m-0 font-mono text-xs whitespace-pre-wrap" style={{ color: 'var(--ctp-red)' }}>{output.error}</p>
           </div>
         )}
 
         {/* Solution */}
         {showSolution && (
-          <div className="rounded-lg px-4 py-3" style={{ background: 'var(--ctp-surface0)', border: '1px solid var(--ctp-surface1)' }}>
-            <p className="text-xs uppercase tracking-wide mb-2 m-0" style={{ color: 'var(--ctp-overlay0)' }}>Solution</p>
+          <div className="rounded-lg px-4 py-3 shrink-0" style={{ background: 'var(--ctp-surface0)', border: '1px solid var(--ctp-surface1)' }}>
+            <p className="text-xs uppercase tracking-wide mb-2 m-0" style={{ color: 'var(--ctp-overlay0)' }}>{t.solution}</p>
             <pre
               className="text-sm font-mono whitespace-pre-wrap m-0"
               style={{ color: 'var(--ctp-green)' }}

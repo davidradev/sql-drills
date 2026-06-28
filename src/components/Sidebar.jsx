@@ -1,4 +1,5 @@
 import { TOPICS } from '../data/exercises';
+import translations from '../data/exercises_es.json';
 
 const SQL_SECTIONS = [
   { label: 'Query Basics',  ids: ['select-basics', 'where', 'order-by'] },
@@ -7,8 +8,56 @@ const SQL_SECTIONS = [
   { label: 'Applied',       ids: ['real-world', 'hospitality', 'glovo'] },
 ];
 
-export default function Sidebar({ activeTopic, onSelectTopic, progress, onClose, onGoHome }) {
-  const topicsById = Object.fromEntries(TOPICS.map(t => [t.id, t]));
+const SECTION_TRANSLATIONS = {
+  es: {
+    'Query Basics': 'Básicos de Consulta',
+    'Aggregations': 'Agregaciones',
+    'Advanced SQL': 'SQL Avanzado',
+    'Applied': 'Aplicaciones'
+  }
+};
+
+function translateTopic(topic, lang) {
+  if (lang !== 'es') return topic;
+  const t = translations[topic.id];
+  if (!t) return topic;
+
+  return {
+    ...topic,
+    title: t.title || topic.title,
+    description: t.description || topic.description,
+    lesson: topic.lesson ? {
+      ...topic.lesson,
+      intro: t.intro || topic.lesson.intro,
+      concepts: topic.lesson.concepts.map((c, idx) => {
+        const tc = t.concepts?.[idx];
+        if (!tc) return c;
+        return {
+          ...c,
+          title: tc.title || c.title,
+          body: tc.body || c.body,
+          note: tc.note || c.note
+        };
+      })
+    } : undefined,
+    exercises: topic.exercises.map((ex) => {
+      const tex = t.exercises?.[ex.id];
+      if (!tex) return ex;
+      return {
+        ...ex,
+        prompt: tex.prompt || ex.prompt,
+        hint: tex.hint || ex.hint
+      };
+    })
+  };
+}
+
+export default function Sidebar({ activeTopic, onSelectTopic, progress, onClose, onGoHome, lang = 'en' }) {
+  const topicsById = Object.fromEntries(TOPICS.map(t => [t.id, translateTopic(t, lang)]));
+
+  const translateSectionLabel = (label) => {
+    return SECTION_TRANSLATIONS[lang]?.[label] || label;
+  };
 
   return (
     <aside
@@ -51,7 +100,7 @@ export default function Sidebar({ activeTopic, onSelectTopic, progress, onClose,
                 className="px-5 pt-4 pb-1 text-[10px] uppercase tracking-widest font-semibold m-0"
                 style={{ color: 'var(--ctp-overlay0)' }}
               >
-                {section.label}
+                {translateSectionLabel(section.label)}
               </p>
               {section.ids.map((id, i) => {
                 const topic = topicsById[id];
